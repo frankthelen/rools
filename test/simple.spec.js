@@ -76,7 +76,7 @@ describe('Two iterations', () => {
   let rools;
 
   before(() => {
-    rools = new Rools();
+    rools = new Rools({ debug: true });
     rools.register(ruleMoodGreat, ruleMoodSad, ruleGoWalking, ruleStayAtHome);
   });
 
@@ -85,21 +85,21 @@ describe('Two iterations', () => {
 
   it('test 1', () => {
     const result = rools.execute({ user: frank, weather: weatherGood });
-    console.log(result);
+    console.log(result); // eslint-disable-line no-console
     expect(result.user.mood).to.be.equal('great');
     expect(result.goWalking).to.be.equal(true);
   });
 
   it('test 2', () => {
     const result = rools.execute({ user: michael, weather: weatherGood });
-    console.log(result);
+    console.log(result); // eslint-disable-line no-console
     expect(result.user.mood).to.be.equal('sad');
     expect(result.stayAtHome).to.be.equal(true);
   });
 
   it('test 3', () => {
     const result = rools.execute({ user: frank, weather: weatherBad });
-    console.log(result);
+    console.log(result); // eslint-disable-line no-console
     expect(result.user.mood).to.be.equal('great');
     expect(result.stayAtHome).to.be.equal(true);
   });
