@@ -2,6 +2,7 @@ class Rools {
   constructor() {
     this.actions = [];
     this.premises = [];
+    this.maxIterations = 100;
   }
 
   register(...rules) {
@@ -31,8 +32,7 @@ class Rools {
       action.ready = false;
       action.fired = false;
     });
-    let iteration = 0;
-    do {
+    for (let iteration = 0; iteration < this.maxIterations; iteration += 1) {
       this.premises.forEach((premise) => {
         premise.value = premise.when(facts);
       });
@@ -54,7 +54,7 @@ class Rools {
         action.then(facts);
       });
       iteration += 1;
-    } while (iteration < 100);
+    }
     return facts;
   }
 }

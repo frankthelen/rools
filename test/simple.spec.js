@@ -12,7 +12,7 @@ global.sinon = sinon;
 global.expect = chai.expect;
 global.should = chai.should();
 
-describe('Simple tests', () => {
+describe('Two iterations', () => {
   const frank = {
     name: 'frank',
     stars: 347,
