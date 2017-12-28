@@ -36,9 +36,9 @@ class Rools {
     this.actions.forEach((action) => {
       store[action.id] = { ready: false, fired: false };
     });
-    // iterations
-    for (let iteration = 0; iteration < this.maxIterations; iteration += 1) {
-      this.log(`iteration ${iteration}`);
+    // match-resolve-act cycles
+    for (let cycle = 0; cycle < this.maxIterations; cycle += 1) {
+      this.log(`cycle ${cycle}`);
       // calculate premises
       this.premises.forEach((premise) => {
         store[premise.id] = premise.when(facts); // TODO add some error handling
@@ -51,14 +51,14 @@ class Rools {
         store[action.id].ready = tru === num;
       });
       const actionsToBeFired = this.actions.filter(action =>
-        !store[action.id].fired && store[action.id].ready);
+        !store[action.id].fired && store[action.id].ready); // refraction!
       if (actionsToBeFired.length === 0) {
-        this.log('iteration stop');
-        break; // for -- all done
+        this.log('execution complete');
+        break; // for
       }
       if (actionsToBeFired.length > 1) {
-        this.log('conflict resolution: mising!');
-        // TODO add conflict resolution
+        this.log('conflict resolution');
+        // TODO add conflict resolution: priority (salience), specificity, actuality
       }
       actionsToBeFired.forEach((action) => {
         this.log(`firing: ${action.name}`);
