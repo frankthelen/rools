@@ -6,7 +6,7 @@ class Rools {
     this.debug = debug;
     this.actions = [];
     this.premises = [];
-    this.maxIterations = 100;
+    this.maxCycles = 100;
   }
 
   register(...rules) {
@@ -37,36 +37,43 @@ class Rools {
       store[action.id] = { ready: false, fired: false };
     });
     // match-resolve-act cycles
-    for (let cycle = 0; cycle < this.maxIterations; cycle += 1) {
-      this.log(`cycle ${cycle}`);
-      // calculate premises
-      this.premises.forEach((premise) => {
-        store[premise.id] = premise.when(facts); // TODO add some error handling
-      });
-      // calculate actions
-      const actionsNotFired = this.actions.filter(action => !store[action.id].fired);
-      actionsNotFired.forEach((action) => {
-        const num = action.premises.length;
-        const tru = action.premises.filter(premise => store[premise.id]).length;
-        store[action.id].ready = tru === num;
-      });
-      const actionsToBeFired = this.actions.filter(action =>
-        !store[action.id].fired && store[action.id].ready); // refraction!
-      if (actionsToBeFired.length === 0) {
-        this.log('execution complete');
-        break; // for
-      }
-      if (actionsToBeFired.length > 1) {
-        this.log('conflict resolution');
-        // TODO add conflict resolution: priority (salience), specificity, actuality
-      }
-      actionsToBeFired.forEach((action) => {
-        this.log(`firing: ${action.name}`);
-        store[action.id].fired = true;
-        action.then(facts); // TODO add some error handling
-      });
-    }
+    for (
+      let cycle = 0;
+      cycle < this.maxCycles && !this.executeCycle(facts, store, cycle).next().done;
+      cycle += 1
+    ) ;
     return facts;
+  }
+
+  * executeCycle(facts, store, cycle) {
+    this.log(`cycle ${cycle}`);
+    // calculate premises
+    this.premises.forEach((premise) => {
+      store[premise.id] = premise.when(facts); // TODO add some error handling
+    });
+    // calculate actions
+    const actionsNotFired = this.actions.filter(action => !store[action.id].fired);
+    actionsNotFired.forEach((action) => {
+      const num = action.premises.length;
+      const tru = action.premises.filter(premise => store[premise.id]).length;
+      store[action.id].ready = tru === num;
+    });
+    const actionsToBeFired = this.actions.filter(action =>
+      !store[action.id].fired && store[action.id].ready); // refraction!
+    if (actionsToBeFired.length === 0) {
+      this.log('execution complete');
+      return; // done
+    }
+    if (actionsToBeFired.length > 1) {
+      this.log('conflict resolution');
+      // TODO add conflict resolution: (1) priority (salience), (2) specificity, (3) actuality
+    }
+    actionsToBeFired.forEach((action) => {
+      this.log(`firing: ${action.name}`);
+      store[action.id].fired = true;
+      action.then(facts); // TODO add some error handling
+    });
+    yield; // not yet done
   }
 
   log(msg) {
