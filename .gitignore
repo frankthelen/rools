@@ -1,0 +1,24 @@
+# directories
+.idea/*
+.vscode/*
+local
+
+# generated files
+.DS_Store
+.vscode
+Desktop.ini
+Thumbs.db
+
+# specific file types
+*.backup
+*.bak
+*.log
+*.log.*
+*.tmp
+*.backup
+
+# node specific
+node_modules
+coverage
+*/config/local.js
+package-lock.json

@@ -1,0 +1,11 @@
+{
+  "extends": [
+    "airbnb-base"
+  ],
+  "plugins": [
+    "promise"
+  ],
+  "rules": {
+    "no-param-reassign": 0
+  }
+}
