@@ -2,6 +2,14 @@
 
 This is a simple rule engine for Node.
 
+[![build status](https://img.shields.io/travis/frankthelen/rools.svg)](http://travis-ci.org/frankthelen/rools)
+[![Coverage Status](https://coveralls.io/repos/github/frankthelen/rools/badge.svg?branch=master)](https://coveralls.io/github/frankthelen/rools?branch=master)
+[![dependencies Status](https://david-dm.org/frankthelen/rools/status.svg)](https://david-dm.org/frankthelen/rools)
+[![Greenkeeper badge](https://badges.greenkeeper.io/frankthelen/rools.svg)](https://greenkeeper.io/)
+[![Maintainability](https://api.codeclimate.com/v1/badges/2b21f79b2657870c146f/maintainability)](https://codeclimate.com/github/frankthelen/rools/maintainability)
+[![node](https://img.shields.io/node/v/rools.svg)]()
+[![License Status](http://img.shields.io/npm/l/rools.svg)]()
+
 Primary design goal is to provide a nice and state-of-the-art interface for JavaScript (ES6).
 Facts are plain JavaScript or JSON objects.
 Rules are specified in pure and nice JavaScript (ES6)
