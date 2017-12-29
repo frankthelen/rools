@@ -75,7 +75,19 @@ class Rools {
       this.log('evaluation complete');
       return; // done
     }
-    const action = this.evaluateSelect(actionsToBeFired);
+    // conflict resolution
+    const select = (actions) => {
+      if (actions.length === 1) {
+        return actions[0];
+      }
+      // priority
+      const prios = actions.map(action => action.priority);
+      const highestPrio = Math.max(...prios);
+      const actionsWithPrio = actions.filter(action => action.priority === highestPrio);
+      this.log(`conflict resolution by priority: [${prios}]`);
+      return actionsWithPrio[0];
+    };
+    const action = select(actionsToBeFired);
     this.log(`firing "${action.name}"`);
     memory[action.id].fired = true;
     try {
@@ -84,18 +96,6 @@ class Rools {
       this.error(`error in then clause of "${action.name}"`, error);
     }
     yield; // not yet done
-  }
-
-  evaluateSelect(actions) { // eslint-disable-line class-methods-use-this
-    if (actions.length === 1) {
-      return actions[0];
-    }
-    // priority
-    const prios = actions.map(action => action.priority);
-    const highestPrio = Math.max(...prios);
-    const actionsWithPrio = actions.filter(action => action.priority === highestPrio);
-    this.log(`conflict resolution by priority: [${prios}]`);
-    return actionsWithPrio[0];
   }
 
   log(msg) {
