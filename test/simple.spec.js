@@ -36,7 +36,7 @@ describe('Two cycles', () => {
   };
 
   const ruleMoodGreat = {
-    name: 'mood is great if stars is greater than 200',
+    name: 'mood is great if 200 stars or more',
     when: facts => facts.user.stars >= 200,
     then: (facts) => {
       facts.user.mood = 'great';
@@ -44,7 +44,7 @@ describe('Two cycles', () => {
   };
 
   const ruleMoodSad = {
-    name: 'mood is sad if stars is lower or equals 200',
+    name: 'mood is sad if less than 200 stars',
     when: facts => facts.user.stars < 200,
     then: (facts) => {
       facts.user.mood = 'sad';
@@ -84,21 +84,21 @@ describe('Two cycles', () => {
   });
 
   it('test 1', () => {
-    const result = rools.execute({ user: frank, weather: weatherGood });
+    const result = rools.evaluate({ user: frank, weather: weatherGood });
     console.log(result); // eslint-disable-line no-console
     expect(result.user.mood).to.be.equal('great');
     expect(result.goWalking).to.be.equal(true);
   });
 
   it('test 2', () => {
-    const result = rools.execute({ user: michael, weather: weatherGood });
+    const result = rools.evaluate({ user: michael, weather: weatherGood });
     console.log(result); // eslint-disable-line no-console
     expect(result.user.mood).to.be.equal('sad');
     expect(result.stayAtHome).to.be.equal(true);
   });
 
   it('test 3', () => {
-    const result = rools.execute({ user: frank, weather: weatherBad });
+    const result = rools.evaluate({ user: frank, weather: weatherBad });
     console.log(result); // eslint-disable-line no-console
     expect(result.user.mood).to.be.equal('great');
     expect(result.stayAtHome).to.be.equal(true);
