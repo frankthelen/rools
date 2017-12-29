@@ -22,7 +22,7 @@ npm install --save rools
 
 ## Usage
 
-This is a simple example.
+This is a basic example.
 
 ```js
 // facts
@@ -78,12 +78,12 @@ This is the result:
 
 The engine works forward-chaining in the usual match-resolve-act cycle.
 
-Rule evaluation is non-blocking, i.e., each evaluation step is a single block (using ES6 generators).
+Rule evaluation is non-blocking, i.e., each evaluation step is one block (using ES6 generators).
 Not sure actually if this is sufficient if the number of rules is getting very high.
 
 ### Conflict resolution
 
-If per step there is more than one rule ready to fire (conflict set), the following conflict resolution strategies are applied (in this order):
+If there is more than one rule ready to fire (conflict set), the following conflict resolution strategies are applied (in this order):
  * Refraction -- Each rule will fire only once, at most, during any one match-resolve-act cycle.
  * Priority -- Rules with higher priority will fire first. Set the rule's property `priority` to an integer value. Default priority is `0`. Negative values are supported.
  * Order of rules -- The rules that were registered first will fire first.
