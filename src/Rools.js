@@ -1,3 +1,4 @@
+const assert = require('assert');
 const actionId = require('uniqueid')('a');
 const premiseId = require('uniqueid')('p');
 
@@ -11,6 +12,9 @@ class Rools {
 
   register(...rules) {
     rules.forEach((rule) => {
+      assert(rule.name, '`rule.name` is required');
+      assert(rule.when, '`rule.when` is required');
+      assert(rule.then, '`rule.then` is required');
       const action = {
         id: actionId(),
         name: rule.name,

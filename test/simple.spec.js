@@ -1,18 +1,7 @@
-const chai = require('chai');
-const chaiAsPromised = require('chai-as-promised');
-const sinon = require('sinon');
-const sinonChai = require('sinon-chai');
 const Rools = require('../src');
+require('./setup');
 
-chai.use(chaiAsPromised);
-chai.use(sinonChai);
-
-global.chai = chai;
-global.sinon = sinon;
-global.expect = chai.expect;
-global.should = chai.should();
-
-describe('Two cycles', () => {
+describe('Rule evaluation / simple', () => {
   const frank = {
     name: 'frank',
     stars: 347,
@@ -83,21 +72,21 @@ describe('Two cycles', () => {
   after(() => {
   });
 
-  it('test 1', () => {
+  it('Test 1', () => {
     const result = rools.evaluate({ user: frank, weather: weatherGood });
     console.log(result); // eslint-disable-line no-console
     expect(result.user.mood).to.be.equal('great');
     expect(result.goWalking).to.be.equal(true);
   });
 
-  it('test 2', () => {
+  it('Test 2', () => {
     const result = rools.evaluate({ user: michael, weather: weatherGood });
     console.log(result); // eslint-disable-line no-console
     expect(result.user.mood).to.be.equal('sad');
     expect(result.stayAtHome).to.be.equal(true);
   });
 
-  it('test 3', () => {
+  it('Test 3', () => {
     const result = rools.evaluate({ user: frank, weather: weatherBad });
     console.log(result); // eslint-disable-line no-console
     expect(result.user.mood).to.be.equal('great');

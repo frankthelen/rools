@@ -4,12 +4,12 @@ This is a simple rule engine for Node.
 
 Primary design goal is to provide a nice and state-of-the-art interface for JavaScript (ES6).
 Facts are plain JavaScript or JSON objects.
-Rules are specified in pure and nice JavaScript (ES6) --
+Rules are specified in pure and nice JavaScript (ES6)
 rather than in a separate, special-purpose language like DSL.
 
 Secondary design goal is to provide RETE-like efficiency and optimizations.
 
-These goals are partially conflicting, i.e., specifying rules in pure JavaScript may prevent certain optimizations. I am curious how far I can get.
+These goals are partially conflicting, i.e., specifying rules in pure JavaScript may prevent certain optimizations. I am curious how far I can get -- utilizing modern ES6.
 
 It started as a holiday fun project.
 Have a look, if you like. Comments are welcome.
@@ -96,5 +96,4 @@ Some of the features on my list are:
  * Optimization: re-evaluate only those premises (`when`) that are relying on modified facts
  * Provide an interface to actions (`then`) allowing to stop the engine, i.e., specifying the final rules.
  * Support asynchronous actions (`then`)
- * Events
- * More unit tests
+ * More unit tests :-)
