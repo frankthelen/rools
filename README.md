@@ -20,6 +20,7 @@ Secondary design goal is to provide RETE-like efficiency and optimizations.
 These goals are partially conflicting, i.e., specifying rules in pure JavaScript may prevent certain optimizations. I am curious how far I can get -- utilizing modern ES6.
 
 It started as a holiday fun project.
+And is still work in progress.
 Have a look, if you like. Comments are welcome.
 
 ## Install
@@ -96,12 +97,17 @@ If there is more than one rule ready to fire (conflict set), the following confl
  * Priority -- Rules with higher priority will fire first. Set the rule's property `priority` to an integer value. Default priority is `0`. Negative values are supported.
  * Order of rules -- The rules that were registered first will fire first.
 
+### Final rules
+
+In some cases, it is desired to stop the engine as soon as a specific rule has fired.
+This is achieved by settings the respective rules' property `final` to `true`.
+Default, of course, is `false`.
+
 ### Todos
 
 Some of the features on my list are:
  * Conflict resolution by specificity
  * Optimization: merge identical premises (`when`) into one
  * Optimization: re-evaluate only those premises (`when`) that are relying on modified facts
- * Provide an interface to actions (`then`) allowing to stop the engine, i.e., specifying the final rules.
  * Support asynchronous actions (`then`)
- * More unit tests :-)
+ * More unit tests

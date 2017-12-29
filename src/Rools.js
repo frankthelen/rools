@@ -20,6 +20,7 @@ class Rools {
         name: rule.name,
         then: rule.then,
         priority: rule.priority || 0,
+        final: rule.final || false,
         premises: [],
       };
       this.actions.push(action);
@@ -48,7 +49,8 @@ class Rools {
       step < this.maxSteps && !this.evaluateStep(facts, memory, step).next().done;
       step += 1
     ) ;
-    return facts; // for convenience only
+    // for convenience only
+    return facts;
   }
 
   * evaluateStep(facts, memory, step) {
@@ -59,7 +61,7 @@ class Rools {
         memory[premise.id] = premise.when(facts);
       } catch (error) {
         memory[premise.id] = undefined;
-        this.error(`error in when clause of "${premise.name}"`, error);
+        this.error(`error in "when" clause of "${premise.name}"`, error);
       }
     });
     // evaluate actions
@@ -93,7 +95,11 @@ class Rools {
     try {
       action.then(facts);
     } catch (error) {
-      this.error(`error in then clause of "${action.name}"`, error);
+      this.error(`error in "then" clause of "${action.name}"`, error);
+    }
+    if (action.final) {
+      this.log(`evaluation stopped after final rule "${action.name}"`);
+      return; // done
     }
     yield; // not yet done
   }

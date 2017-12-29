@@ -1,3 +1,4 @@
+const { ruleMoodGreat: rule } = require('./rules/mood');
 const Rools = require('../src');
 require('./setup');
 
@@ -5,48 +6,22 @@ describe('Rules.register()', () => {
   let rools;
 
   before(() => {
-    rools = new Rools({ debug: true });
-  });
-
-  after(() => {
+    rools = new Rools();
   });
 
   it('should not throw error if rules are correct', () => {
-    const rule = {
-      name: 'mood is great if 200 stars or more',
-      when: facts => facts.user.stars >= 200,
-      then: (facts) => {
-        facts.user.mood = 'great';
-      },
-    };
-    expect(() => rools.register(rule)).to.not.throw();
+    expect(() => rools.register({ ...rule })).to.not.throw();
   });
 
   it('should throw error if rule has no "name"', () => {
-    const rule = {
-      when: facts => facts.user.stars >= 200,
-      then: (facts) => {
-        facts.user.mood = 'great';
-      },
-    };
-    expect(() => rools.register(rule)).to.throw();
+    expect(() => rools.register({ ...rule, name: undefined })).to.throw();
   });
 
   it('should throw error if rule has no "when"', () => {
-    const rule = {
-      name: 'mood is great if 200 stars or more',
-      then: (facts) => {
-        facts.user.mood = 'great';
-      },
-    };
-    expect(() => rools.register(rule)).to.throw();
+    expect(() => rools.register({ ...rule, when: undefined })).to.throw();
   });
 
   it('should throw error if rule has no "then"', () => {
-    const rule = {
-      name: 'mood is great if 200 stars or more',
-      when: facts => facts.user.stars >= 200,
-    };
-    expect(() => rools.register(rule)).to.throw();
+    expect(() => rools.register({ ...rule, then: undefined })).to.throw();
   });
 });
