@@ -3,11 +3,15 @@ const actionId = require('uniqueid')('a');
 const premiseId = require('uniqueid')('p');
 
 class Rools {
-  constructor({ debug = false } = {}) {
-    this.debug = debug;
+  constructor({
+    logErrors = true, logDebug = false, logDelegate = null,
+  } = { logErrors: true, logDebug: false, logDelegate: null }) {
     this.actions = [];
     this.premises = [];
     this.maxSteps = 100;
+    this.logErrors = logErrors;
+    this.logDebug = logDebug;
+    this.logDelegate = logDelegate;
   }
 
   register(...rules) {
@@ -54,14 +58,16 @@ class Rools {
   }
 
   * evaluateStep(facts, memory, step) {
-    this.log(`step ${step}`);
+    this.log({ type: 'debug', message: `evaluate step ${step}` });
     // evaluate premises
     this.premises.forEach((premise) => {
       try {
         memory[premise.id] = premise.when(facts);
       } catch (error) {
         memory[premise.id] = undefined;
-        this.error(`error in "when" clause of "${premise.name}"`, error);
+        this.log({
+          type: 'error', message: 'exception in when clause', rule: premise.name, error,
+        });
       }
     });
     // evaluate actions
@@ -74,7 +80,7 @@ class Rools {
     // fire action
     const actionsToBeFired = actionsNotFired.filter(action => memory[action.id].ready);
     if (actionsToBeFired.length === 0) {
-      this.log('evaluation complete');
+      this.log({ type: 'debug', message: 'evaluation complete' });
       return; // done
     }
     // conflict resolution
@@ -86,31 +92,48 @@ class Rools {
       const prios = actions.map(action => action.priority);
       const highestPrio = Math.max(...prios);
       const actionsWithPrio = actions.filter(action => action.priority === highestPrio);
-      this.log(`conflict resolution by priority: [${prios}]`);
+      this.log({ type: 'debug', message: 'conflict resolution by priority' });
       return actionsWithPrio[0];
     };
     const action = select(actionsToBeFired);
-    this.log(`firing "${action.name}"`);
+    this.log({ type: 'debug', message: 'fire rule', rule: action.name });
     memory[action.id].fired = true;
     try {
       action.then(facts);
     } catch (error) {
-      this.error(`error in "then" clause of "${action.name}"`, error);
+      this.log({
+        type: 'error', message: 'exception in then clause', rule: action.name, error,
+      });
     }
     if (action.final) {
-      this.log(`evaluation stopped after final rule "${action.name}"`);
+      this.log({ type: 'debug', message: 'evaluation stop after final rule', rule: action.name });
       return; // done
     }
     yield; // not yet done
   }
 
-  log(msg) {
-    if (!this.debug) return;
-    console.log(`# ${msg}`); // eslint-disable-line no-console
-  }
-
-  error(msg, error) { // eslint-disable-line class-methods-use-this
-    console.error(`# ${msg}`, error); // eslint-disable-line no-console
+  log({
+    type, message, rule, error,
+  }) {
+    if (type === 'error' && !this.logErrors) return;
+    if (type === 'debug' && !this.logDebug) return;
+    if (this.logDelegate) {
+      this.logDelegate({
+        type, message, rule, error,
+      });
+      return;
+    }
+    /* eslint-disable no-console */
+    if (error && rule) {
+      console.error(`# ${message} "${rule}"`, error);
+    } else if (error) {
+      console.error(`# ${message}`, error);
+    } else if (rule) {
+      console.log(`# ${message} "${rule}"`);
+    } else {
+      console.log(`# ${message}`);
+    }
+    /* eslint-enable no-console */
   }
 }
 
