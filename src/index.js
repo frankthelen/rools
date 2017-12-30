@@ -18,9 +18,7 @@ class Rools {
 
   register(...rules) {
     rules.forEach((rule) => {
-      assert(rule.name, '"rule.name" is required');
-      assert(rule.when, `"rule.when" is required "${rule.name}"`);
-      assert(rule.then, `"rule.then" is required "${rule.name}"`);
+      this.assertRule(rule);
       const action = {
         id: actionId(),
         name: rule.name,
@@ -46,6 +44,12 @@ class Rools {
         action.premises.push(premise); // add to action
       });
     });
+  }
+
+  assertRule(rule) { // eslint-disable-line class-methods-use-this
+    assert(rule.name, '"rule.name" is required');
+    assert(rule.when, `"rule.when" is required "${rule.name}"`);
+    assert(rule.then, `"rule.then" is required "${rule.name}"`);
   }
 
   evaluate(facts) {
