@@ -88,11 +88,10 @@ This is the result:
 The engine does forward-chaining and works in the usual match-resolve-act cycle.
 
 Rule evaluation is non-blocking, i.e., each evaluation step is one block (using ES6 generators).
-Not sure actually if this is sufficient if the number of rules is getting very high.
 
 ### Conflict resolution
 
-If there is more than one rule ready to fire (conflict set), the following conflict resolution strategies are applied (in this order):
+If there is more than one rule ready to fire, i.e., the conflict set is greater 1, the following conflict resolution strategies are applied (in this order):
  * Refraction -- Each rule will fire only once, at most, during any one match-resolve-act cycle.
  * Priority -- Rules with higher priority will fire first. Set the rule's property `priority` to an integer value. Default priority is `0`. Negative values are supported.
  * Order of rules -- The rules that were registered first will fire first.
@@ -106,7 +105,7 @@ Default, of course, is `false`.
 ### Optimization of premises (`when`)
 
 It is very common that different rules partially share the same premises.
-Rools will merge identical premises into one.
+Rools will automatically merge identical premises into one.
 You are free to use references or just to repeat the same premise.
 Both cases are working fine.
 
@@ -131,6 +130,25 @@ const rule1 = {
 };
 const rule2 = {
   when: facts => facts.user.salery >= 2000,
+  ...
+};
+```
+
+In addition, it is recommended to de-compose premises containing AND relations (`&&`).
+For example:
+
+```js
+// this version works...
+const rule = {
+  when: facts => facts.user.salery >= 2000 && facts.user.age > 25,
+  ...
+};
+// however, it's better do it this way...
+const rule = {
+  when: [
+    facts => facts.user.salery >= 2000,
+    facts => facts.user.age > 25,
+  ],
   ...
 };
 ```
