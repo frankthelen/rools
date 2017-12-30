@@ -85,7 +85,7 @@ This is the result:
 
 ### Rule evaluation
 
-The engine works forward-chaining in the usual match-resolve-act cycle.
+The engine does forward-chaining and works in the usual match-resolve-act cycle.
 
 Rule evaluation is non-blocking, i.e., each evaluation step is one block (using ES6 generators).
 Not sure actually if this is sufficient if the number of rules is getting very high.
