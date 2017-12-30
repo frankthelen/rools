@@ -120,20 +120,18 @@ class Rools {
     if (type === 'debug' && !this.logDebug) return;
     if (this.logDelegate) {
       this.logDelegate({ type, ...others });
-      return;
+    } else {
+      this.logDefault({ type, ...others });
     }
-    this.logDefault({ type, ...others });
   }
 
   logDefault({ message, rule, error }) { // eslint-disable-line class-methods-use-this
     const msg = rule ? `# ${message} "${rule}"` : `# ${message}`;
-    /* eslint-disable no-console */
     if (error) {
-      console.error(msg, error);
+      console.error(msg, error); // eslint-disable-line no-console
     } else {
-      console.log(msg);
+      console.log(msg); // eslint-disable-line no-console
     }
-    /* eslint-enable no-console */
   }
 }
 
