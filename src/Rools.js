@@ -16,9 +16,9 @@ class Rools {
 
   register(...rules) {
     rules.forEach((rule) => {
-      assert(rule.name, '`rule.name` is required');
-      assert(rule.when, '`rule.when` is required');
-      assert(rule.then, '`rule.then` is required');
+      assert(rule.name, '"rule.name" is required');
+      assert(rule.when, `"rule.when" is required "${rule.name}"`);
+      assert(rule.then, `"rule.then" is required "${rule.name}"`);
       const action = {
         id: actionId(),
         name: rule.name,
@@ -75,31 +75,19 @@ class Rools {
     actionsNotFired.forEach((action) => {
       const num = action.premises.length;
       const tru = action.premises.filter(premise => memory[premise.id]).length;
-      memory[action.id].ready = tru === num;
+      memory[action.id].ready = tru === num; // mark ready
     });
     // fire action
     const actionsToBeFired = actionsNotFired.filter(action => memory[action.id].ready);
-    if (actionsToBeFired.length === 0) {
+    const action = this.evaluateSelect(actionsToBeFired);
+    if (!action) {
       this.log({ type: 'debug', message: 'evaluation complete' });
       return; // done
     }
-    // conflict resolution
-    const select = (actions) => {
-      if (actions.length === 1) {
-        return actions[0];
-      }
-      // priority
-      const prios = actions.map(action => action.priority);
-      const highestPrio = Math.max(...prios);
-      const actionsWithPrio = actions.filter(action => action.priority === highestPrio);
-      this.log({ type: 'debug', message: 'conflict resolution by priority' });
-      return actionsWithPrio[0];
-    };
-    const action = select(actionsToBeFired);
     this.log({ type: 'debug', message: 'fire rule', rule: action.name });
-    memory[action.id].fired = true;
+    memory[action.id].fired = true; // mark fired
     try {
-      action.then(facts);
+      action.then(facts); // fire!
     } catch (error) {
       this.log({
         type: 'error', message: 'exception in then clause', rule: action.name, error,
@@ -110,6 +98,21 @@ class Rools {
       return; // done
     }
     yield; // not yet done
+  }
+
+  evaluateSelect(actions) {
+    if (actions.length === 0) {
+      return undefined; // none
+    }
+    if (actions.length === 1) {
+      return actions[0]; // the one and only
+    }
+    // conflict resolution
+    const prios = actions.map(action => action.priority);
+    const highestPrio = Math.max(...prios);
+    const actionsWithPrio = actions.filter(action => action.priority === highestPrio);
+    this.log({ type: 'debug', message: 'conflict resolution by priority' });
+    return actionsWithPrio[0];
   }
 
   log({ type, ...others }) {
@@ -123,15 +126,12 @@ class Rools {
   }
 
   logDefault({ message, rule, error }) { // eslint-disable-line class-methods-use-this
+    const msg = rule ? `# ${message} "${rule}"` : `# ${message}`;
     /* eslint-disable no-console */
-    if (error && rule) {
-      console.error(`# ${message} "${rule}"`, error);
-    } else if (error) {
-      console.error(`# ${message}`, error);
-    } else if (rule) {
-      console.log(`# ${message} "${rule}"`);
+    if (error) {
+      console.error(msg, error);
     } else {
-      console.log(`# ${message}`);
+      console.log(msg);
     }
     /* eslint-enable no-console */
   }
