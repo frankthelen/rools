@@ -143,7 +143,7 @@ This can be a classic function or an ES6 arrow function.
 This can be a reference or the function directly.
 It's tested with Node 8 and 9 (see unit tests `premises.spec.js`).
 
-```
+```js
 const md5 = require('md5');
 const hash1 = md5(facts => facts.user.salery > 2000);
 const hash2 = md5(facts => facts.user.salery > 2000);
