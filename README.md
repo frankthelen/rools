@@ -103,11 +103,59 @@ In some cases, it is desired to stop the engine as soon as a specific rule has f
 This is achieved by settings the respective rules' property `final` to `true`.
 Default, of course, is `false`.
 
+### Optimization of premises (`when`)
+
+It is very common that different rules partially share the same premises.
+Rools will merge identical premises into one.
+You are free to use references or just to repeat the same premise.
+Both cases are working fine.
+
+Example 1: by reference
+```js
+const isApplicable = facts => facts.user.salery >= 2000;
+const rule1 = {
+  when: isApplicable,
+  ...
+};
+const rule2 = {
+  when: isApplicable,
+  ...
+};
+```
+
+Example 2: repeat premise
+```js
+const rule1 = {
+  when: facts => facts.user.salery >= 2000,
+  ...
+};
+const rule2 = {
+  when: facts => facts.user.salery >= 2000,
+  ...
+};
+```
+
+TL;DR
+
+Technically, this is achieved by hashing the premises
+(remember, a function is an object in JavaScript).
+This can be a classic function or an ES6 arrow function.
+This can be a reference or the function directly.
+It's tested with Node 8 and 9 (see unit tests `premises.spec.js`).
+
+```
+const md5 = require('md5');
+const hash1 = md5(facts => facts.user.salery > 2000);
+const hash2 = md5(facts => facts.user.salery > 2000);
+const hash3 = md5(facts => facts.user.salery > 3000);
+console.log(hash1 === hash2); // true
+console.log(hash1 === hash3); // false
+```
+
 ### Todos
 
 Some of the features on my list are:
  * Conflict resolution by specificity
- * Optimization: merge identical premises (`when`) into one
  * Optimization: re-evaluate only those premises (`when`) that are relying on modified facts
  * Support asynchronous actions (`then`)
  * More unit tests

@@ -1,4 +1,5 @@
 const assert = require('assert');
+const md5 = require('md5');
 const actionId = require('uniqueid')('a');
 const premiseId = require('uniqueid')('p');
 
@@ -8,6 +9,7 @@ class Rools {
   } = { logErrors: true, logDebug: false, logDelegate: null }) {
     this.actions = [];
     this.premises = [];
+    this.premisesByHash = {};
     this.maxSteps = 100;
     this.logErrors = logErrors;
     this.logDebug = logDebug;
@@ -30,13 +32,18 @@ class Rools {
       this.actions.push(action);
       const whens = Array.isArray(rule.when) ? rule.when : [rule.when];
       whens.forEach((when) => {
-        const premise = {
-          id: premiseId(),
-          name: rule.name,
-          when,
-        };
-        action.premises.push(premise);
-        this.premises.push(premise);
+        const hash = md5(when); // is function already introduced by other rule?
+        let premise = this.premisesByHash[hash];
+        if (!premise) { // create new premise
+          premise = {
+            id: premiseId(),
+            name: rule.name,
+            when,
+          };
+          this.premisesByHash[hash] = premise; // add to hash
+          this.premises.push(premise); // add to premises
+        }
+        action.premises.push(premise); // add to action
       });
     });
   }
