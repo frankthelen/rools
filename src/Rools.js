@@ -112,17 +112,17 @@ class Rools {
     yield; // not yet done
   }
 
-  log({
-    type, message, rule, error,
-  }) {
+  log({ type, ...others }) {
     if (type === 'error' && !this.logErrors) return;
     if (type === 'debug' && !this.logDebug) return;
     if (this.logDelegate) {
-      this.logDelegate({
-        type, message, rule, error,
-      });
+      this.logDelegate({ type, ...others });
       return;
     }
+    this.logDefault({ type, ...others });
+  }
+
+  logDefault({ message, rule, error }) { // eslint-disable-line class-methods-use-this
     /* eslint-disable no-console */
     if (error && rule) {
       console.error(`# ${message} "${rule}"`, error);
