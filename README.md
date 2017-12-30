@@ -102,7 +102,7 @@ In some cases, it is desired to stop the engine as soon as a specific rule has f
 This is achieved by settings the respective rules' property `final` to `true`.
 Default, of course, is `false`.
 
-### Optimization of premises (`when`)
+### Optimization I
 
 It is very common that different rules partially share the same premises.
 Rools will automatically merge identical premises into one.
@@ -170,10 +170,32 @@ console.log(hash1 === hash2); // true
 console.log(hash1 === hash3); // false
 ```
 
+### Optimization II
+
+When actions fire, changes are made to the facts.
+This requires re-evaluation of premises.
+Which may lead to further actions becoming ready to fire.
+
+To avoid complete re-evaluation of all facts each time changes are made, Rools detects the parts of the facts (segments) that were actually changed and re-evaluates only the premises and actions affected.
+
+Change detection is based on level 1 of the facts. In the example below, detected changes are based on `user`, `weather`, `posts` and so on. So, whenever a `user` detail changes, all premises and actions that rely on `user` are re-evaluated.
+
+```js
+const facts = {
+  user: { ... },
+  weather: { ... },
+  posts: { ... },
+  ...
+}
+```
+
+TL;DR
+
+Technically, this is achieved by utilizing ES6's new `Proxy` and `Reflect` APIs.
+
 ### Todos
 
 Some of the features on my list are:
  * Conflict resolution by specificity
- * Optimization: re-evaluate only those premises (`when`) that are relying on modified facts
  * Support asynchronous actions (`then`)
  * More unit tests

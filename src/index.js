@@ -2,6 +2,7 @@ const assert = require('assert');
 const md5 = require('md5');
 const actionId = require('uniqueid')('a');
 const premiseId = require('uniqueid')('p');
+const observer = require('./observer');
 
 class Rools {
   constructor({
@@ -54,14 +55,20 @@ class Rools {
 
   evaluate(facts) {
     // init
+    const proxy = observer(facts, (segment) => {
+      console.log(segment);
+    });
     const memory = {}; // working memory
     this.actions.forEach((action) => {
       memory[action.id] = { ready: false, fired: false };
     });
+    this.premises.forEach((premise) => {
+      memory[premise.id] = { value: undefined, segments: [] };
+    });
     // match-resolve-act cycle
     for (
       let step = 0;
-      step < this.maxSteps && !this.evaluateStep(facts, memory, step).next().done;
+      step < this.maxSteps && !this.evaluateStep(proxy, memory, step).next().done;
       step += 1
     ) ;
     // for convenience only
@@ -73,9 +80,9 @@ class Rools {
     // evaluate premises
     this.premises.forEach((premise) => {
       try {
-        memory[premise.id] = premise.when(facts);
+        memory[premise.id].value = premise.when(facts);
       } catch (error) {
-        memory[premise.id] = undefined;
+        memory[premise.id].value = undefined;
         this.log({
           type: 'error', message: 'exception in when clause', rule: premise.name, error,
         });
@@ -85,7 +92,7 @@ class Rools {
     const actionsNotFired = this.actions.filter(action => !memory[action.id].fired); // refraction
     actionsNotFired.forEach((action) => {
       const num = action.premises.length;
-      const tru = action.premises.filter(premise => memory[premise.id]).length;
+      const tru = action.premises.filter(premise => memory[premise.id].value).length;
       memory[action.id].ready = tru === num; // mark ready
     });
     // fire action
