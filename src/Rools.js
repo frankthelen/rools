@@ -1,7 +1,6 @@
 const assert = require('assert');
 const md5 = require('md5');
-const actionId = require('uniqueid')('a');
-const premiseId = require('uniqueid')('p');
+const uniqueid = require('uniqueid');
 const Logger = require('./Logger');
 const Delegator = require('./Delegator');
 const observe = require('./observe');
@@ -12,6 +11,8 @@ class Rools {
     this.premises = [];
     this.premisesByHash = {};
     this.maxSteps = 100;
+    this.getActionId = uniqueid('a');
+    this.getPremiseId = uniqueid('p');
     this.logger = new Logger(logging);
   }
 
@@ -19,7 +20,7 @@ class Rools {
     rules.forEach((rule) => {
       this.assertRule(rule);
       const action = {
-        id: actionId(),
+        id: this.getActionId(),
         name: rule.name,
         then: rule.then,
         priority: rule.priority || 0,
@@ -33,7 +34,7 @@ class Rools {
         let premise = this.premisesByHash[hash];
         if (!premise) { // create new premise
           premise = {
-            id: premiseId(),
+            id: this.getPremiseId(),
             name: rule.name,
             when,
           };
@@ -79,14 +80,14 @@ class Rools {
   * evaluateStep(facts, delegator, memory, activeSegments, premisesBySegment, step) {
     this.logger.log({ type: 'debug', message: `evaluate step ${step}` });
     // evaluate premises
-    const premisesToEvaluate = step === 0 ? this.premises : new Set(); // agenda
+    const premisesAgenda = step === 0 ? this.premises : new Set();
     if (step > 0) {
       activeSegments.forEach((segment) => {
         const premises = premisesBySegment[segment] || [];
-        premises.forEach((premise) => { premisesToEvaluate.add(premise); });
+        premises.forEach((premise) => { premisesAgenda.add(premise); });
       });
     }
-    premisesToEvaluate.forEach((premise) => {
+    premisesAgenda.forEach((premise) => {
       try {
         delegator.set((segment) => {
           this.logger.log({ type: 'debug', message: `read "${segment}"`, rule: premise.name });
@@ -108,15 +109,15 @@ class Rools {
       }
     });
     // evaluate actions
-    const actionsToEvaluate = this.actions.filter(action => !memory[action.id].fired); // refraction
-    actionsToEvaluate.forEach((action) => {
+    const actionsAgenda = this.actions.filter(action => !memory[action.id].fired); // refraction
+    actionsAgenda.forEach((action) => {
       const num = action.premises.length;
       const tru = action.premises.filter(premise => memory[premise.id].value).length;
       memory[action.id].ready = tru === num; // mark ready
     });
-    // conflict set
-    const actionsToBeFired = actionsToEvaluate.filter(action => memory[action.id].ready);
-    const action = this.evaluateSelect(actionsToBeFired);
+    // conflict set and resolution
+    const actionsReady = actionsAgenda.filter(action => memory[action.id].ready);
+    const action = this.evaluateSelect(actionsReady);
     if (!action) {
       this.logger.log({ type: 'debug', message: 'evaluation complete' });
       return; // done
