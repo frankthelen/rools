@@ -64,7 +64,7 @@ class Rools {
     });
     const delegator = new Delegator();
     const proxy = observe(facts, segment => delegator.delegate(segment));
-    const activeSegments = new Set(); // empty means all
+    const activeSegments = new Set();
     const premisesBySegment = {}; // hash
     // match-resolve-act cycle
     for (
@@ -81,7 +81,15 @@ class Rools {
   * evaluateStep(facts, delegator, memory, activeSegments, premisesBySegment, step) {
     this.logger.log({ type: 'debug', message: `evaluate step ${step}` });
     // evaluate premises
-    const premisesToEvaluate = this.premises; // agenda
+    const premisesToEvaluate = new Set(); // agenda
+    if (step === 0) {
+      this.premises.forEach((premise) => { premisesToEvaluate.add(premise); });
+    } else {
+      activeSegments.forEach((segment) => {
+        const premises = premisesBySegment[segment] || [];
+        premises.forEach((premise) => { premisesToEvaluate.add(premise); });
+      });
+    }
     premisesToEvaluate.forEach((premise) => {
       try {
         delegator.set((segment) => {

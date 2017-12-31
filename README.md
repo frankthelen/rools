@@ -10,14 +10,16 @@ This is a simple rule engine for Node.
 [![node](https://img.shields.io/node/v/rools.svg)]()
 [![License Status](http://img.shields.io/npm/l/rools.svg)]()
 
-Primary design goal is to provide a nice and state-of-the-art interface for JavaScript (ES6).
+*Primary design goal* was to provide a nice and state-of-the-art interface for JavaScript (ES6).
 Facts are plain JavaScript or JSON objects.
-Rules are specified in pure and nice JavaScript (ES6)
-rather than in a separate, special-purpose language like DSL.
+Rules are specified in pure and nice JavaScript rather than in a separate, special-purpose language like DSL.
 
-Secondary design goal is to provide RETE-like efficiency and optimizations.
+*Secondary design goal* was to provide RETE-like efficiency and optimizations.
 
-I was curious how far I can get -- utilizing modern ES6.
+I was curious how far I could get -- using modern JavaScript.
+It actually uses all the cool new stuff, e.g., Generators, Proxy, Reflect, Set.
+
+And I am more convinced than ever: JavaScript rocks!
 
 It started as a holiday project.
 And is still work in progress.
@@ -191,12 +193,14 @@ console.log(hash1 === hash3); // false
 ### Optimization II
 
 When actions fire, changes are made to the facts.
-This requires re-evaluation of premises.
+This requires re-evaluation of the premises.
 Which may lead to further actions becoming ready to fire.
 
-To avoid complete re-evaluation of all facts each time changes are made, Rools detects the parts of the facts (segments) that were actually changed and re-evaluates only those premises and actions affected.
+To avoid complete re-evaluation of all premises each time changes are made to the facts, Rools detects the parts of the facts (segments) that were actually changed and re-evaluates only those premises and actions affected.
 
 Change detection is based on level 1 of the facts. In the example below, detected changes are based on `user`, `weather`, `posts` and so on. So, whenever a `user` detail changes, all premises and actions that rely on `user` are re-evaluated. But only those.
+
+As you can imagine, this kind of optimization requires some addition overhead (code complexity and runtime memory consumption). It unfolds its potential with the number of rules and the number of fact segments.
 
 ```js
 const facts = {
