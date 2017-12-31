@@ -17,7 +17,7 @@ rather than in a separate, special-purpose language like DSL.
 
 Secondary design goal is to provide RETE-like efficiency and optimizations.
 
-I am curious how far I can get -- utilizing modern ES6.
+I was curious how far I can get -- utilizing modern ES6.
 
 It started as a holiday project.
 And is still work in progress.
@@ -173,7 +173,7 @@ const rule2 = {
 
 TL;DR
 
-Technically, this is achieved by hashing the premises
+Technically, this is achieved by hashing the premises functions
 (remember, a function is an object in JavaScript).
 This can be a classic function or an ES6 arrow function.
 This can be a reference or the function directly.
@@ -193,5 +193,5 @@ console.log(hash1 === hash3); // false
 Some of the features on my list are:
  * Conflict resolution by specificity
  * Optimization: re-evaluate only those premises (`when`) that are relying on modified facts
- * Support asynchronous actions (`then`)
+ * Asynchronous actions (`then`)
  * More unit tests
