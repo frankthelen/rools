@@ -3,7 +3,7 @@ const md5 = require('md5');
 const actionId = require('uniqueid')('a');
 const premiseId = require('uniqueid')('p');
 const Logger = require('./Logger');
-const observer = require('./observer');
+const observe = require('./observe');
 
 class Rools {
   constructor({ logging } = {}) {
@@ -59,8 +59,8 @@ class Rools {
     this.premises.forEach((premise) => {
       memory[premise.id] = { value: undefined, segments: [] };
     });
-    const proxy = observer(facts, (segment) => {
-      console.log(segment);
+    const proxy = observe(facts, (segment) => {
+      console.log(segment); // eslint-disable-line no-console
     });
     // match-resolve-act cycle
     for (

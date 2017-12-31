@@ -1,4 +1,4 @@
-const observer = (object, onChange) => {
+const observe = (object, onChange) => {
   const handler = {
     get(target, property, receiver) {
       onChange(property);
@@ -16,4 +16,4 @@ const observer = (object, onChange) => {
   return new Proxy(object, handler);
 };
 
-module.exports = observer;
+module.exports = observe;
