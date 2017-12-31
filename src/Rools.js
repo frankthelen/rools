@@ -36,13 +36,11 @@ class Rools {
             id: premiseId(),
             name: rule.name,
             when,
-            actions: [],
           };
           this.premisesByHash[hash] = premise;
           this.premises.push(premise);
         }
         action.premises.push(premise); // action ->> premises
-        premise.actions.push(action); // premise ->> actions
       });
     });
   }
