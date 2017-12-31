@@ -194,9 +194,9 @@ When actions fire, changes are made to the facts.
 This requires re-evaluation of premises.
 Which may lead to further actions becoming ready to fire.
 
-To avoid complete re-evaluation of all facts each time changes are made, Rools detects the parts of the facts (segments) that were actually changed and re-evaluates only the premises and actions affected.
+To avoid complete re-evaluation of all facts each time changes are made, Rools detects the parts of the facts (segments) that were actually changed and re-evaluates only those premises and actions affected.
 
-Change detection is based on level 1 of the facts. In the example below, detected changes are based on `user`, `weather`, `posts` and so on. So, whenever a `user` detail changes, all premises and actions that rely on `user` are re-evaluated.
+Change detection is based on level 1 of the facts. In the example below, detected changes are based on `user`, `weather`, `posts` and so on. So, whenever a `user` detail changes, all premises and actions that rely on `user` are re-evaluated. But only those.
 
 ```js
 const facts = {
