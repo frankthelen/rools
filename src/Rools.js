@@ -68,9 +68,10 @@ class Rools {
   * evaluateStep(facts, memory, step) {
     this.logger.log({ type: 'debug', message: `evaluate step ${step}` });
     // evaluate premises
-    this.premises.forEach((premise) => {
+    const premisesToEvaluate = this.premises; // agenda
+    premisesToEvaluate.forEach((premise) => {
       try {
-        memory[premise.id] = premise.when(facts);
+        memory[premise.id] = premise.when(facts); // evaluate!
       } catch (error) {
         memory[premise.id] = undefined;
         this.logger.log({
@@ -79,19 +80,20 @@ class Rools {
       }
     });
     // evaluate actions
-    const actionsNotFired = this.actions.filter(action => !memory[action.id].fired); // refraction
-    actionsNotFired.forEach((action) => {
+    const actionsToEvaluate = this.actions.filter(action => !memory[action.id].fired); // refraction
+    actionsToEvaluate.forEach((action) => {
       const num = action.premises.length;
       const tru = action.premises.filter(premise => memory[premise.id]).length;
       memory[action.id].ready = tru === num; // mark ready
     });
-    // fire action
-    const actionsToBeFired = actionsNotFired.filter(action => memory[action.id].ready);
+    // conflict set
+    const actionsToBeFired = actionsToEvaluate.filter(action => memory[action.id].ready);
     const action = this.evaluateSelect(actionsToBeFired);
     if (!action) {
       this.logger.log({ type: 'debug', message: 'evaluation complete' });
       return; // done
     }
+    // fire action
     this.logger.log({ type: 'debug', message: 'fire rule', rule: action.name });
     memory[action.id].fired = true; // mark fired
     try {
@@ -101,12 +103,14 @@ class Rools {
         type: 'error', message: 'exception in then clause', rule: action.name, error,
       });
     }
+    // final rule
     if (action.final) {
       this.logger.log({
         type: 'debug', message: 'evaluation stop after final rule', rule: action.name,
       });
       return; // done
     }
+    // next step
     yield; // not yet done
   }
 
