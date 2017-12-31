@@ -36,11 +36,13 @@ class Rools {
             id: premiseId(),
             name: rule.name,
             when,
+            actions: [],
           };
-          this.premisesByHash[hash] = premise; // add to hash
-          this.premises.push(premise); // add to premises
+          this.premisesByHash[hash] = premise;
+          this.premises.push(premise);
         }
-        action.premises.push(premise); // add to action
+        action.premises.push(premise); // action ->> premises
+        premise.actions.push(action); // premise ->> actions
       });
     });
   }
@@ -62,25 +64,36 @@ class Rools {
     });
     const delegator = new Delegator();
     const proxy = observe(facts, segment => delegator.delegate(segment));
+    const activeSegments = new Set(); // empty means all
+    const premisesBySegment = {}; // hash
     // match-resolve-act cycle
     for (
       let step = 0;
-      step < this.maxSteps && !this.evaluateStep(proxy, delegator, memory, step).next().done;
+      step < this.maxSteps &&
+        !this.evaluateStep(proxy, delegator, memory, activeSegments, premisesBySegment, step)
+          .next().done;
       step += 1
     ) ;
     // for convenience only
     return facts;
   }
 
-  * evaluateStep(facts, delegator, memory, step) {
+  * evaluateStep(facts, delegator, memory, activeSegments, premisesBySegment, step) {
     this.logger.log({ type: 'debug', message: `evaluate step ${step}` });
     // evaluate premises
-    this.premises.forEach((premise) => {
+    const premisesToEvaluate = this.premises; // agenda
+    premisesToEvaluate.forEach((premise) => {
       try {
         delegator.set((segment) => {
           this.logger.log({ type: 'debug', message: `read "${segment}"`, rule: premise.name });
+          let premises = premisesBySegment[segment];
+          if (!premises) {
+            premises = new Set();
+            premisesBySegment[segment] = premises;
+          }
+          premises.add(premise);
         });
-        memory[premise.id].value = premise.when(facts);
+        memory[premise.id].value = premise.when(facts); // evaluate!
       } catch (error) {
         memory[premise.id].value = undefined;
         this.logger.log({
@@ -91,14 +104,14 @@ class Rools {
       }
     });
     // evaluate actions
-    const actionsNotFired = this.actions.filter(action => !memory[action.id].fired); // refraction
-    actionsNotFired.forEach((action) => {
+    const actionsToEvaluate = this.actions.filter(action => !memory[action.id].fired); // refraction
+    actionsToEvaluate.forEach((action) => {
       const num = action.premises.length;
       const tru = action.premises.filter(premise => memory[premise.id].value).length;
       memory[action.id].ready = tru === num; // mark ready
     });
-    // create agenda
-    const actionsToBeFired = actionsNotFired.filter(action => memory[action.id].ready);
+    // conflict set
+    const actionsToBeFired = actionsToEvaluate.filter(action => memory[action.id].ready);
     const action = this.evaluateSelect(actionsToBeFired);
     if (!action) {
       this.logger.log({ type: 'debug', message: 'evaluation complete' });
@@ -108,8 +121,10 @@ class Rools {
     this.logger.log({ type: 'debug', message: 'fire rule', rule: action.name });
     memory[action.id].fired = true; // mark fired
     try {
+      activeSegments.clear();
       delegator.set((segment) => {
         this.logger.log({ type: 'debug', message: `write "${segment}"`, rule: action.name });
+        activeSegments.add(segment);
       });
       action.then(facts); // fire!
     } catch (error) {
@@ -119,12 +134,14 @@ class Rools {
     } finally {
       delegator.unset();
     }
+    // final action
     if (action.final) {
       this.logger.log({
         type: 'debug', message: 'evaluation stop after final rule', rule: action.name,
       });
       return; // done
     }
+    // next step
     yield; // not yet done
   }
 
