@@ -13,7 +13,7 @@ describe('Rules.evaluate()', () => {
       when: facts => facts.bla.blub === 'blub', // TypeError: Cannot read property 'blub' of undefined
       then: () => {},
     };
-    const rools = new Rools({ logErrors: false });
+    const rools = new Rools({ logging: { error: false } });
     const facts = { user: frank, weather: good };
     rools.register(brokenRule, ruleMoodGreat, ruleMoodSad, ruleGoWalking, ruleStayAtHome);
     expect(() => rools.evaluate(facts)).to.not.throw();
@@ -29,7 +29,7 @@ describe('Rules.evaluate()', () => {
         facts.bla.blub = 'blub'; // TypeError: Cannot read property 'blub' of undefined
       },
     };
-    const rools = new Rools({ logErrors: false });
+    const rools = new Rools({ logging: { error: false } });
     const facts = { user: frank, weather: good };
     rools.register(brokenRule, ruleMoodGreat, ruleMoodSad, ruleGoWalking, ruleStayAtHome);
     expect(() => rools.evaluate(facts)).to.not.throw();

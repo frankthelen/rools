@@ -35,14 +35,16 @@ This is a basic example.
 
 ```js
 // facts
-const user = {
-  name: 'frank',
-  stars: 347,
-};
-const weather = {
-  temperature: 20,
-  windy: true,
-  rainy: false,
+const facts = {
+  user: {
+    name: 'frank',
+    stars: 347,
+  },
+  weather: {
+    temperature: 20,
+    windy: true,
+    rainy: false,
+  },
 };
 
 // rules
@@ -70,8 +72,6 @@ const Rools = require('rools');
 
 const rools = new Rools();
 rools.register(ruleMoodGreat, ruleGoWalking);
-
-const facts = { user, weather };
 const result = rools.evaluate(facts);
 ```
 This is the result:
