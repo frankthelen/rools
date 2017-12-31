@@ -106,6 +106,24 @@ describe('Rules.register() / optimization of premises', () => {
     expect(rools.premises.length).to.be.equal(1);
   });
 
+  it('should not merge premises if not identical / with Date object', () => {
+    const date1 = new Date('2000-01-01');
+    const date2 = new Date('1990-01-01');
+    const rule1 = {
+      name: 'rule1',
+      when: facts => facts.user.birthdate > date1,
+      then: () => {},
+    };
+    const rule2 = {
+      name: 'rule2',
+      when: facts => facts.user.birthdate > date2,
+      then: () => {},
+    };
+    const rools = new Rools();
+    rools.register(rule1, rule2);
+    expect(rools.premises.length).to.be.equal(2);
+  });
+
   it('should merge premises if identical / with Date object', () => {
     const date = new Date('2000-01-01');
     const rule1 = {
