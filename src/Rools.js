@@ -134,7 +134,7 @@ class Rools {
     } finally {
       delegator.unset();
     }
-    // final action
+    // final rule
     if (action.final) {
       this.logger.log({
         type: 'debug', message: 'evaluation stop after final rule', rule: action.name,
