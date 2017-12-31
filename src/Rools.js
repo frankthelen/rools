@@ -58,7 +58,7 @@ class Rools {
       memory[action.id] = { ready: false, fired: false };
     });
     this.premises.forEach((premise) => {
-      memory[premise.id] = { value: undefined, segments: [] };
+      memory[premise.id] = { value: undefined };
     });
     const delegator = new Delegator();
     const proxy = observe(facts, segment => delegator.delegate(segment));
@@ -97,13 +97,14 @@ class Rools {
       const tru = action.premises.filter(premise => memory[premise.id].value).length;
       memory[action.id].ready = tru === num; // mark ready
     });
-    // fire action
+    // create agenda
     const actionsToBeFired = actionsNotFired.filter(action => memory[action.id].ready);
     const action = this.evaluateSelect(actionsToBeFired);
     if (!action) {
       this.logger.log({ type: 'debug', message: 'evaluation complete' });
       return; // done
     }
+    // fire action
     this.logger.log({ type: 'debug', message: 'fire rule', rule: action.name });
     memory[action.id].fired = true; // mark fired
     try {
