@@ -17,9 +17,9 @@ rather than in a separate, special-purpose language like DSL.
 
 Secondary design goal is to provide RETE-like efficiency and optimizations.
 
-These goals are partially conflicting, i.e., specifying rules in pure JavaScript may prevent certain optimizations. I am curious how far I can get -- utilizing modern ES6.
+I am curious how far I can get -- utilizing modern ES6.
 
-It started as a holiday fun project.
+It started as a holiday project.
 And is still work in progress.
 Have a look, if you like. Comments are welcome.
 
@@ -149,6 +149,24 @@ const rule = {
     facts => facts.user.salery >= 2000,
     facts => facts.user.age > 25,
   ],
+  ...
+};
+```
+
+One last thing. Look at the following example.
+Rools will treat the two premises (`when`) as identical.
+This is because `value` is a reference which is *not* evaluated at registration time (`Rools.register()`).
+Later, at evaluation time (`Rools.evaluate()`) both rules are clearly identical.
+
+```js
+let value = 2000;
+const rule1 = {
+  when: facts => facts.user.salery >= value,
+  ...
+};
+value = 3000;
+const rule2 = {
+  when: facts => facts.user.salery >= value,
   ...
 };
 ```
