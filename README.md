@@ -10,14 +10,14 @@ This is a simple rule engine for Node.
 [![node](https://img.shields.io/node/v/rools.svg)]()
 [![License Status](http://img.shields.io/npm/l/rools.svg)]()
 
-Primary design goal is to provide a nice and state-of-the-art interface for JavaScript (ES6).
+*Primary design goal* was to provide a nice and state-of-the-art interface for JavaScript (ES6).
 Facts are plain JavaScript or JSON objects.
-Rules are specified in pure and nice JavaScript (ES6)
-rather than in a separate, special-purpose language like DSL.
+Rules are specified in pure and nice JavaScript rather than in a separate, special-purpose language like DSL.
 
-Secondary design goal is to provide RETE-like efficiency and optimizations.
+*Secondary design goal* was to provide RETE-like efficiency and optimization.
 
-I was curious how far I can get -- utilizing modern ES6.
+I was curious how far I could get -- using modern JavaScript.
+And, in fact, it uses some of the cool new ES6 stuff, e.g., Generators, `Proxy`, `Reflect`, `Set`, let alone rest and spread operators, classes, destructuring, string interpolation, and so on. *Yeah, JavaScript rocks!*
 
 It started as a holiday project.
 And is still work in progress.
@@ -87,7 +87,7 @@ This is the result:
 
 The engine does forward-chaining and works in the usual match-resolve-act cycle.
 
-Rule evaluation is non-blocking, i.e., each evaluation step is one block (using ES6 generators).
+Rule evaluation is non-blocking, i.e., each evaluation step is one execution block (using ES6 Generators).
 
 ### Conflict resolution
 
@@ -98,11 +98,20 @@ If there is more than one rule ready to fire, i.e., the conflict set is greater 
 
 ### Final rules
 
-In some cases, it is desired to stop the engine as soon as a specific rule has fired.
-This is achieved by settings the respective rules' property `final` to `true`.
+For optimization purposes, it might be desired to stop the engine as soon as a specific rule has fired.
+This can be achieved by settings the respective rules' property `final` to `true`.
 Default, of course, is `false`.
 
-### Optimization of premises (`when`)
+Example:
+```js
+const rule = {
+  name: 'a final rule',
+  ...
+  final: true,
+};
+```
+
+### Optimization I
 
 It is very common that different rules partially share the same premises.
 Rools will automatically merge identical premises into one.
@@ -134,7 +143,7 @@ const rule2 = {
 };
 ```
 
-In addition, it is recommended to de-compose premises containing AND relations (`&&`).
+Furthermore, it is recommended to de-compose premises containing AND relations (`&&`).
 For example:
 
 ```js
@@ -143,7 +152,7 @@ const rule = {
   when: facts => facts.user.salery >= 2000 && facts.user.age > 25,
   ...
 };
-// however, it's better do it this way...
+// however, it's better write it like this...
 const rule = {
   when: [
     facts => facts.user.salery >= 2000,
@@ -156,7 +165,7 @@ const rule = {
 One last thing. Look at the following example.
 Rools will treat the two premises (`when`) as identical.
 This is because `value` is a reference which is *not* evaluated at registration time (`Rools.register()`).
-Later, at evaluation time (`Rools.evaluate()`) both rules are clearly identical.
+Later on, at evaluation time (`Rools.evaluate()`), both rules are clearly identical.
 
 ```js
 let value = 2000;
@@ -173,8 +182,7 @@ const rule2 = {
 
 TL;DR
 
-Technically, this is achieved by hashing the premises functions
-(remember, a function is an object in JavaScript).
+Technically, this is achieved by hashing the premise functions (remember, functions are "first-class" objects in JavaScript).
 This can be a classic function or an ES6 arrow function.
 This can be a reference or the function directly.
 It's tested with Node 8 and 9 (see unit tests `premises.spec.js`).
@@ -188,10 +196,34 @@ console.log(hash1 === hash2); // true
 console.log(hash1 === hash3); // false
 ```
 
+### Optimization II
+
+When actions fire, changes are made to the facts.
+This requires re-evaluation of the premises.
+Which may lead to further actions becoming ready to fire.
+
+To avoid complete re-evaluation of all premises each time changes are made to the facts, Rools detects the parts of the facts (segments) that were actually changed and re-evaluates only those premises affected.
+
+Change detection is based on *level 1 of the facts*. In the example below, detected changes are based on `user`, `weather`, `posts` and so on. So, whenever a `user` detail changes, all premises and actions that rely on `user` are re-evaluated. But only those.
+
+As you can imagine, this kind of optimization requires some additional overhead (code complexity and runtime memory consumption). It unfolds its potential with the number of rules and the number of fact segments.
+
+```js
+const facts = {
+  user: { ... },
+  weather: { ... },
+  posts: { ... },
+  ...
+}
+```
+
+TL;DR
+
+Technically, this is achieved by observing the facts through ES6's new `Proxy` and `Reflect` APIs.
+
 ### Todos
 
 Some of the features on my list are:
  * Conflict resolution by specificity
- * Optimization: re-evaluate only those premises (`when`) that are relying on modified facts
  * Asynchronous actions (`then`)
  * More unit tests
