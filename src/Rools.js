@@ -3,6 +3,7 @@ const md5 = require('md5');
 const actionId = require('uniqueid')('a');
 const premiseId = require('uniqueid')('p');
 const Logger = require('./Logger');
+const Delegator = require('./Delegator');
 const observe = require('./observe');
 
 class Rools {
@@ -59,30 +60,34 @@ class Rools {
     this.premises.forEach((premise) => {
       memory[premise.id] = { value: undefined, segments: [] };
     });
-    const proxy = observe(facts, (segment) => {
-      console.log(segment); // eslint-disable-line no-console
-    });
+    const delegator = new Delegator();
+    const proxy = observe(facts, segment => delegator.delegate(segment));
     // match-resolve-act cycle
     for (
       let step = 0;
-      step < this.maxSteps && !this.evaluateStep(proxy, memory, step).next().done;
+      step < this.maxSteps && !this.evaluateStep(proxy, delegator, memory, step).next().done;
       step += 1
     ) ;
     // for convenience only
     return facts;
   }
 
-  * evaluateStep(facts, memory, step) {
+  * evaluateStep(facts, delegator, memory, step) {
     this.logger.log({ type: 'debug', message: `evaluate step ${step}` });
     // evaluate premises
     this.premises.forEach((premise) => {
       try {
+        delegator.set((segment) => {
+          this.logger.log({ type: 'debug', message: `read "${segment}"`, rule: premise.name });
+        });
         memory[premise.id].value = premise.when(facts);
       } catch (error) {
         memory[premise.id].value = undefined;
         this.logger.log({
           type: 'error', message: 'exception in when clause', rule: premise.name, error,
         });
+      } finally {
+        delegator.unset();
       }
     });
     // evaluate actions
@@ -102,11 +107,16 @@ class Rools {
     this.logger.log({ type: 'debug', message: 'fire rule', rule: action.name });
     memory[action.id].fired = true; // mark fired
     try {
+      delegator.set((segment) => {
+        this.logger.log({ type: 'debug', message: `write "${segment}"`, rule: action.name });
+      });
       action.then(facts); // fire!
     } catch (error) {
       this.logger.log({
         type: 'error', message: 'exception in then clause', rule: action.name, error,
       });
+    } finally {
+      delegator.unset();
     }
     if (action.final) {
       this.logger.log({
