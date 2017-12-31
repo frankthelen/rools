@@ -17,9 +17,8 @@ Rules are specified in pure and nice JavaScript rather than in a separate, speci
 *Secondary design goal* was to provide RETE-like efficiency and optimizations.
 
 I was curious how far I could get -- using modern JavaScript.
-It actually uses all the cool new stuff, e.g., Generators, Proxy, Reflect, Set.
-
-And I am more convinced than ever: JavaScript rocks!
+It actually uses some cool new stuff, e.g., Generators, `Proxy`, `Reflect`, `Set`.
+JavaScript rocks!
 
 It started as a holiday project.
 And is still work in progress.

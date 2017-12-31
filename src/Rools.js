@@ -81,10 +81,8 @@ class Rools {
   * evaluateStep(facts, delegator, memory, activeSegments, premisesBySegment, step) {
     this.logger.log({ type: 'debug', message: `evaluate step ${step}` });
     // evaluate premises
-    const premisesToEvaluate = new Set(); // agenda
-    if (step === 0) {
-      this.premises.forEach((premise) => { premisesToEvaluate.add(premise); });
-    } else {
+    const premisesToEvaluate = step === 0 ? this.premises : new Set(); // agenda
+    if (step > 0) {
       activeSegments.forEach((segment) => {
         const premises = premisesBySegment[segment] || [];
         premises.forEach((premise) => { premisesToEvaluate.add(premise); });
