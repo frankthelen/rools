@@ -16,12 +16,7 @@ Rules are specified in pure JavaScript rather than in a separate, special-purpos
 
 *Secondary design goal* was to provide RETE-like efficiency and optimization.
 
-I was curious how far I could get -- using modern JavaScript.
-It uses some of the cool ES6 stuff, e.g., Generators, `Proxy`, `Reflect`, `Set`.
-*JavaScript Rocks!*
-
-It started as a holiday project.
-And is still work in progress.
+It uses some of the cool new ES6 stuff, e.g., Generators, `Proxy`, `Reflect`, `Set`. *JavaScript Rocks!*
 
 ## Install
 
@@ -78,7 +73,8 @@ This is the result:
 ```js
 { user: { name: 'frank', stars: 347, mood: 'great' },
   weather: { temperature: 20, windy: true, rainy: false },
-  goWalking: true }
+  goWalking: true,
+}
 ```
 
 ## Features
@@ -101,15 +97,6 @@ If there is more than one rule ready to fire, i.e., the conflict set is greater 
 For optimization purposes, it might be desired to stop the engine as soon as a specific rule has fired.
 This can be achieved by settings the respective rules' property `final` to `true`.
 Default, of course, is `false`.
-
-Example:
-```js
-const rule = {
-  name: 'a final rule',
-  ...
-  final: true,
-};
-```
 
 ### Optimization I
 
@@ -164,8 +151,8 @@ const rule = {
 
 One last thing. Look at the example below.
 Rools will treat the two premises (`when`) as identical.
-This is because `value` is a reference which is *not* evaluated at registration time (`Rools.register()`).
-Later on, at evaluation time (`Rools.evaluate()`), both rules are clearly identical.
+This is because `value` is a reference which is *not* evaluated at registration time (`register()`).
+Later on, at evaluation time (`evaluate()`), both rules are clearly identical.
 
 ```js
 let value = 2000;
@@ -203,13 +190,121 @@ const facts = {
 rools.evaluate(facts);
 ```
 
-As you can imagine, this kind of optimization requires some additional overhead (code complexity and runtime memory consumption). It unfolds its potential with a growing number of rules and fact segments.
+This optimization targets runtime performance.
+It unfolds its full potential with a growing number of rules and fact segments.
 
 *TL;DR* -- Technically, this is achieved by observing the facts through the ES6 `Proxy` API.
+
+## Interface
+
+### `new Rools()` -- create rules engine
+
+Calling `new Rools()` creates a new Rools instance, i.e., a new rules engine.
+You usually do this once for a given set of rules.
+
+Example:
+```js
+const Rools = require('rools');
+const rools = new Rools();
+...
+```
+
+### `register()` -- register rules
+
+Rules are plain JavaScript objects with the following properties:
+
+| Property    | Required | Default | Description |
+|-------------|----------|---------|-------------|
+| `name`      | yes      | -       | A string value identifying the rule. This is used logging and debugging purposes only. |
+| `when`      | yes      | -       | A JavaScript function or an array of functions. These are the premises of your rule. The functions' interface is `(facts) => ...`. They must return a boolean value. |
+| `then`      | yes      | -       | A JavaScript function to be executed when the rule fires. The function's interface is `(facts) => { ... }`. |
+| `priority`  | no       | `0`     | If during `evaluate()` there is more than one rule ready to fire, i.e., the conflict set is greater 1, rules with higher priority will fire first. Negative values are supported. |
+| `final`     | no       | `false` | Marks a rule as final. If during `evaluate()` a final rule fires, the engine will stop the evaluation. |
+
+`register()` registers one or more rules to the rules engine.
+It can be called multiple time.
+New rules will become effective immediately.
+
+`register()` may `throw` an exception, e.g., if a rule is formally incorrect.
+If an exception is thrown, the affected Rools instance becomes inconsistent and should no longer be used.
+
+Example:
+```js
+const ruleMoodGreat = {
+  name: 'mood is great if 200 stars or more',
+  when: facts => facts.user.stars >= 200,
+  then: (facts) => {
+    facts.user.mood = 'great';
+  },
+};
+const ruleGoWalking = {
+  name: 'go for a walk if mood is great and the weather is fine',
+  when: [
+    facts => facts.user.mood === 'great',
+    facts => facts.weather.temperature >= 20,
+    facts => !facts.weather.rainy,
+  ],
+  then: (facts) => {
+    facts.goWalking = true;
+  },
+};
+const rools = new Rools();
+rools.register(ruleMoodGreat, ruleGoWalking);
+```
+
+### `evaluate()` -- evaluate facts
+
+Facts are plain JavaScript or JSON objects. For example:
+```js
+const facts = {
+  user: {
+    name: 'frank',
+    stars: 347,
+  },
+  weather: {
+    temperature: 20,
+    windy: true,
+    rainy: false,
+  },
+};
+const rools = new Rools();
+rools.register(...);
+rools.evaluate(facts);
+```
+
+Sometimes, it is handy to combine facts using ES6 shorthand notation:
+```js
+const user = {
+  name: 'frank',
+  stars: 347,
+};
+const weather = {
+  temperature: 20,
+  windy: true,
+  rainy: false,
+};
+const rools = new Rools();
+rools.register(...);
+rools.evaluate({ user, weather });
+```
+
+*Important*: Please note that rules read the facts (`when`) as well as write to the facts (`then`). Please make sure you provide a fresh set of facts whenever you call `evaluate()`.
+
+If during `evaluate()`, firing actions (`then`) or evaluating premises (`when`) raise errors, `evaluate()` will *not* fail. However, the errors are passed to its logger, which you can hook into like this.
+
+```js
+const delegate = ({ message, rule, error }) => {
+  console.error(message, rule, error);
+};
+const rools = new Rools({ logging: { delegate } });
+...
+rools.evaluate(facts);
+```
 
 ### Todos
 
 Some of the features on my list are:
  * Conflict resolution by specificity
  * Asynchronous actions (`then`)
+ * Action/rule groups
  * More unit tests
