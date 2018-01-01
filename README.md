@@ -17,7 +17,7 @@ Rules are specified in pure JavaScript rather than in a separate, special-purpos
 *Secondary design goal* was to provide RETE-like efficiency and optimization.
 
 I was curious how far I could get -- using modern JavaScript.
-It uses some of the cool new ES6 stuff, e.g., Generators, `Proxy`, `Reflect`, `Set`.
+It uses some of the cool ES6 stuff, e.g., Generators, `Proxy`, `Reflect`, `Set`.
 *JavaScript Rocks!*
 
 It started as a holiday project.
@@ -180,8 +180,7 @@ const rule2 = {
 };
 ```
 
-*Technically*, this is achieved by hashing the premise functions (remember, functions are "first-class" objects in JavaScript).
-This can be a classic function or an ES6 arrow function; it can be a reference or the function directly.
+*TL;DR* -- Technically, this is achieved by hashing the premise functions (remember, functions are "first-class" objects in JavaScript). This can be a classic function or an ES6 arrow function; it can be a reference or the function directly.
 
 ### Optimization II
 
@@ -193,8 +192,6 @@ To avoid complete re-evaluation of all premises each time changes are made to th
 
 Change detection is based on *level 1 of the facts*. In the example below, detected changes are based on `user`, `weather`, `posts` and so on. So, whenever a `user` detail changes, all premises and actions that rely on `user` are re-evaluated. But only those.
 
-As you can imagine, this kind of optimization requires some additional overhead (code complexity and runtime memory consumption). It unfolds its potential with the number of rules and the number of fact segments.
-
 ```js
 const facts = {
   user: { ... },
@@ -204,7 +201,9 @@ const facts = {
 }
 ```
 
-*Technically*, this is achieved by observing the facts through ES6's new `Proxy` API.
+As you can imagine, this kind of optimization requires some additional overhead (code complexity and runtime memory consumption). It unfolds its potential with the number of rules and the number of fact segments.
+
+*TL;DR* -- Technically, this is achieved by observing the facts through the ES6 `Proxy` API.
 
 ### Todos
 
