@@ -37,11 +37,13 @@ class Rools {
             id: this.getPremiseId(),
             name: rule.name,
             when,
+            actions: [],
           };
           this.premisesByHash[hash] = premise;
           this.premises.push(premise);
         }
         action.premises.push(premise); // action ->> premises
+        premise.actions.push(action); // premise ->> actions
       });
     });
   }
@@ -79,62 +81,75 @@ class Rools {
 
   * evaluateStep(facts, delegator, memory, activeSegments, premisesBySegment, step) {
     this.logger.log({ type: 'debug', message: `evaluate step ${step}` });
-    // evaluate premises
+    // create agenda for premises
     const premisesAgenda = step === 0 ? this.premises : new Set();
     if (step > 0) {
       activeSegments.forEach((segment) => {
-        const premises = premisesBySegment[segment] || [];
-        premises.forEach((premise) => { premisesAgenda.add(premise); });
+        const activePremises = premisesBySegment[segment] || [];
+        activePremises.forEach((premise) => { premisesAgenda.add(premise); });
       });
     }
+    // evaluate premises
     premisesAgenda.forEach((premise) => {
       try {
-        delegator.set((segment) => {
+        delegator.set((segment) => { // listen to reading fact segments
           this.logger.log({ type: 'debug', message: `read "${segment}"`, rule: premise.name });
           let premises = premisesBySegment[segment];
           if (!premises) {
             premises = new Set();
             premisesBySegment[segment] = premises;
           }
-          premises.add(premise);
+          premises.add(premise); // might grow for "hidden" conditions
         });
-        memory[premise.id].value = premise.when(facts); // evaluate!
+        memory[premise.id].value = premise.when(facts); // >>> evaluate premise!
       } catch (error) {
         memory[premise.id].value = undefined;
         this.logger.log({
-          type: 'error', message: 'exception in when clause', rule: premise.name, error,
+          type: 'error', message: 'error in premise (when)', rule: premise.name, error,
         });
       } finally {
         delegator.unset();
       }
     });
+    // create agenda for actions
+    const actionsAgenda = step === 0 ? this.actions : new Set();
+    if (step > 0) {
+      premisesAgenda.forEach((premise) => {
+        premise.actions.forEach((action) => {
+          if (!memory[action.id].fired) actionsAgenda.add(action);
+        });
+      });
+    }
     // evaluate actions
-    const actionsAgenda = this.actions.filter(action => !memory[action.id].fired); // refraction
     actionsAgenda.forEach((action) => {
       const num = action.premises.length;
-      const tru = action.premises.filter(premise => memory[premise.id].value).length;
-      memory[action.id].ready = tru === num; // mark ready
+      const numTrue = action.premises.filter(premise => memory[premise.id].value).length;
+      memory[action.id].ready = numTrue === num; // mark ready
     });
-    // conflict set and resolution
-    const actionsReady = actionsAgenda.filter(action => memory[action.id].ready);
-    const action = this.evaluateSelect(actionsReady);
+    // create conflict set
+    const conflictSet = this.actions.filter((action) => {
+      const { fired, ready } = memory[action.id];
+      return ready && !fired;
+    });
+    // conflict resolution
+    const action = this.evaluateSelect(conflictSet);
     if (!action) {
       this.logger.log({ type: 'debug', message: 'evaluation complete' });
       return; // done
     }
     // fire action
-    this.logger.log({ type: 'debug', message: 'fire rule', rule: action.name });
+    this.logger.log({ type: 'debug', message: 'fire action', rule: action.name });
     memory[action.id].fired = true; // mark fired
     try {
-      activeSegments.clear();
-      delegator.set((segment) => {
+      activeSegments.clear(); // reset
+      delegator.set((segment) => { // listen to writing fact segments
         this.logger.log({ type: 'debug', message: `write "${segment}"`, rule: action.name });
         activeSegments.add(segment);
       });
-      action.then(facts); // fire!
+      action.then(facts); // >>> fire action!
     } catch (error) {
       this.logger.log({
-        type: 'error', message: 'exception in then clause', rule: action.name, error,
+        type: 'error', message: 'error in action (then)', rule: action.name, error,
       });
     } finally {
       delegator.unset();

@@ -203,7 +203,8 @@ const facts = {
 rools.evaluate(facts);
 ```
 
-As you can imagine, this kind of optimization requires some additional overhead (code complexity and runtime memory consumption). It unfolds its potential with a growing number of rules and fact segments.
+This optimization targets runtime performance.
+It unfolds its potential with a growing number of rules and fact segments.
 
 *TL;DR* -- Technically, this is achieved by observing the facts through the ES6 `Proxy` API.
 
@@ -212,4 +213,5 @@ As you can imagine, this kind of optimization requires some additional overhead 
 Some of the features on my list are:
  * Conflict resolution by specificity
  * Asynchronous actions (`then`)
+ * Action/rule groups
  * More unit tests
