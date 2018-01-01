@@ -198,10 +198,12 @@ const facts = {
   weather: { ... },
   posts: { ... },
   ...
-}
+};
+...
+rools.evaluate(facts);
 ```
 
-As you can imagine, this kind of optimization requires some additional overhead (code complexity and runtime memory consumption). It unfolds its potential with the number of rules and the number of fact segments.
+As you can imagine, this kind of optimization requires some additional overhead (code complexity and runtime memory consumption). It unfolds its potential with a growing number of rules and fact segments.
 
 *TL;DR* -- Technically, this is achieved by observing the facts through the ES6 `Proxy` API.
 
