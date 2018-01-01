@@ -12,16 +12,16 @@ This is a simple rule engine for Node.
 
 *Primary design goal* was to provide a nice and state-of-the-art interface for JavaScript (ES6).
 Facts are plain JavaScript or JSON objects.
-Rules are specified in pure and nice JavaScript rather than in a separate, special-purpose language like DSL.
+Rules are specified in pure JavaScript rather than in a separate, special-purpose language like DSL.
 
 *Secondary design goal* was to provide RETE-like efficiency and optimization.
 
 I was curious how far I could get -- using modern JavaScript.
-And, in fact, it uses some of the cool new ES6 stuff, e.g., Generators, `Proxy`, `Reflect`, `Set`, let alone rest and spread operators, classes, destructuring, string interpolation, and so on. *Yeah, JavaScript rocks!*
+It uses some of the cool new ES6 stuff, e.g., Generators, `Proxy`, `Reflect`, `Set`.
+*JavaScript Rocks!*
 
 It started as a holiday project.
 And is still work in progress.
-Have a look, if you like. Comments are welcome.
 
 ## Install
 
@@ -143,7 +143,7 @@ const rule2 = {
 };
 ```
 
-Furthermore, it is recommended to de-compose premises containing AND relations (`&&`).
+Furthermore, it is recommended to de-compose premises with AND relations (`&&`).
 For example:
 
 ```js
@@ -152,7 +152,7 @@ const rule = {
   when: facts => facts.user.salery >= 2000 && facts.user.age > 25,
   ...
 };
-// however, it's better write it like this...
+// however, it's better to write it like this...
 const rule = {
   when: [
     facts => facts.user.salery >= 2000,
@@ -162,7 +162,7 @@ const rule = {
 };
 ```
 
-One last thing. Look at the following example.
+One last thing. Look at the example below.
 Rools will treat the two premises (`when`) as identical.
 This is because `value` is a reference which is *not* evaluated at registration time (`Rools.register()`).
 Later on, at evaluation time (`Rools.evaluate()`), both rules are clearly identical.
@@ -180,21 +180,8 @@ const rule2 = {
 };
 ```
 
-TL;DR
-
-Technically, this is achieved by hashing the premise functions (remember, functions are "first-class" objects in JavaScript).
-This can be a classic function or an ES6 arrow function.
-This can be a reference or the function directly.
-It's tested with Node 8 and 9 (see unit tests `premises.spec.js`).
-
-```js
-const md5 = require('md5');
-const hash1 = md5(facts => facts.user.salery > 2000);
-const hash2 = md5(facts => facts.user.salery > 2000);
-const hash3 = md5(facts => facts.user.salery > 3000);
-console.log(hash1 === hash2); // true
-console.log(hash1 === hash3); // false
-```
+*Technically*, this is achieved by hashing the premise functions (remember, functions are "first-class" objects in JavaScript).
+This can be a classic function or an ES6 arrow function; it can be a reference or the function directly.
 
 ### Optimization II
 
@@ -217,9 +204,7 @@ const facts = {
 }
 ```
 
-TL;DR
-
-Technically, this is achieved by observing the facts through ES6's new `Proxy` and `Reflect` APIs.
+*Technically*, this is achieved by observing the facts through ES6's new `Proxy` API.
 
 ### Todos
 
