@@ -61,8 +61,6 @@ const ruleGoWalking = {
 };
 
 // evaluation
-const Rools = require('rools');
-
 const rools = new Rools();
 await rools.register(ruleMoodGreat, ruleGoWalking);
 const result = await rools.evaluate(facts);
@@ -229,7 +227,6 @@ You usually do this once for a given set of rules.
 
 Example:
 ```js
-const Rools = require('rools');
 const rools = new Rools();
 ...
 ```
