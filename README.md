@@ -110,14 +110,16 @@ const rule = {
 };
 ```
 
-Example: synchronous action using promises
+Example: asynchronous action using promises
 ```js
 const rule = {
   name: 'check availability',
   when: facts => facts.user.address.country === 'germany',
   then: facts =>
     availabilityCheck(facts.user.address)
-      .then((result) => { facts.products = result; }),
+      .then((result) => {
+        acts.products = result;
+      }),
 };
 ```
 
