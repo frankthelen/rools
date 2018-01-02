@@ -16,8 +16,6 @@ Rules are specified in pure JavaScript rather than in a separate, special-purpos
 
 *Secondary design goal* was to provide RETE-like efficiency and optimization.
 
-It uses some of the cool new ES6 stuff, e.g., Generators, `Proxy`, `Reflect`, `Set`. *JavaScript Rocks!*
-
 ## Install
 
 ```bash
@@ -67,7 +65,7 @@ const Rools = require('rools');
 
 const rools = new Rools();
 rools.register(ruleMoodGreat, ruleGoWalking);
-const result = rools.evaluate(facts);
+const result = await rools.evaluate(facts);
 ```
 This is the result:
 ```js
@@ -83,8 +81,6 @@ This is the result:
 
 The engine does forward-chaining and works in the usual match-resolve-act cycle.
 
-Rule evaluation is non-blocking, i.e., each evaluation step is one execution block (using ES6 Generators).
-
 ### Conflict resolution
 
 If there is more than one rule ready to fire, i.e., the conflict set is greater 1, the following conflict resolution strategies are applied (in this order):
@@ -97,6 +93,33 @@ If there is more than one rule ready to fire, i.e., the conflict set is greater 
 For optimization purposes, it might be desired to stop the engine as soon as a specific rule has fired.
 This can be achieved by settings the respective rules' property `final` to `true`.
 Default, of course, is `false`.
+
+### Async actions
+
+While premises (`when`) are always working synchronously on the facts,
+actions (`then`) can be synchronous or asynchronous.
+
+Example: asynchronous action using async/await
+```js
+const rule = {
+  name: 'check availability',
+  when: facts => facts.user.address.country === 'germany',
+  then: async (facts) => {
+    facts.products = await availabilityCheck(facts.user.address);
+  },
+};
+```
+
+Example: synchronous action using promises
+```js
+const rule = {
+  name: 'check availability',
+  when: facts => facts.user.address.country === 'germany',
+  then: facts =>
+    availabilityCheck(facts.user.address)
+      .then((result) => { facts.products = result; }),
+};
+```
 
 ### Optimization I
 
@@ -187,7 +210,7 @@ const facts = {
   ...
 };
 ...
-rools.evaluate(facts);
+await rools.evaluate(facts);
 ```
 
 This optimization targets runtime performance.
@@ -216,8 +239,8 @@ Rules are plain JavaScript objects with the following properties:
 | Property    | Required | Default | Description |
 |-------------|----------|---------|-------------|
 | `name`      | yes      | -       | A string value identifying the rule. This is used logging and debugging purposes only. |
-| `when`      | yes      | -       | A JavaScript function or an array of functions. These are the premises of your rule. The functions' interface is `(facts) => ...`. They must return a boolean value. |
-| `then`      | yes      | -       | A JavaScript function to be executed when the rule fires. The function's interface is `(facts) => { ... }`. |
+| `when`      | yes      | -       | A synchronous JavaScript function or an array of functions. These are the premises of your rule. The functions' interface is `(facts) => ...`. They must return a boolean value. |
+| `then`      | yes      | -       | A synchronous or asynchronous JavaScript function to be executed when the rule fires. The function's interface is `(facts) => { ... }` or `async (facts) => { ... }`. |
 | `priority`  | no       | `0`     | If during `evaluate()` there is more than one rule ready to fire, i.e., the conflict set is greater 1, rules with higher priority will fire first. Negative values are supported. |
 | `final`     | no       | `false` | Marks a rule as final. If during `evaluate()` a final rule fires, the engine will stop the evaluation. |
 
@@ -225,7 +248,7 @@ Rules are plain JavaScript objects with the following properties:
 It can be called multiple time.
 New rules will become effective immediately.
 
-`register()` may `throw` an exception, e.g., if a rule is formally incorrect.
+`register()` is working synchronously and may `throw` an exception, e.g., if a rule is formally incorrect.
 If an exception is thrown, the affected Rools instance becomes inconsistent and should no longer be used.
 
 Example:
@@ -252,7 +275,7 @@ const rools = new Rools();
 rools.register(ruleMoodGreat, ruleGoWalking);
 ```
 
-### `evaluate()` -- evaluate facts
+### `async evaluate()` -- evaluate facts
 
 Facts are plain JavaScript or JSON objects. For example:
 ```js
@@ -269,7 +292,7 @@ const facts = {
 };
 const rools = new Rools();
 rools.register(...);
-rools.evaluate(facts);
+await rools.evaluate(facts);
 ```
 
 Sometimes, it is handy to combine facts using ES6 shorthand notation:
@@ -285,26 +308,19 @@ const weather = {
 };
 const rools = new Rools();
 rools.register(...);
-rools.evaluate({ user, weather });
+await rools.evaluate({ user, weather });
 ```
 
-*Important*: Please note that rules read the facts (`when`) as well as write to the facts (`then`). Please make sure you provide a fresh set of facts whenever you call `evaluate()`.
+Please note that rules read the facts (`when`) as well as write to the facts (`then`).
+Please make sure you provide a fresh set of facts whenever you call `evaluate()`.
 
-If during `evaluate()`, firing actions (`then`) or evaluating premises (`when`) raise errors, `evaluate()` will *not* fail. However, the errors are passed to its logger, which you can hook into like this.
-
-```js
-const delegate = ({ message, rule, error }) => {
-  console.error(message, rule, error);
-};
-const rools = new Rools({ logging: { delegate } });
-...
-rools.evaluate(facts);
-```
+`evaluate()` is working asynchronously, i.e., it returns a promise.
+If a premise (`when`) fails, `evaluate()` will still *not* fail (for robustness reasons).
+If an action (`then`) fails, `evaluate()` will reject its promise.
 
 ### Todos
 
 Some of the features on my list are:
  * Conflict resolution by specificity
- * Asynchronous actions (`then`)
  * Action/rule groups
  * More unit tests

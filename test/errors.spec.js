@@ -1,3 +1,4 @@
+const assert = require('assert');
 const Rools = require('../src');
 const { frank } = require('./facts/users')();
 const { good } = require('./facts/weather')();
@@ -7,7 +8,7 @@ const {
 require('./setup');
 
 describe('Rules.evaluate()', () => {
-  it('should not fail if `when` throws error', () => {
+  it('should not fail if `when` throws error', async () => {
     const brokenRule = {
       name: 'broken rule #1',
       when: facts => facts.bla.blub === 'blub', // TypeError: Cannot read property 'blub' of undefined
@@ -16,12 +17,16 @@ describe('Rules.evaluate()', () => {
     const rools = new Rools({ logging: { error: false } });
     const facts = { user: frank, weather: good };
     rools.register(brokenRule, ruleMoodGreat, ruleMoodSad, ruleGoWalking, ruleStayAtHome);
-    expect(() => rools.evaluate(facts)).to.not.throw();
+    try {
+      await rools.evaluate(facts);
+    } catch (error) {
+      assert.fail();
+    }
     expect(facts.user.mood).to.be.equal('great');
     expect(facts.goWalking).to.be.equal(true);
   });
 
-  it('should not fail if `then` throws error', () => {
+  it('should fail if `then` throws error', async () => {
     const brokenRule = {
       name: 'broken rule #2',
       when: () => true, // fire immediately
@@ -32,8 +37,11 @@ describe('Rules.evaluate()', () => {
     const rools = new Rools({ logging: { error: false } });
     const facts = { user: frank, weather: good };
     rools.register(brokenRule, ruleMoodGreat, ruleMoodSad, ruleGoWalking, ruleStayAtHome);
-    expect(() => rools.evaluate(facts)).to.not.throw();
-    expect(facts.user.mood).to.be.equal('great');
-    expect(facts.goWalking).to.be.equal(true);
+    try {
+      await rools.evaluate(facts);
+      assert.fail();
+    } catch (error) {
+      // ignore
+    }
   });
 });

@@ -7,18 +7,18 @@ const {
 require('./setup');
 
 describe('Rules.evaluate() / delegate logging', () => {
-  it('should log debug', () => {
+  it('should log debug', async () => {
     let counter = 0;
     const spy = () => {
       counter += 1;
     };
     const rools = new Rools({ logging: { error: false, debug: true, delegate: spy } });
     rools.register(ruleMoodGreat, ruleMoodSad, ruleGoWalking, ruleStayAtHome);
-    rools.evaluate({ user: frank, weather: good });
+    await rools.evaluate({ user: frank, weather: good });
     expect(counter).to.not.be.equals(0);
   });
 
-  it('should log errors', () => {
+  it('should log errors', async () => {
     const brokenRule = {
       name: 'broken rule #2',
       when: () => true, // fire immediately
@@ -32,11 +32,15 @@ describe('Rules.evaluate() / delegate logging', () => {
     };
     const rools = new Rools({ logging: { error: true, debug: false, delegate: spy } });
     rools.register(brokenRule, ruleMoodGreat, ruleMoodSad, ruleGoWalking, ruleStayAtHome);
-    rools.evaluate({ user: frank, weather: good });
+    try {
+      await rools.evaluate({ user: frank, weather: good });
+    } catch (error) {
+      // ignore
+    }
     expect(counter).to.not.be.equals(0);
   });
 
-  it('should log errors by default', () => {
+  it('should log errors by default', async () => {
     const brokenRule = {
       name: 'broken rule #2',
       when: () => true, // fire immediately
@@ -50,7 +54,11 @@ describe('Rules.evaluate() / delegate logging', () => {
     };
     const rools = new Rools({ logging: { delegate: spy } });
     rools.register(brokenRule, ruleMoodGreat, ruleMoodSad, ruleGoWalking, ruleStayAtHome);
-    rools.evaluate({ user: frank, weather: good });
+    try {
+      await rools.evaluate({ user: frank, weather: good });
+    } catch (error) {
+      // ignore
+    }
     expect(counter).to.not.be.equals(0);
   });
 });
@@ -66,14 +74,14 @@ describe('Rules.evaluate() / console logging', () => {
     console.error.restore(); // eslint-disable-line no-console
   });
 
-  it('should log debug', () => {
+  it('should log debug', async () => {
     const rools = new Rools({ logging: { error: false, debug: true } });
     rools.register(ruleMoodGreat, ruleMoodSad, ruleGoWalking, ruleStayAtHome);
-    rools.evaluate({ user: frank, weather: good });
+    await rools.evaluate({ user: frank, weather: good });
     expect(console.log).to.be.called; // eslint-disable-line no-unused-expressions, no-console
   });
 
-  it('should log errors', () => {
+  it('should log errors', async () => {
     const brokenRule = {
       name: 'broken rule #2',
       when: () => true, // fire immediately
@@ -83,11 +91,15 @@ describe('Rules.evaluate() / console logging', () => {
     };
     const rools = new Rools({ logging: { error: true, debug: false } });
     rools.register(brokenRule, ruleMoodGreat, ruleMoodSad, ruleGoWalking, ruleStayAtHome);
-    rools.evaluate({ user: frank, weather: good });
+    try {
+      await rools.evaluate({ user: frank, weather: good });
+    } catch (error) {
+      // ignore
+    }
     expect(console.error).to.be.called; // eslint-disable-line no-unused-expressions, no-console
   });
 
-  it('should log errors by default', () => {
+  it('should log errors by default', async () => {
     const brokenRule = {
       name: 'broken rule #2',
       when: () => true, // fire immediately
@@ -97,11 +109,15 @@ describe('Rules.evaluate() / console logging', () => {
     };
     const rools = new Rools();
     rools.register(brokenRule, ruleMoodGreat, ruleMoodSad, ruleGoWalking, ruleStayAtHome);
-    rools.evaluate({ user: frank, weather: good });
+    try {
+      await rools.evaluate({ user: frank, weather: good });
+    } catch (error) {
+      // ignore
+    }
     expect(console.error).to.be.called; // eslint-disable-line no-unused-expressions, no-console
   });
 
-  it('should log errors by default / 2', () => {
+  it('should log errors by default / 2', async () => {
     const brokenRule = {
       name: 'broken rule #2',
       when: () => true, // fire immediately
@@ -111,7 +127,11 @@ describe('Rules.evaluate() / console logging', () => {
     };
     const rools = new Rools({});
     rools.register(brokenRule, ruleMoodGreat, ruleMoodSad, ruleGoWalking, ruleStayAtHome);
-    rools.evaluate({ user: frank, weather: good });
+    try {
+      await rools.evaluate({ user: frank, weather: good });
+    } catch (error) {
+      // ignore
+    }
     expect(console.error).to.be.called; // eslint-disable-line no-unused-expressions, no-console
   });
 });

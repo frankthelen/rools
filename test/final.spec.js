@@ -19,8 +19,8 @@ describe('Rules.evaluate() / final rule', () => {
     );
   });
 
-  it('should terminate after final rule', () => {
-    const result = rools.evaluate({ user: frank, weather: good });
+  it('should terminate after final rule', async () => {
+    const result = await rools.evaluate({ user: frank, weather: good });
     expect(result.user.mood).to.be.equal('great');
     expect(result.goWalking).to.be.equal(undefined);
     expect(result.stayAtHome).to.be.equal(undefined);
