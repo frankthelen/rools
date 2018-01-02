@@ -79,12 +79,12 @@ describe('Rules.evaluate() / longer cycle', () => {
     rools.register(rule7, rule0, rule2, rule3, rule1, rule6, rule8, rule4, rule9, rule5);
   });
 
-  it('should fire 10 rules', () => {
+  it('should fire 10 rules', async () => {
     const frank = {
       name: 'frank',
       stars: 0,
     };
-    const result = rools.evaluate({ user: frank });
+    const result = await rools.evaluate({ user: frank });
     expect(result.user.stars).to.be.equal(10);
   });
 });

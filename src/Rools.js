@@ -54,8 +54,9 @@ class Rools {
     assert(rule.then, `"rule.then" is required "${rule.name}"`);
   }
 
-  evaluate(facts) {
+  async evaluate(facts) {
     // init
+    this.logger.log({ type: 'debug', message: 'evaluate init' });
     const memory = {}; // working memory
     this.actions.forEach((action) => {
       memory[action.id] = { ready: false, fired: false };
@@ -68,18 +69,15 @@ class Rools {
     const activeSegments = new Set();
     const premisesBySegment = {}; // hash
     // match-resolve-act cycle
-    for (
-      let step = 0;
-      step < this.maxSteps &&
-        !this.evaluateStep(proxy, delegator, memory, activeSegments, premisesBySegment, step)
-          .next().done;
-      step += 1
-    ) ;
-    // for convenience only
+    for (let step = 0; step < this.maxSteps; step += 1) {
+      const goOn = // eslint-disable-next-line no-await-in-loop
+        await this.evaluateStep(proxy, delegator, memory, activeSegments, premisesBySegment, step);
+      if (!goOn) break; // for
+    }
     return facts;
   }
 
-  * evaluateStep(facts, delegator, memory, activeSegments, premisesBySegment, step) {
+  async evaluateStep(facts, delegator, memory, activeSegments, premisesBySegment, step) {
     this.logger.log({ type: 'debug', message: `evaluate step ${step}` });
     // create agenda for premises
     const premisesAgenda = step === 0 ? this.premises : new Set();
@@ -102,7 +100,7 @@ class Rools {
           premises.add(premise); // might grow for "hidden" conditions
         });
         memory[premise.id].value = premise.when(facts); // >>> evaluate premise!
-      } catch (error) {
+      } catch (error) { // ignore error!
         memory[premise.id].value = undefined;
         this.logger.log({
           type: 'error', message: 'error in premise (when)', rule: premise.name, error,
@@ -135,7 +133,7 @@ class Rools {
     const action = this.evaluateSelect(conflictSet);
     if (!action) {
       this.logger.log({ type: 'debug', message: 'evaluation complete' });
-      return; // done
+      return false; // done
     }
     // fire action
     this.logger.log({ type: 'debug', message: 'fire action', rule: action.name });
@@ -146,11 +144,12 @@ class Rools {
         this.logger.log({ type: 'debug', message: `write "${segment}"`, rule: action.name });
         activeSegments.add(segment);
       });
-      action.then(facts); // >>> fire action!
-    } catch (error) {
+      await this.fire(action, facts); // >>> fire action!
+    } catch (error) { // re-throw error!
       this.logger.log({
         type: 'error', message: 'error in action (then)', rule: action.name, error,
       });
+      throw new Error(`error in action (then): ${action.name}`, error);
     } finally {
       delegator.unset();
     }
@@ -159,10 +158,10 @@ class Rools {
       this.logger.log({
         type: 'debug', message: 'evaluation stop after final rule', rule: action.name,
       });
-      return; // done
+      return false; // done
     }
     // next step
-    yield; // not yet done
+    return true; // not yet done
   }
 
   evaluateSelect(actions) {
@@ -178,6 +177,15 @@ class Rools {
     const actionsWithPrio = actions.filter(action => action.priority === highestPrio);
     this.logger.log({ type: 'debug', message: 'conflict resolution by priority' });
     return actionsWithPrio[0];
+  }
+
+  async fire(action, facts) { // eslint-disable-line class-methods-use-this
+    try {
+      const thenable = action.then(facts); // >>> fire action!
+      return thenable && thenable.then ? thenable : Promise.resolve();
+    } catch (error) {
+      return Promise.reject(error);
+    }
   }
 }
 

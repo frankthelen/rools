@@ -14,24 +14,24 @@ describe('Rules.evaluate() / simple scenarios', () => {
     rools.register(ruleMoodGreat, ruleMoodSad, ruleGoWalking, ruleStayAtHome);
   });
 
-  it('Test 1', () => {
-    const result = rools.evaluate({ user: frank, weather: good });
+  it('Test 1', async () => {
+    const result = await rools.evaluate({ user: frank, weather: good });
     // console.log(result); // eslint-disable-line no-console
     expect(result.user.mood).to.be.equal('great');
     expect(result.goWalking).to.be.equal(true);
     expect(result.stayAtHome).to.be.equal(undefined);
   });
 
-  it('Test 2', () => {
-    const result = rools.evaluate({ user: michael, weather: good });
+  it('Test 2', async () => {
+    const result = await rools.evaluate({ user: michael, weather: good });
     // console.log(result); // eslint-disable-line no-console
     expect(result.user.mood).to.be.equal('sad');
     expect(result.goWalking).to.be.equal(undefined);
     expect(result.stayAtHome).to.be.equal(true);
   });
 
-  it('Test 3', () => {
-    const result = rools.evaluate({ user: frank, weather: bad });
+  it('Test 3', async () => {
+    const result = await rools.evaluate({ user: frank, weather: bad });
     // console.log(result); // eslint-disable-line no-console
     expect(result.user.mood).to.be.equal('great');
     expect(result.goWalking).to.be.equal(undefined);
