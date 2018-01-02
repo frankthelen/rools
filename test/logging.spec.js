@@ -13,7 +13,7 @@ describe('Rules.evaluate() / delegate logging', () => {
       counter += 1;
     };
     const rools = new Rools({ logging: { error: false, debug: true, delegate: spy } });
-    rools.register(ruleMoodGreat, ruleMoodSad, ruleGoWalking, ruleStayAtHome);
+    await rools.register(ruleMoodGreat, ruleMoodSad, ruleGoWalking, ruleStayAtHome);
     await rools.evaluate({ user: frank, weather: good });
     expect(counter).to.not.be.equals(0);
   });
@@ -31,7 +31,7 @@ describe('Rules.evaluate() / delegate logging', () => {
       counter += 1;
     };
     const rools = new Rools({ logging: { error: true, debug: false, delegate: spy } });
-    rools.register(brokenRule, ruleMoodGreat, ruleMoodSad, ruleGoWalking, ruleStayAtHome);
+    await rools.register(brokenRule, ruleMoodGreat, ruleMoodSad, ruleGoWalking, ruleStayAtHome);
     try {
       await rools.evaluate({ user: frank, weather: good });
     } catch (error) {
@@ -53,7 +53,7 @@ describe('Rules.evaluate() / delegate logging', () => {
       counter += 1;
     };
     const rools = new Rools({ logging: { delegate: spy } });
-    rools.register(brokenRule, ruleMoodGreat, ruleMoodSad, ruleGoWalking, ruleStayAtHome);
+    await rools.register(brokenRule, ruleMoodGreat, ruleMoodSad, ruleGoWalking, ruleStayAtHome);
     try {
       await rools.evaluate({ user: frank, weather: good });
     } catch (error) {
@@ -76,7 +76,7 @@ describe('Rules.evaluate() / console logging', () => {
 
   it('should log debug', async () => {
     const rools = new Rools({ logging: { error: false, debug: true } });
-    rools.register(ruleMoodGreat, ruleMoodSad, ruleGoWalking, ruleStayAtHome);
+    await rools.register(ruleMoodGreat, ruleMoodSad, ruleGoWalking, ruleStayAtHome);
     await rools.evaluate({ user: frank, weather: good });
     expect(console.log).to.be.called; // eslint-disable-line no-unused-expressions, no-console
   });
@@ -90,7 +90,7 @@ describe('Rules.evaluate() / console logging', () => {
       },
     };
     const rools = new Rools({ logging: { error: true, debug: false } });
-    rools.register(brokenRule, ruleMoodGreat, ruleMoodSad, ruleGoWalking, ruleStayAtHome);
+    await rools.register(brokenRule, ruleMoodGreat, ruleMoodSad, ruleGoWalking, ruleStayAtHome);
     try {
       await rools.evaluate({ user: frank, weather: good });
     } catch (error) {
@@ -108,7 +108,7 @@ describe('Rules.evaluate() / console logging', () => {
       },
     };
     const rools = new Rools();
-    rools.register(brokenRule, ruleMoodGreat, ruleMoodSad, ruleGoWalking, ruleStayAtHome);
+    await rools.register(brokenRule, ruleMoodGreat, ruleMoodSad, ruleGoWalking, ruleStayAtHome);
     try {
       await rools.evaluate({ user: frank, weather: good });
     } catch (error) {
@@ -126,7 +126,7 @@ describe('Rules.evaluate() / console logging', () => {
       },
     };
     const rools = new Rools({});
-    rools.register(brokenRule, ruleMoodGreat, ruleMoodSad, ruleGoWalking, ruleStayAtHome);
+    await rools.register(brokenRule, ruleMoodGreat, ruleMoodSad, ruleGoWalking, ruleStayAtHome);
     try {
       await rools.evaluate({ user: frank, weather: good });
     } catch (error) {

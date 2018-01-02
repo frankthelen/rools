@@ -9,9 +9,9 @@ require('./setup');
 describe('Rules.evaluate() / final rule', () => {
   let rools;
 
-  before(() => {
+  before(async () => {
     rools = new Rools();
-    rools.register(
+    await rools.register(
       ruleGoWalking,
       ruleStayAtHome,
       { ...ruleMoodGreat, final: true },

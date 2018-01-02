@@ -1,6 +1,7 @@
 const assert = require('assert');
 const md5 = require('md5');
 const uniqueid = require('uniqueid');
+const Promise = require('bluebird');
 const Logger = require('./Logger');
 const Delegator = require('./Delegator');
 const observe = require('./observe');
@@ -16,34 +17,36 @@ class Rools {
     this.logger = new Logger(logging);
   }
 
-  register(...rules) {
-    rules.forEach((rule) => {
-      this.assertRule(rule);
-      const action = {
-        id: this.getActionId(),
-        name: rule.name,
-        then: rule.then,
-        priority: rule.priority || 0,
-        final: rule.final || false,
-        premises: [],
-      };
-      this.actions.push(action);
-      const whens = Array.isArray(rule.when) ? rule.when : [rule.when];
-      whens.forEach((when) => {
-        const hash = md5(when); // is function already introduced by other rule?
-        let premise = this.premisesByHash[hash];
-        if (!premise) { // create new premise
-          premise = {
-            id: this.getPremiseId(),
-            name: rule.name,
-            when,
-            actions: [],
-          };
-          this.premisesByHash[hash] = premise;
-          this.premises.push(premise);
-        }
-        action.premises.push(premise); // action ->> premises
-        premise.actions.push(action); // premise ->> actions
+  async register(...rules) {
+    return Promise.try(() => {
+      rules.forEach((rule) => {
+        this.assertRule(rule);
+        const action = {
+          id: this.getActionId(),
+          name: rule.name,
+          then: rule.then,
+          priority: rule.priority || 0,
+          final: rule.final || false,
+          premises: [],
+        };
+        this.actions.push(action);
+        const whens = Array.isArray(rule.when) ? rule.when : [rule.when];
+        whens.forEach((when) => {
+          const hash = md5(when); // is function already introduced by other rule?
+          let premise = this.premisesByHash[hash];
+          if (!premise) { // create new premise
+            premise = {
+              id: this.getPremiseId(),
+              name: rule.name,
+              when,
+              actions: [],
+            };
+            this.premisesByHash[hash] = premise;
+            this.premises.push(premise);
+          }
+          action.premises.push(premise); // action ->> premises
+          premise.actions.push(action); // premise ->> actions
+        });
       });
     });
   }

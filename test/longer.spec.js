@@ -4,7 +4,7 @@ require('./setup');
 describe('Rules.evaluate() / longer cycle', () => {
   let rools;
 
-  before(() => {
+  before(async () => {
     const rule0 = {
       name: 'rule0',
       when: facts => facts.user.stars === 0,
@@ -76,7 +76,7 @@ describe('Rules.evaluate() / longer cycle', () => {
       },
     };
     rools = new Rools();
-    rools.register(rule7, rule0, rule2, rule3, rule1, rule6, rule8, rule4, rule9, rule5);
+    await rools.register(rule7, rule0, rule2, rule3, rule1, rule6, rule8, rule4, rule9, rule5);
   });
 
   it('should fire 10 rules', async () => {
