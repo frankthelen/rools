@@ -64,7 +64,7 @@ const ruleGoWalking = {
 const Rools = require('rools');
 
 const rools = new Rools();
-rools.register(ruleMoodGreat, ruleGoWalking);
+await rools.register(ruleMoodGreat, ruleGoWalking);
 const result = await rools.evaluate(facts);
 ```
 This is the result:
@@ -241,7 +241,7 @@ Rules are plain JavaScript objects with the following properties:
 | Property    | Required | Default | Description |
 |-------------|----------|---------|-------------|
 | `name`      | yes      | -       | A string value identifying the rule. This is used logging and debugging purposes only. |
-| `when`      | yes      | -       | A synchronous JavaScript function or an array of functions. These are the premises of your rule. The functions' interface is `(facts) => ...`. They must return a boolean value. |
+| `when`      | yes      | -       | A synchronous JavaScript function or an array of functions. These are the premises of your rule. The functions' interface is `(facts) => { ... }`. They must return a boolean value. |
 | `then`      | yes      | -       | A synchronous or asynchronous JavaScript function to be executed when the rule fires. The function's interface is `(facts) => { ... }` or `async (facts) => { ... }`. |
 | `priority`  | no       | `0`     | If during `evaluate()` there is more than one rule ready to fire, i.e., the conflict set is greater 1, rules with higher priority will fire first. Negative values are supported. |
 | `final`     | no       | `false` | Marks a rule as final. If during `evaluate()` a final rule fires, the engine will stop the evaluation. |
@@ -250,8 +250,9 @@ Rules are plain JavaScript objects with the following properties:
 It can be called multiple time.
 New rules will become effective immediately.
 
-`register()` is working synchronously and may `throw` an exception, e.g., if a rule is formally incorrect.
-If an exception is thrown, the affected Rools instance becomes inconsistent and should no longer be used.
+`register()` is working asynchronously, i.e., it returns a promise.
+Its promise may be rejected, e.g., if a rule is formally incorrect.
+If this happens, the affected Rools instance becomes inconsistent and should no longer be used.
 
 Example:
 ```js
@@ -274,10 +275,10 @@ const ruleGoWalking = {
   },
 };
 const rools = new Rools();
-rools.register(ruleMoodGreat, ruleGoWalking);
+await rools.register(ruleMoodGreat, ruleGoWalking);
 ```
 
-### `async evaluate()` -- evaluate facts
+### `evaluate()` -- evaluate facts
 
 Facts are plain JavaScript or JSON objects. For example:
 ```js
@@ -293,7 +294,7 @@ const facts = {
   },
 };
 const rools = new Rools();
-rools.register(...);
+await rools.register(...);
 await rools.evaluate(facts);
 ```
 
@@ -309,7 +310,7 @@ const weather = {
   rainy: false,
 };
 const rools = new Rools();
-rools.register(...);
+await rools.register(...);
 await rools.evaluate({ user, weather });
 ```
 

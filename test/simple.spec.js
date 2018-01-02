@@ -9,9 +9,9 @@ require('./setup');
 describe('Rules.evaluate() / simple scenarios', () => {
   let rools;
 
-  before(() => {
+  before(async () => {
     rools = new Rools();
-    rools.register(ruleMoodGreat, ruleMoodSad, ruleGoWalking, ruleStayAtHome);
+    await rools.register(ruleMoodGreat, ruleMoodSad, ruleGoWalking, ruleStayAtHome);
   });
 
   it('Test 1', async () => {
