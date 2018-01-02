@@ -118,7 +118,7 @@ const rule = {
   then: facts =>
     availabilityCheck(facts.user.address)
       .then((result) => {
-        acts.products = result;
+        facts.products = result;
       }),
 };
 ```
