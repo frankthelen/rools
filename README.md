@@ -27,6 +27,9 @@ npm install --save rools
 This is a basic example.
 
 ```js
+// import Rools
+const Rools = require('rools');
+
 // facts
 const facts = {
   user: {
@@ -227,6 +230,7 @@ You usually do this once for a given set of rules.
 
 Example:
 ```js
+const Rools = require('rools');
 const rools = new Rools();
 ...
 ```
