@@ -339,5 +339,7 @@ If an action (`then`) fails, `evaluate()` will reject its promise.
 
 Some of the features on my list are:
  * Conflict resolution by specificity
- * Action/rule groups
+ * Activation groups
+ * Agenda groups
+ * Extend rules
  * More unit tests
