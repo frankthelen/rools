@@ -19,8 +19,10 @@ class Rools {
 
   async register(...rules) {
     return Promise.try(() => {
-      rules.forEach((rule) => {
+      rules.forEach((rule) => { // check all rules -> fail early
         this.assertRule(rule);
+      });
+      rules.forEach((rule) => { // add rules
         const action = {
           id: this.getActionId(),
           name: rule.name,
@@ -77,6 +79,7 @@ class Rools {
         await this.evaluateStep(proxy, delegator, memory, activeSegments, premisesBySegment, step);
       if (!goOn) break; // for
     }
+    // return facts -- for convenience only
     return facts;
   }
 

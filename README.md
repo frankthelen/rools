@@ -66,9 +66,9 @@ const ruleGoWalking = {
 // evaluation
 const rools = new Rools();
 await rools.register(ruleMoodGreat, ruleGoWalking);
-const result = await rools.evaluate(facts);
+await rools.evaluate(facts);
 ```
-This is the result:
+These are the resulting facts:
 ```js
 { user: { name: 'frank', stars: 347, mood: 'great' },
   weather: { temperature: 20, windy: true, rainy: false },
@@ -253,7 +253,8 @@ New rules will become effective immediately.
 
 `register()` is working asynchronously, i.e., it returns a promise.
 Its promise may be rejected, e.g., if a rule is formally incorrect.
-If this happens, the affected Rools instance becomes inconsistent and should no longer be used.
+If this happens, none of the rules in the call to `register()` were actually added;
+however, it is recommended to treat the affected Rools instance as inconsistent, i.e, it should no longer be used.
 
 Example:
 ```js
