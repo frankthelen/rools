@@ -129,17 +129,23 @@ const rule = {
 It is very common that different rules partially share the same premises.
 Rools will automatically merge identical premises into one.
 You are free to use references or just to repeat the same premise.
-Both cases are working fine.
+Both options are working fine.
 
 Example 1: by reference
 ```js
 const isApplicable = facts => facts.user.salery >= 2000;
 const rule1 = {
-  when: isApplicable,
+  when: [
+    isApplicable,
+    ...
+  ],
   ...
 };
 const rule2 = {
-  when: isApplicable,
+  when: [
+    isApplicable,
+    ...
+  ],
   ...
 };
 ```
@@ -147,11 +153,17 @@ const rule2 = {
 Example 2: repeat premise
 ```js
 const rule1 = {
-  when: facts => facts.user.salery >= 2000,
+  when: [
+    facts => facts.user.salery >= 2000,
+    ...
+  ],
   ...
 };
 const rule2 = {
-  when: facts => facts.user.salery >= 2000,
+  when: [
+    facts => facts.user.salery >= 2000,
+    ...
+  ],
   ...
 };
 ```
