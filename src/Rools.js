@@ -19,16 +19,21 @@ class Rools {
 
   async register(...rules) {
     return Promise.try(() => {
-      rules.forEach((rule) => { // check all rules -> fail early
+      // check all rules -> fail early
+      rules.forEach((rule) => {
         this.assertRule(rule);
       });
-      rules.forEach((rule) => { // add rules
+      // add rules
+      rules.forEach((rule) => {
+        const {
+          name, then, priority = 0, final = false,
+        } = rule;
         const action = {
           id: this.getActionId(),
-          name: rule.name,
-          then: rule.then,
-          priority: rule.priority || 0,
-          final: rule.final || false,
+          name,
+          then,
+          priority,
+          final,
           premises: [],
         };
         this.actions.push(action);
@@ -39,7 +44,7 @@ class Rools {
           if (!premise) { // create new premise
             premise = {
               id: this.getPremiseId(),
-              name: rule.name,
+              name,
               when,
               actions: [],
             };
