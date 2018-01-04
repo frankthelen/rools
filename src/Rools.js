@@ -11,7 +11,7 @@ class Rools {
     this.actions = [];
     this.premises = [];
     this.premisesByHash = {};
-    this.maxSteps = 100;
+    this.maxPasses = 100; // emergency stop
     this.getActionId = uniqueid('a');
     this.getPremiseId = uniqueid('p');
     this.logger = new Logger(logging);
@@ -19,14 +19,21 @@ class Rools {
 
   async register(...rules) {
     return Promise.try(() => {
+      // check all rules -> fail early
       rules.forEach((rule) => {
         this.assertRule(rule);
+      });
+      // add rules
+      rules.forEach((rule) => {
+        const {
+          name, then, priority = 0, final = false,
+        } = rule;
         const action = {
           id: this.getActionId(),
-          name: rule.name,
-          then: rule.then,
-          priority: rule.priority || 0,
-          final: rule.final || false,
+          name,
+          then,
+          priority,
+          final,
           premises: [],
         };
         this.actions.push(action);
@@ -37,7 +44,7 @@ class Rools {
           if (!premise) { // create new premise
             premise = {
               id: this.getPremiseId(),
-              name: rule.name,
+              name,
               when,
               actions: [],
             };
@@ -72,19 +79,20 @@ class Rools {
     const activeSegments = new Set();
     const premisesBySegment = {}; // hash
     // match-resolve-act cycle
-    for (let step = 0; step < this.maxSteps; step += 1) {
+    for (let pass = 0; pass < this.maxPasses; pass += 1) {
       const goOn = // eslint-disable-next-line no-await-in-loop
-        await this.evaluateStep(proxy, delegator, memory, activeSegments, premisesBySegment, step);
+        await this.evaluatePass(proxy, delegator, memory, activeSegments, premisesBySegment, pass);
       if (!goOn) break; // for
     }
+    // return facts -- for convenience only
     return facts;
   }
 
-  async evaluateStep(facts, delegator, memory, activeSegments, premisesBySegment, step) {
-    this.logger.log({ type: 'debug', message: `evaluate step ${step}` });
+  async evaluatePass(facts, delegator, memory, activeSegments, premisesBySegment, pass) {
+    this.logger.log({ type: 'debug', message: `evaluate pass ${pass}` });
     // create agenda for premises
-    const premisesAgenda = step === 0 ? this.premises : new Set();
-    if (step > 0) {
+    const premisesAgenda = pass === 0 ? this.premises : new Set();
+    if (pass > 0) {
       activeSegments.forEach((segment) => {
         const activePremises = premisesBySegment[segment] || [];
         activePremises.forEach((premise) => { premisesAgenda.add(premise); });
@@ -113,8 +121,8 @@ class Rools {
       }
     });
     // create agenda for actions
-    const actionsAgenda = step === 0 ? this.actions : new Set();
-    if (step > 0) {
+    const actionsAgenda = pass === 0 ? this.actions : new Set();
+    if (pass > 0) {
       premisesAgenda.forEach((premise) => {
         premise.actions.forEach((action) => {
           if (!memory[action.id].fired) actionsAgenda.add(action);
@@ -163,8 +171,8 @@ class Rools {
       });
       return false; // done
     }
-    // next step
-    return true; // not yet done
+    // next pass
+    return true; // continue
   }
 
   evaluateSelect(actions) {
@@ -179,7 +187,7 @@ class Rools {
     const highestPrio = Math.max(...prios);
     const actionsWithPrio = actions.filter(action => action.priority === highestPrio);
     this.logger.log({ type: 'debug', message: 'conflict resolution by priority' });
-    return actionsWithPrio[0];
+    return actionsWithPrio[0]; // the first one
   }
 
   async fire(action, facts) { // eslint-disable-line class-methods-use-this
