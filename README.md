@@ -14,9 +14,9 @@ This is a small rule engine for Node.
 Facts are plain JavaScript or JSON objects.
 Rules are specified in pure JavaScript rather than in a separate, special-purpose language like DSL.
 
-*Secondary goal* was to provide efficiency and optimization similar to [RETE](https://en.wikipedia.org/wiki/Rete_algorithm).
+*Secondary goal* was to provide [RETE](https://en.wikipedia.org/wiki/Rete_algorithm)-like efficiency and optimization.
 
-*1.0.0-beta* -- Features complete and stable interface. Let me know if there are any issues.
+*1.0.0-beta* is feature-complete and stable. Let me know if there are any issues.
 
 ## Install
 
