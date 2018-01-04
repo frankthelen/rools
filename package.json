@@ -11,9 +11,10 @@
   },
   "keywords": [
     "rules",
-    "business",
     "rule",
-    "engine"
+    "engine",
+    "rools",
+    "rules engine"
   ],
   "scripts": {
     "lint": "eslint . --ignore-path ./.eslintignore",

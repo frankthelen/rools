@@ -1,6 +1,6 @@
 # rools
 
-This is a simple rule engine for Node.
+This is a small rule engine for Node.
 
 [![build status](https://img.shields.io/travis/frankthelen/rools.svg)](http://travis-ci.org/frankthelen/rools)
 [![Coverage Status](https://coveralls.io/repos/github/frankthelen/rools/badge.svg?branch=master)](https://coveralls.io/github/frankthelen/rools?branch=master)
@@ -10,11 +10,13 @@ This is a simple rule engine for Node.
 [![node](https://img.shields.io/node/v/rools.svg)]()
 [![License Status](http://img.shields.io/npm/l/rools.svg)]()
 
-*Primary design goal* was to provide a nice and state-of-the-art interface for JavaScript (ES6).
+*Primary goal* was to provide a nice and state-of-the-art interface for modern JavaScript (ES6).
 Facts are plain JavaScript or JSON objects.
 Rules are specified in pure JavaScript rather than in a separate, special-purpose language like DSL.
 
-*Secondary design goal* was to provide RETE-like efficiency and optimization.
+*Secondary goal* was to provide efficiency and optimization similar to [RETE](https://en.wikipedia.org/wiki/Rete_algorithm).
+
+*1.0.0-beta* -- Features complete and stable interface. Let me know if there are any issues.
 
 ## Install
 
@@ -26,7 +28,7 @@ npm install --save rools
 
 This is a basic example.
 
-```js
+```javascript
 // import Rools
 const Rools = require('rools');
 
@@ -69,7 +71,7 @@ await rools.register(ruleMoodGreat, ruleGoWalking);
 await rools.evaluate(facts);
 ```
 These are the resulting facts:
-```js
+```javascript
 { user: { name: 'frank', stars: 347, mood: 'great' },
   weather: { temperature: 20, windy: true, rainy: false },
   goWalking: true,
@@ -101,7 +103,7 @@ While premises (`when`) are always working synchronously on the facts,
 actions (`then`) can be synchronous or asynchronous.
 
 Example: asynchronous action using async/await
-```js
+```javascript
 const rule = {
   name: 'check availability',
   when: facts => facts.user.address.country === 'germany',
@@ -112,7 +114,7 @@ const rule = {
 ```
 
 Example: asynchronous action using promises
-```js
+```javascript
 const rule = {
   name: 'check availability',
   when: facts => facts.user.address.country === 'germany',
@@ -132,7 +134,7 @@ You are free to use references or just to repeat the same premise.
 Both options are working fine.
 
 Example 1: by reference
-```js
+```javascript
 const isApplicable = facts => facts.user.salery >= 2000;
 const rule1 = {
   when: [
@@ -151,7 +153,7 @@ const rule2 = {
 ```
 
 Example 2: repeat premise
-```js
+```javascript
 const rule1 = {
   when: [
     facts => facts.user.salery >= 2000,
@@ -171,7 +173,7 @@ const rule2 = {
 Furthermore, it is recommended to de-compose premises with AND relations (`&&`).
 For example:
 
-```js
+```javascript
 // this version works...
 const rule = {
   when: facts => facts.user.salery >= 2000 && facts.user.age > 25,
@@ -192,7 +194,7 @@ Rools will treat the two premises (`when`) as identical.
 This is because `value` is a reference which is *not* evaluated at registration time (`register()`).
 Later on, at evaluation time (`evaluate()`), both rules are clearly identical.
 
-```js
+```javascript
 let value = 2000;
 const rule1 = {
   when: facts => facts.user.salery >= value,
@@ -217,7 +219,7 @@ To avoid complete re-evaluation of all premises each time changes are made to th
 
 Change detection is based on *level 1 of the facts*. In the example below, detected changes are based on `user`, `weather`, `posts` and so on. So, whenever a `user` detail changes, all premises and actions that rely on `user` are re-evaluated. But only those.
 
-```js
+```javascript
 const facts = {
   user: { ... },
   weather: { ... },
@@ -235,19 +237,19 @@ It unfolds its full potential with a growing number of rules and fact segments.
 
 ## Interface
 
-### `new Rools()` -- create rules engine
+### Create rule engine: `new Rools()`
 
 Calling `new Rools()` creates a new Rools instance, i.e., a new rules engine.
 You usually do this once for a given set of rules.
 
 Example:
-```js
+```javascript
 const Rools = require('rools');
 const rools = new Rools();
 ...
 ```
 
-### `register()` -- register rules
+### Register rules: `register()`
 
 Rules are plain JavaScript objects with the following properties:
 
@@ -269,7 +271,7 @@ If this happens, none of the rules in the call to `register()` were actually add
 however, it is recommended to treat the affected Rools instance as inconsistent, i.e, it should no longer be used.
 
 Example:
-```js
+```javascript
 const ruleMoodGreat = {
   name: 'mood is great if 200 stars or more',
   when: facts => facts.user.stars >= 200,
@@ -292,10 +294,10 @@ const rools = new Rools();
 await rools.register(ruleMoodGreat, ruleGoWalking);
 ```
 
-### `evaluate()` -- evaluate facts
+### Evaluate facts: `evaluate()`
 
 Facts are plain JavaScript or JSON objects. For example:
-```js
+```javascript
 const facts = {
   user: {
     name: 'frank',
@@ -313,7 +315,7 @@ await rools.evaluate(facts);
 ```
 
 Sometimes, it is handy to combine facts using ES6 shorthand notation:
-```js
+```javascript
 const user = {
   name: 'frank',
   stars: 347,
@@ -335,9 +337,9 @@ Please make sure you provide a fresh set of facts whenever you call `evaluate()`
 If a premise (`when`) fails, `evaluate()` will still *not* fail (for robustness reasons).
 If an action (`then`) fails, `evaluate()` will reject its promise.
 
-### Todos
+## Todos
 
-Some of the features on my list are:
+Some of the features for future releases are:
  * Conflict resolution by specificity
  * Activation groups
  * Agenda groups
