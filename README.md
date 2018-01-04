@@ -337,6 +337,19 @@ Please make sure you provide a fresh set of facts whenever you call `evaluate()`
 If a premise (`when`) fails, `evaluate()` will still *not* fail (for robustness reasons).
 If an action (`then`) fails, `evaluate()` will reject its promise.
 
+### Logging
+
+By default, Rools is logging errors to the JavaScript `console`.
+This can be configured like this.
+
+```javascript
+const delegate = ({ message, rule, error }) => {
+  console.error(message, rule, error);
+};
+const rools = new Rools({ logging: { error: true, debug: false, delegate } });
+...
+```
+
 ## Todos
 
 Some of the features for future releases are:
