@@ -11,12 +11,12 @@ This is a small rule engine for Node.
 [![License Status](http://img.shields.io/npm/l/rools.svg)]()
 
 *Primary goal* was to provide a nice and state-of-the-art interface for modern JavaScript (ES6).
-Facts are plain JavaScript or JSON objects.
+Facts are plain JavaScript or JSON objects or objects from ES6 classes with getters and setters.
 Rules are specified in pure JavaScript rather than in a separate, special-purpose language like DSL.
 
 *Secondary goal* was to provide [RETE](https://en.wikipedia.org/wiki/Rete_algorithm)-like efficiency and optimization.
 
-*1.0.0-beta* is feature-complete and stable. Let me know if there are any issues.
+*1.0.0-beta* is feature-complete and stable.
 
 ## Install
 
@@ -80,9 +80,21 @@ These are the resulting facts:
 
 ## Features
 
-### Rule evaluation
+### Rule engine
 
 The engine does forward-chaining and works in the usual match-resolve-act cycle.
+
+### Facts and rules
+
+Facts are plain JavaScript or JSON objects or objects from ES6 classes with getters and setters.
+
+Rules are specified in pure JavaScript, i.e., they have premises (`when`) and actions (`then`).
+Both are JavaScript functions, i.e., classic functions or ES6 arrow functions.
+Actions can also be asynchronous.
+
+Rules access the facts in both, premises (`when`) and actions (`then`).
+The can access properties directly, e.g., `facts.user.salery`,
+or through getters and getters if applicable, e.g., `facts.user.getSalery()`.
 
 ### Conflict resolution
 
@@ -239,7 +251,7 @@ It unfolds its full potential with a growing number of rules and fact segments.
 
 ### Create rule engine: `new Rools()`
 
-Calling `new Rools()` creates a new Rools instance, i.e., a new rules engine.
+Calling `new Rools()` creates a new Rools instance, i.e., a new rule engine.
 You usually do this once for a given set of rules.
 
 Example:
@@ -261,7 +273,11 @@ Rules are plain JavaScript objects with the following properties:
 | `priority`  | no       | `0`     | If during `evaluate()` there is more than one rule ready to fire, i.e., the conflict set is greater 1, rules with higher priority will fire first. Negative values are supported. |
 | `final`     | no       | `false` | Marks a rule as final. If during `evaluate()` a final rule fires, the engine will stop the evaluation. |
 
-`register()` registers one or more rules to the rules engine.
+Rules access the facts in both, premises (`when`) and actions (`then`).
+The can access properties directly, e.g., `facts.user.salery`,
+or through getters and getters if applicable, e.g., `facts.user.getSalery()`.
+
+`register()` registers one or more rules to the rule engine.
 It can be called multiple time.
 New rules will become effective immediately.
 
@@ -327,7 +343,7 @@ const weather = {
 };
 const rools = new Rools();
 await rools.register(...);
-await rools.evaluate({ user, weather });
+const facts = await rools.evaluate({ user, weather });
 ```
 
 Please note that rules read the facts (`when`) as well as write to the facts (`then`).
