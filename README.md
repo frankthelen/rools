@@ -11,12 +11,10 @@ This is a small rule engine for Node.
 [![License Status](http://img.shields.io/npm/l/rools.svg)]()
 
 *Primary goal* was to provide a nice and state-of-the-art interface for modern JavaScript (ES6).
-Facts are plain JavaScript or JSON objects or objects from ES6 classes with getters and setters.
-Rules are specified in pure JavaScript rather than in a separate, special-purpose language like DSL.
+*Facts* are plain JavaScript or JSON objects or objects from ES6 classes with getters and setters.
+*Rules* are specified in pure JavaScript rather than in a separate, special-purpose language like DSL.
 
 *Secondary goal* was to provide [RETE](https://en.wikipedia.org/wiki/Rete_algorithm)-like efficiency and optimization.
-
-*1.0.0-beta* is feature-complete and stable.
 
 ## Install
 
@@ -93,7 +91,7 @@ Both are JavaScript functions, i.e., classic functions or ES6 arrow functions.
 Actions can also be asynchronous.
 
 Rules access the facts in both, premises (`when`) and actions (`then`).
-The can access properties directly, e.g., `facts.user.salery`,
+They can access properties directly, e.g., `facts.user.salery`,
 or through getters and getters if applicable, e.g., `facts.user.getSalery()`.
 
 ### Conflict resolution
@@ -362,7 +360,9 @@ This can be configured like this.
 const delegate = ({ message, rule, error }) => {
   console.error(message, rule, error);
 };
-const rools = new Rools({ logging: { error: true, debug: false, delegate } });
+const rools = new Rools({
+  logging: { error: true, debug: false, delegate },
+});
 ...
 ```
 
@@ -373,4 +373,3 @@ Some of the features for future releases are:
  * Activation groups
  * Agenda groups
  * Extend rules
- * More unit tests
