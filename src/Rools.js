@@ -30,7 +30,7 @@ class Rools {
         } = rule;
         const action = {
           id: this.getActionId(),
-          name,
+          name, // for logging only
           then,
           priority,
           final,
@@ -38,13 +38,13 @@ class Rools {
         };
         this.actions.push(action);
         const whens = Array.isArray(rule.when) ? rule.when : [rule.when];
-        whens.forEach((when) => {
+        whens.forEach((when, index) => {
           const hash = md5(when); // is function already introduced by other rule?
           let premise = this.premisesByHash[hash];
           if (!premise) { // create new premise
             premise = {
               id: this.getPremiseId(),
-              name,
+              name: `${name} / ${index}`, // for logging only
               when,
               actions: [],
             };
