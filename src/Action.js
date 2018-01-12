@@ -1,6 +1,6 @@
 class Action {
   constructor({
-    id, name, then, priority = 0, final = false,
+    id, name, then, priority, final,
   }) {
     this.id = id;
     this.name = name; // for logging only
