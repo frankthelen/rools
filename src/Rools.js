@@ -1,7 +1,9 @@
-const assert = require('assert');
 const md5 = require('md5');
 const uniqueid = require('uniqueid');
 const Promise = require('bluebird');
+const Rule = require('./Rule');
+const Action = require('./Action');
+const Premise = require('./Premise');
 const Logger = require('./Logger');
 const Delegator = require('./Delegator');
 const observe = require('./observe');
@@ -19,70 +21,34 @@ class Rools {
 
   async register(...rules) {
     return Promise.try(() => {
-      // check all rules -> fail early
-      rules.forEach((rule) => {
-        this.assertRule(rule);
-      });
-      // add rules
-      rules.forEach((rule) => {
-        const {
-          name, then, priority = 0, final = false,
-        } = rule;
-        const action = {
+      rules.map(rule => new Rule(rule)).forEach((rule) => {
+        const action = new Action({
+          ...rule,
           id: this.getActionId(),
-          name, // for logging only
-          then,
-          priority,
-          final,
-          premises: [],
-        };
+        });
         this.actions.push(action);
-        const whens = Array.isArray(rule.when) ? rule.when : [rule.when];
-        whens.forEach((when, index) => {
+        rule.when.forEach((when, index) => {
           const hash = md5(when); // is function already introduced by other rule?
           let premise = this.premisesByHash[hash];
           if (!premise) { // create new premise
-            premise = {
+            premise = new Premise({
+              ...rule,
               id: this.getPremiseId(),
-              name: `${name} / ${index}`, // for logging only
+              name: `${rule.name} / ${index}`,
               when,
-              actions: [],
-            };
+            });
             this.premisesByHash[hash] = premise;
             this.premises.push(premise);
           }
-          action.premises.push(premise); // action ->> premises
-          premise.actions.push(action); // premise ->> actions
+          action.add(premise); // action ->> premises
+          premise.add(action); // premise ->> actions
         });
       });
     });
   }
 
-  assertRule(rule) {
-    assert(rule.name, '"rule.name" is required');
-    assert(rule.when, `"rule.when" is required: "${rule.name}"`);
-    assert(rule.then, `"rule.then" is required: "${rule.name}"`);
-    assert(
-      typeof rule.when === 'function' || Array.isArray(rule.when),
-      `"rule.when" must be a function or an array of functions: "${rule.name}"`,
-    );
-    assert(
-      typeof rule.then === 'function',
-      `"rule.then" must be a function: "${rule.name}"`,
-    );
-    if (Array.isArray(rule.when)) {
-      rule.when.forEach((when, index) => {
-        assert(
-          typeof when === 'function',
-          `"rule.when[${index}]" must be a function: "${rule.name}"`,
-        );
-      });
-    }
-  }
-
   async evaluate(facts) {
     // init
-    this.logger.log({ type: 'debug', message: 'evaluate init' });
     const memory = {}; // working memory
     this.actions.forEach((action) => {
       memory[action.id] = { ready: false, fired: false };
@@ -92,26 +58,28 @@ class Rools {
     });
     const delegator = new Delegator();
     const proxy = observe(facts, segment => delegator.delegate(segment));
-    const activeSegments = new Set();
+    const dirtySegments = new Set();
     const premisesBySegment = {}; // hash
     // match-resolve-act cycle
     for (let pass = 0; pass < this.maxPasses; pass += 1) {
-      const goOn = // eslint-disable-next-line no-await-in-loop
-        await this.evaluatePass(proxy, delegator, memory, activeSegments, premisesBySegment, pass);
-      if (!goOn) break; // for
+      const next = // eslint-disable-next-line no-await-in-loop
+        await this.pass(proxy, delegator, memory, dirtySegments, premisesBySegment, pass);
+      if (!next) break; // for
     }
     // return facts -- for convenience only
     return facts;
   }
 
-  async evaluatePass(facts, delegator, memory, activeSegments, premisesBySegment, pass) {
+  async pass(facts, delegator, memory, dirtySegments, premisesBySegment, pass) {
     this.logger.log({ type: 'debug', message: `evaluate pass ${pass}` });
     // create agenda for premises
     const premisesAgenda = pass === 0 ? this.premises : new Set();
     if (pass > 0) {
-      activeSegments.forEach((segment) => {
-        const activePremises = premisesBySegment[segment] || [];
-        activePremises.forEach((premise) => { premisesAgenda.add(premise); });
+      dirtySegments.forEach((segment) => {
+        const dirtyPremises = premisesBySegment[segment] || [];
+        dirtyPremises.forEach((premise) => {
+          premisesAgenda.add(premise);
+        });
       });
     }
     // evaluate premises
@@ -140,16 +108,15 @@ class Rools {
     const actionsAgenda = pass === 0 ? this.actions : new Set();
     if (pass > 0) {
       premisesAgenda.forEach((premise) => {
-        premise.actions.forEach((action) => {
-          if (!memory[action.id].fired) actionsAgenda.add(action);
+        premise.actions.filter(action => !memory[action.id].fired).forEach((action) => {
+          actionsAgenda.add(action);
         });
       });
     }
     // evaluate actions
     actionsAgenda.forEach((action) => {
-      const num = action.premises.length;
-      const numTrue = action.premises.filter(premise => memory[premise.id].value).length;
-      memory[action.id].ready = numTrue === num; // mark ready
+      memory[action.id].ready =
+        action.premises.reduce((acc, premise) => acc && memory[premise.id].value, true);
     });
     // create conflict set
     const conflictSet = this.actions.filter((action) => {
@@ -157,21 +124,21 @@ class Rools {
       return ready && !fired;
     });
     // conflict resolution
-    const action = this.evaluateSelect(conflictSet);
+    const action = this.select(conflictSet);
     if (!action) {
       this.logger.log({ type: 'debug', message: 'evaluation complete' });
       return false; // done
     }
     // fire action
     this.logger.log({ type: 'debug', message: 'fire action', rule: action.name });
-    memory[action.id].fired = true; // mark fired
+    memory[action.id].fired = true; // mark fired first
     try {
-      activeSegments.clear(); // reset
+      dirtySegments.clear(); // reset
       delegator.set((segment) => { // listen to writing fact segments
         this.logger.log({ type: 'debug', message: `write "${segment}"`, rule: action.name });
-        activeSegments.add(segment);
+        dirtySegments.add(segment);
       });
-      await this.fire(action, facts); // >>> fire action!
+      await action.fire(facts); // >>> fire action!
     } catch (error) { // re-throw error!
       this.logger.log({
         type: 'error', message: 'error in action (then)', rule: action.name, error,
@@ -191,7 +158,7 @@ class Rools {
     return true; // continue
   }
 
-  evaluateSelect(actions) {
+  select(actions) {
     if (actions.length === 0) {
       return undefined; // none
     }
@@ -204,15 +171,6 @@ class Rools {
     const actionsWithPrio = actions.filter(action => action.priority === highestPrio);
     this.logger.log({ type: 'debug', message: 'conflict resolution by priority' });
     return actionsWithPrio[0]; // the first one
-  }
-
-  async fire(action, facts) {
-    try {
-      const thenable = action.then(facts); // >>> fire action!
-      return thenable && thenable.then ? thenable : Promise.resolve();
-    } catch (error) {
-      return Promise.reject(error);
-    }
   }
 }
 

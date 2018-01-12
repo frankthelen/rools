@@ -6,7 +6,7 @@ const {
 } = require('./rules/mood');
 require('./setup');
 
-describe('Rules.evaluate() / final rule', () => {
+describe('Rules.evaluate() / final', () => {
   let rools;
 
   before(async () => {

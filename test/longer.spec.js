@@ -79,7 +79,7 @@ describe('Rules.evaluate() / longer cycle', () => {
     await rools.register(rule7, rule0, rule2, rule3, rule1, rule6, rule8, rule4, rule9, rule5);
   });
 
-  it('should fire 10 rules', async () => {
+  it('should fire 10 rules in 10 passes', async () => {
     const frank = {
       name: 'frank',
       stars: 0,
