@@ -76,8 +76,10 @@ class Rools {
     const premisesAgenda = pass === 0 ? this.premises : new Set();
     if (pass > 0) {
       dirtySegments.forEach((segment) => {
-        const activePremises = premisesBySegment[segment] || [];
-        activePremises.forEach((premise) => { premisesAgenda.add(premise); });
+        const dirtyPremises = premisesBySegment[segment] || [];
+        dirtyPremises.forEach((premise) => {
+          premisesAgenda.add(premise);
+        });
       });
     }
     // evaluate premises
@@ -106,16 +108,15 @@ class Rools {
     const actionsAgenda = pass === 0 ? this.actions : new Set();
     if (pass > 0) {
       premisesAgenda.forEach((premise) => {
-        premise.actions.forEach((action) => {
-          if (!memory[action.id].fired) actionsAgenda.add(action);
+        premise.actions.filter(action => !memory[action.id].fired).forEach((action) => {
+          actionsAgenda.add(action);
         });
       });
     }
     // evaluate actions
     actionsAgenda.forEach((action) => {
-      const num = action.premises.length;
-      const numTrue = action.premises.filter(premise => memory[premise.id].value).length;
-      memory[action.id].ready = numTrue === num; // mark ready
+      memory[action.id].ready =
+        action.premises.reduce((acc, premise) => acc && memory[premise.id].value, true);
     });
     // create conflict set
     const conflictSet = this.actions.filter((action) => {
