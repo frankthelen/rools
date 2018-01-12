@@ -17,6 +17,8 @@ This is a small rule engine for Node.
 
 *Secondary goal* was to provide [RETE](https://en.wikipedia.org/wiki/Rete_algorithm)-like efficiency and optimization.
 
+Mission accomplished! JavaScript rocks!
+
 ## Install
 
 ```bash
@@ -273,7 +275,7 @@ Rules are plain JavaScript objects with the following properties:
 | `final`     | no       | `false` | Marks a rule as final. If during `evaluate()` a final rule fires, the engine will stop the evaluation. |
 
 Rules access the facts in both, premises (`when`) and actions (`then`).
-The can access properties directly, e.g., `facts.user.salery`,
+They can access properties directly, e.g., `facts.user.salery`,
 or through getters and getters if applicable, e.g., `facts.user.getSalery()`.
 
 `register()` registers one or more rules to the rule engine.
