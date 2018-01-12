@@ -17,7 +17,7 @@ class Logger {
     }
   }
 
-  logDefault({ message, rule, error }) { // eslint-disable-line class-methods-use-this
+  logDefault({ message, rule, error }) {
     const msg = rule ? `# ${message} - "${rule}"` : `# ${message}`;
     if (error) {
       console.error(msg, error); // eslint-disable-line no-console

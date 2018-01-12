@@ -58,7 +58,7 @@ class Rools {
     });
   }
 
-  assertRule(rule) { // eslint-disable-line class-methods-use-this
+  assertRule(rule) {
     assert(rule.name, '"rule.name" is required');
     assert(rule.when, `"rule.when" is required: "${rule.name}"`);
     assert(rule.then, `"rule.then" is required: "${rule.name}"`);
@@ -206,7 +206,7 @@ class Rools {
     return actionsWithPrio[0]; // the first one
   }
 
-  async fire(action, facts) { // eslint-disable-line class-methods-use-this
+  async fire(action, facts) {
     try {
       const thenable = action.then(facts); // >>> fire action!
       return thenable && thenable.then ? thenable : Promise.resolve();
