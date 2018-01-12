@@ -44,4 +44,31 @@ describe('Rules.register()', () => {
       // correct!
     }
   });
+
+  it('should fail if rule "when" is neither function nor array', async () => {
+    try {
+      await rools.register({ ...rule, when: 'not a function' });
+      assert.fail();
+    } catch (error) {
+      // correct!
+    }
+  });
+
+  it('should fail if rule "when" is an array with a non-function element', async () => {
+    try {
+      await rools.register({ ...rule, when: ['not a function'] });
+      assert.fail();
+    } catch (error) {
+      // correct!
+    }
+  });
+
+  it('should fail if rule "then" is not a function', async () => {
+    try {
+      await rools.register({ ...rule, then: 'not a function' });
+      assert.fail();
+    } catch (error) {
+      // correct!
+    }
+  });
 });

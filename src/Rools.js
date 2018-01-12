@@ -60,8 +60,24 @@ class Rools {
 
   assertRule(rule) { // eslint-disable-line class-methods-use-this
     assert(rule.name, '"rule.name" is required');
-    assert(rule.when, `"rule.when" is required "${rule.name}"`);
-    assert(rule.then, `"rule.then" is required "${rule.name}"`);
+    assert(rule.when, `"rule.when" is required: "${rule.name}"`);
+    assert(rule.then, `"rule.then" is required: "${rule.name}"`);
+    assert(
+      typeof rule.when === 'function' || Array.isArray(rule.when),
+      `"rule.when" must be a function or an array of functions: "${rule.name}"`,
+    );
+    assert(
+      typeof rule.then === 'function',
+      `"rule.then" must be a function: "${rule.name}"`,
+    );
+    if (Array.isArray(rule.when)) {
+      rule.when.forEach((when, index) => {
+        assert(
+          typeof when === 'function',
+          `"rule.when[${index}]" must be a function: "${rule.name}"`,
+        );
+      });
+    }
   }
 
   async evaluate(facts) {
