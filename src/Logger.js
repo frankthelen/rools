@@ -13,11 +13,11 @@ class Logger {
     if (this.delegate) {
       this.delegate({ type, ...others });
     } else {
-      this.logDefault({ type, ...others });
+      Logger.logDefault({ type, ...others });
     }
   }
 
-  logDefault({ message, rule, error }) {
+  static logDefault({ message, rule, error }) {
     const msg = rule ? `# ${message} - "${rule}"` : `# ${message}`;
     if (error) {
       console.error(msg, error); // eslint-disable-line no-console
