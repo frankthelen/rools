@@ -85,7 +85,7 @@ class Rools {
     // create agenda for actions
     const actionsAgenda = pass === 0 ? this.actions : premisesAgenda
       .reduce((acc, premise) => [...new Set([...acc, ...premise.actions])], [])
-      .filter(action => !action.fired);
+      .filter(action => !memory.getAction(action.id).fired);
     // evaluate actions
     actionsAgenda.forEach((action) => {
       memory.getAction(action.id).ready =
