@@ -67,6 +67,7 @@ class Rools {
     this.logger.debug({ message: `evaluate pass ${pass}` });
     // create agenda for premises
     const premisesAgenda = pass === 0 ? this.premises : memory.getDirtyPremises();
+    this.logger.debug({ message: `premises agenda length ${premisesAgenda.length}` });
     // evaluate premises
     premisesAgenda.forEach((premise) => {
       try {
@@ -86,6 +87,7 @@ class Rools {
     const actionsAgenda = pass === 0 ? this.actions : premisesAgenda
       .reduce((acc, premise) => [...new Set([...acc, ...premise.actions])], [])
       .filter(action => !memory.getState(action).fired);
+    this.logger.debug({ message: `actions agenda length ${actionsAgenda.length}` });
     // evaluate actions
     actionsAgenda.forEach((action) => {
       memory.getState(action).ready =
@@ -96,6 +98,7 @@ class Rools {
       const { fired, ready } = memory.getState(action);
       return ready && !fired;
     });
+    this.logger.debug({ message: `conflict set length ${conflictSet.length}` });
     // conflict resolution
     const action = this.select(conflictSet);
     if (!action) {
