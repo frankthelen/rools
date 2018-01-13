@@ -8,13 +8,13 @@ describe('Rules.evaluate() / async', () => {
     const rools = new Rools();
     await rools.register(rule1);
     const result = await rools.evaluate({ user: frank });
-    expect(result.products).to.shallowDeepEqual(['dsl', 'm4g', 'm3g']);
+    expect(result.products).to.deep.equal(['dsl', 'm4g', 'm3g']);
   });
 
   it('should call async action / action with promises', async () => {
     const rools = new Rools();
     await rools.register(rule2);
     const result = await rools.evaluate({ user: frank });
-    expect(result.products).to.shallowDeepEqual(['dsl', 'm4g', 'm3g']);
+    expect(result.products).to.deep.equal(['dsl', 'm4g', 'm3g']);
   });
 });
