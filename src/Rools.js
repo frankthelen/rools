@@ -15,8 +15,8 @@ class Rools {
     this.premises = [];
     this.premisesByHash = {};
     this.maxPasses = 1000; // emergency stop
-    this.getActionId = uniqueid('a');
-    this.getPremiseId = uniqueid('p');
+    this.nextActionId = uniqueid('a');
+    this.nextPremiseId = uniqueid('p');
     this.logger = new Logger(logging);
   }
 
@@ -25,7 +25,7 @@ class Rools {
       rules.map(rule => new Rule(rule)).forEach((rule) => {
         const action = new Action({
           ...rule,
-          id: this.getActionId(),
+          id: this.nextActionId(),
         });
         this.actions.push(action);
         rule.when.forEach((when, index) => {
@@ -34,7 +34,7 @@ class Rools {
           if (!premise) { // create new premise
             premise = new Premise({
               ...rule,
-              id: this.getPremiseId(),
+              id: this.nextPremiseId(),
               name: `${rule.name} / ${index}`,
               when,
             });
@@ -74,9 +74,9 @@ class Rools {
           this.logger.debug({ message: `read "${segment}"`, rule: premise.name });
           memory.segmentRead(segment, premise);
         });
-        memory.getPremise(premise.id).value = premise.when(facts); // >>> evaluate premise!
+        memory.getState(premise).value = premise.when(facts); // >>> evaluate premise!
       } catch (error) { // ignore error!
-        memory.getPremise(premise.id).value = undefined;
+        memory.getState(premise).value = undefined;
         this.logger.error({ message: 'error in premise (when)', rule: premise.name, error });
       } finally {
         delegator.unset();
@@ -85,15 +85,15 @@ class Rools {
     // create agenda for actions
     const actionsAgenda = pass === 0 ? this.actions : premisesAgenda
       .reduce((acc, premise) => [...new Set([...acc, ...premise.actions])], [])
-      .filter(action => !memory.getAction(action.id).fired);
+      .filter(action => !memory.getState(action).fired);
     // evaluate actions
     actionsAgenda.forEach((action) => {
-      memory.getAction(action.id).ready =
-        action.premises.reduce((acc, premise) => acc && memory.getPremise(premise.id).value, true);
+      memory.getState(action).ready =
+        action.premises.reduce((acc, premise) => acc && memory.getState(premise).value, true);
     });
     // create conflict set
     const conflictSet = this.actions.filter((action) => { // all actions not only actionsAgenda!
-      const { fired, ready } = memory.getAction(action.id);
+      const { fired, ready } = memory.getState(action);
       return ready && !fired;
     });
     // conflict resolution
@@ -104,7 +104,7 @@ class Rools {
     }
     // fire action
     this.logger.debug({ message: 'fire action', rule: action.name });
-    memory.getAction(action.id).fired = true; // mark fired first
+    memory.getState(action).fired = true; // mark fired first
     try {
       memory.clearDirtySegments();
       delegator.set((segment) => { // listen to writing fact segments

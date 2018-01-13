@@ -1,3 +1,5 @@
+const Action = require('./Action');
+
 class WorkingMemory {
   constructor({ actions = [], premises = [] }) {
     this.actionsById = {}; // hash
@@ -12,12 +14,9 @@ class WorkingMemory {
     this.premisesBySegment = {}; // hash
   }
 
-  getAction(id) {
-    return this.actionsById[id];
-  }
-
-  getPremise(id) {
-    return this.premisesById[id];
+  getState(object) {
+    const { id } = object;
+    return object instanceof Action ? this.actionsById[id] : this.premisesById[id];
   }
 
   clearDirtySegments() {
