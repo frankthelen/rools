@@ -1,6 +1,6 @@
 const assert = require('assert');
 const { ruleMoodGreat: rule } = require('./rules/mood');
-const Rools = require('../src');
+const Rools = require('..');
 require('./setup');
 
 describe('Rules.register()', () => {

@@ -1,4 +1,4 @@
-const Rools = require('../src');
+const Rools = require('..');
 require('./setup');
 
 describe('Rules.register() / optimization of premises', () => {

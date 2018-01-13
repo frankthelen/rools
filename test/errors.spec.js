@@ -1,5 +1,5 @@
 const assert = require('assert');
-const Rools = require('../src');
+const Rools = require('..');
 const { frank } = require('./facts/users')();
 const { good } = require('./facts/weather')();
 const {
