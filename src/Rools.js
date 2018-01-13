@@ -14,7 +14,7 @@ class Rools {
     this.actions = [];
     this.premises = [];
     this.premisesByHash = {};
-    this.maxPasses = 100; // emergency stop
+    this.maxPasses = 1000; // emergency stop
     this.getActionId = uniqueid('a');
     this.getPremiseId = uniqueid('p');
     this.logger = new Logger(logging);
@@ -59,7 +59,7 @@ class Rools {
         await this.pass(proxy, delegator, memory, pass);
       if (!next) break; // for
     }
-    // return facts -- for convenience only
+    // return facts for convenience only
     return facts;
   }
 
@@ -118,13 +118,13 @@ class Rools {
     } finally {
       delegator.unset();
     }
-    // final rule
+    // check final rule
     if (action.final) {
       this.logger.debug({ message: 'evaluation stop after final rule', rule: action.name });
       return false; // done
     }
-    // next pass
-    return true; // continue
+    // continue with next pass
+    return true;
   }
 
   select(actions) {
