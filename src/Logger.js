@@ -2,19 +2,23 @@ class Logger {
   constructor({
     error = true, debug = false, delegate = null,
   } = { error: true, debug: false, delegate: null }) {
-    this.error = error;
-    this.debug = debug;
+    this.filter = { error, debug };
     this.delegate = delegate;
   }
 
-  log({ type, ...others }) {
-    if (type === 'error' && !this.error) return;
-    if (type === 'debug' && !this.debug) return;
-    if (this.delegate) {
-      this.delegate({ type, ...others });
-    } else {
-      Logger.logDefault({ type, ...others });
-    }
+  debug(options) {
+    if (!this.filter.debug) return;
+    this.log({ ...options, level: 'debug' });
+  }
+
+  error(options) {
+    if (!this.filter.error) return;
+    this.log({ ...options, level: 'error' });
+  }
+
+  log(options) {
+    const out = this.delegate ? this.delegate : Logger.logDefault;
+    out(options);
   }
 
   static logDefault({ message, rule, error }) {

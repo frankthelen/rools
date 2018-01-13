@@ -71,7 +71,7 @@ class Rools {
   }
 
   async pass(facts, delegator, memory, dirtySegments, premisesBySegment, pass) {
-    this.logger.log({ type: 'debug', message: `evaluate pass ${pass}` });
+    this.logger.debug({ message: `evaluate pass ${pass}` });
     // create agenda for premises
     const premisesAgenda = pass === 0 ? this.premises : new Set();
     if (pass > 0) {
@@ -86,7 +86,7 @@ class Rools {
     premisesAgenda.forEach((premise) => {
       try {
         delegator.set((segment) => { // listen to reading fact segments
-          this.logger.log({ type: 'debug', message: `read "${segment}"`, rule: premise.name });
+          this.logger.debug({ message: `read "${segment}"`, rule: premise.name });
           let premises = premisesBySegment[segment];
           if (!premises) {
             premises = new Set();
@@ -97,9 +97,7 @@ class Rools {
         memory[premise.id].value = premise.when(facts); // >>> evaluate premise!
       } catch (error) { // ignore error!
         memory[premise.id].value = undefined;
-        this.logger.log({
-          type: 'error', message: 'error in premise (when)', rule: premise.name, error,
-        });
+        this.logger.error({ message: 'error in premise (when)', rule: premise.name, error });
       } finally {
         delegator.unset();
       }
@@ -126,32 +124,28 @@ class Rools {
     // conflict resolution
     const action = this.select(conflictSet);
     if (!action) {
-      this.logger.log({ type: 'debug', message: 'evaluation complete' });
+      this.logger.debug({ message: 'evaluation complete' });
       return false; // done
     }
     // fire action
-    this.logger.log({ type: 'debug', message: 'fire action', rule: action.name });
+    this.logger.debug({ message: 'fire action', rule: action.name });
     memory[action.id].fired = true; // mark fired first
     try {
       dirtySegments.clear(); // reset
       delegator.set((segment) => { // listen to writing fact segments
-        this.logger.log({ type: 'debug', message: `write "${segment}"`, rule: action.name });
+        this.logger.debug({ message: `write "${segment}"`, rule: action.name });
         dirtySegments.add(segment);
       });
       await action.fire(facts); // >>> fire action!
     } catch (error) { // re-throw error!
-      this.logger.log({
-        type: 'error', message: 'error in action (then)', rule: action.name, error,
-      });
+      this.logger.error({ message: 'error in action (then)', rule: action.name, error });
       throw new Error(`error in action (then): ${action.name}`, error);
     } finally {
       delegator.unset();
     }
     // final rule
     if (action.final) {
-      this.logger.log({
-        type: 'debug', message: 'evaluation stop after final rule', rule: action.name,
-      });
+      this.logger.debug({ message: 'evaluation stop after final rule', rule: action.name });
       return false; // done
     }
     // next pass
@@ -169,7 +163,7 @@ class Rools {
     const prios = actions.map(action => action.priority);
     const highestPrio = Math.max(...prios);
     const actionsWithPrio = actions.filter(action => action.priority === highestPrio);
-    this.logger.log({ type: 'debug', message: 'conflict resolution by priority' });
+    this.logger.debug({ message: 'conflict resolution by priority' });
     return actionsWithPrio[0]; // the first one
   }
 }
