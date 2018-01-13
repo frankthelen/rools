@@ -1,7 +1,7 @@
 const Action = require('./Action');
 
 class WorkingMemory {
-  constructor({ actions = [], premises = [] }) {
+  constructor({ actions, premises }) {
     this.actionsById = {}; // hash
     this.premisesById = {}; // hash
     actions.forEach((action) => {
