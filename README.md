@@ -102,6 +102,7 @@ or through getters and getters if applicable, e.g., `facts.user.getSalery()`.
 If there is more than one rule ready to fire, i.e., the conflict set is greater 1, the following conflict resolution strategies are applied (in this order):
  * Refraction -- Each rule will fire only once, at most, during any one match-resolve-act cycle.
  * Priority -- Rules with higher priority will fire first. Set the rule's property `priority` to an integer value. Default priority is `0`. Negative values are supported.
+ * Specificity -- Rules which are more specific will fire first. For example, if there is rule R1 with premises P1, P2, and rule R2 with premises P1, P2, and P3. R2 is more specific than R1 and will fire first. R2 is more specific than R1 because it has *all* premises of R1 and additional ones.
  * Order of rules -- The rules that were registered first will fire first.
 
 ### Final rules
@@ -372,7 +373,6 @@ const rools = new Rools({
 ## Todos
 
 Some of the features for future releases are:
- * Conflict resolution by specificity
  * Activation groups
  * Agenda groups
  * Extend rules

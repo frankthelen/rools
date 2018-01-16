@@ -44,6 +44,7 @@
   },
   "dependencies": {
     "bluebird": "^3.5.1",
+    "lodash.intersection": "^4.4.0",
     "md5": "^2.2.1",
     "uniqueid": "^1.0.0"
   }
