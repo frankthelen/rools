@@ -21,4 +21,3 @@ Thumbs.db
 node_modules
 coverage
 */config/local.js
-package-lock.json
