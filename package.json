@@ -1,7 +1,7 @@
 {
   "name": "rools",
   "version": "1.0.1",
-  "description": "A small business rules engine for Node",
+  "description": "This is a small rule engine for Node.",
   "main": "src/index.js",
   "author": "Frank Thelen",
   "license": "MIT",
