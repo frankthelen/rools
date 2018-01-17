@@ -20,6 +20,18 @@ class Rools {
     this.nextActionId = uniqueid('a');
     this.nextPremiseId = uniqueid('p');
     this.logger = new Logger(logging);
+    this.strategy = { // conflict solution strategies
+      ps: [
+        this.resolveByPriority.bind(this),
+        this.resolveBySpecificity.bind(this),
+        this.resolveByOrderOfRegistration.bind(this),
+      ],
+      sp: [
+        this.resolveBySpecificity.bind(this),
+        this.resolveByPriority.bind(this),
+        this.resolveByOrderOfRegistration.bind(this),
+      ],
+    };
   }
 
   async register(...rules) {
@@ -53,21 +65,8 @@ class Rools {
   async evaluate(facts, { strategy = 'ps' } = { strategy: 'ps' }) {
     return Promise.try(async () => {
       // options
-      assert(['ps', 'sp'].includes(strategy), 'strategy must be "ps" or "sp"');
-      let conflictResolutionStrategy = [];
-      if (strategy === 'ps') {
-        conflictResolutionStrategy = [
-          this.resolveByPriority.bind(this),
-          this.resolveBySpecificity.bind(this),
-          this.resolveByOrderOfRegistration.bind(this),
-        ];
-      } else if (strategy === 'sp') {
-        conflictResolutionStrategy = [
-          this.resolveBySpecificity.bind(this),
-          this.resolveByPriority.bind(this),
-          this.resolveByOrderOfRegistration.bind(this),
-        ];
-      }
+      const strategies = Object.keys(this.strategy);
+      assert(strategies.includes(strategy), `strategy must be one of ${strategies}`);
       // init
       const memory = new WorkingMemory({ actions: this.actions, premises: this.premises });
       const delegator = new Delegator();
@@ -75,7 +74,7 @@ class Rools {
       // match-resolve-act cycle
       for (let pass = 0; pass < this.maxPasses; pass += 1) {
         const next = // eslint-disable-next-line no-await-in-loop
-        await this.pass(proxy, delegator, memory, conflictResolutionStrategy, pass);
+        await this.pass(proxy, delegator, memory, { strategy }, pass);
         if (!next) break; // for
       }
       // return facts for convenience only
@@ -83,7 +82,7 @@ class Rools {
     });
   }
 
-  async pass(facts, delegator, memory, conflictResolutionStrategy, pass) {
+  async pass(facts, delegator, memory, { strategy }, pass) {
     this.logger.debug({ message: `evaluate pass ${pass}` });
     // create agenda for premises
     const premisesAgenda = pass === 0 ? this.premises : memory.getDirtyPremises();
@@ -120,7 +119,7 @@ class Rools {
     });
     this.logger.debug({ message: `conflict set length ${conflictSet.length}` });
     // conflict resolution
-    const action = this.select(conflictSet, conflictResolutionStrategy);
+    const action = this.select(conflictSet, strategy);
     if (!action) {
       this.logger.debug({ message: 'evaluation complete' });
       return false; // done
@@ -150,7 +149,7 @@ class Rools {
     return true;
   }
 
-  select(actions, conflictResolutionStrategy) {
+  select(actions, strategy) {
     if (actions.length === 0) {
       return undefined; // none
     }
@@ -158,11 +157,11 @@ class Rools {
       return actions[0];
     }
     // conflict resolution
-    this.logger.debug({ message: 'conflict resolution' });
-    let resolved = actions; // start with all
-    conflictResolutionStrategy.some((resolver) => {
+    this.logger.debug({ message: `conflict resolution strategy "${strategy}"` });
+    let resolved = actions; // start with all actions
+    this.strategy[strategy].some((resolver) => {
       resolved = resolver(resolved);
-      return resolved.length === 1;
+      return resolved.length === 1; // break
     });
     return resolved[0];
   }
