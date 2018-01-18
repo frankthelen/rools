@@ -99,10 +99,10 @@ or through getters and getters if applicable, e.g., `facts.user.getSalery()`.
 
 ### Conflict resolution
 
-If there is more than one rule ready to fire, i.e., the conflict set is greater 1, the following conflict resolution strategies are applied (in this order):
+If there is more than one rule ready to fire, i.e., the conflict set is greater 1, the following conflict resolution strategies are applied (by default, in this order):
  * Refraction -- Each rule will fire only once, at most, during any one match-resolve-act cycle.
  * Priority -- Rules with higher priority will fire first. Set the rule's property `priority` to an integer value. Default priority is `0`. Negative values are supported.
- * Specificity -- Rules which are more specific will fire first. For example, if there is rule R1 with premises P1, P2, and rule R2 with premises P1, P2, and P3. R2 is more specific than R1 and will fire first. R2 is more specific than R1 because it has *all* premises of R1 and additional ones.
+ * Specificity -- Rules which are more specific will fire first. For example, there is rule R1 with premises P1 and P2, and rule R2 with premises P1, P2 and P3. R2 is more specific than R1 and will fire first. R2 is more specific than R1 because it has *all* premises of R1 and additional ones.
  * Order of rules -- The rules that were registered first will fire first.
 
 ### Final rules
@@ -354,6 +354,15 @@ Please make sure you provide a fresh set of facts whenever you call `evaluate()`
 `evaluate()` is working asynchronously, i.e., it returns a promise.
 If a premise (`when`) fails, `evaluate()` will still *not* fail (for robustness reasons).
 If an action (`then`) fails, `evaluate()` will reject its promise.
+
+If there is more than one rule ready to fire, Rools applies a *conflict resolution strategy* to decide which rule/action to fire first. The default conflict resolution strategy is 'ps'.
+ * 'ps' (default) -- (1) priority, (2) specificity, (3) order of registration
+ * 'sp' -- (1) specificity, (2) priority, (3) order of registration
+
+If you don't like the default, change the conflict resolution strategy like this:
+```javascript
+await rools.evaluate(facts, { strategy: 'sp' });
+```
 
 ### Logging
 
