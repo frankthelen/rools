@@ -1,3 +1,4 @@
+const assert = require('assert');
 const intersection = require('lodash.intersection');
 const md5 = require('md5');
 const uniqueid = require('uniqueid');
@@ -19,6 +20,18 @@ class Rools {
     this.nextActionId = uniqueid('a');
     this.nextPremiseId = uniqueid('p');
     this.logger = new Logger(logging);
+    this.strategy = { // conflict solution strategies
+      ps: [
+        this.resolveByPriority.bind(this),
+        this.resolveBySpecificity.bind(this),
+        this.resolveByOrderOfRegistration.bind(this),
+      ],
+      sp: [
+        this.resolveBySpecificity.bind(this),
+        this.resolveByPriority.bind(this),
+        this.resolveByOrderOfRegistration.bind(this),
+      ],
+    };
   }
 
   async register(...rules) {
@@ -49,22 +62,27 @@ class Rools {
     });
   }
 
-  async evaluate(facts) {
-    // init
-    const memory = new WorkingMemory({ actions: this.actions, premises: this.premises });
-    const delegator = new Delegator();
-    const proxy = observe(facts, segment => delegator.delegate(segment));
-    // match-resolve-act cycle
-    for (let pass = 0; pass < this.maxPasses; pass += 1) {
-      const next = // eslint-disable-next-line no-await-in-loop
-        await this.pass(proxy, delegator, memory, pass);
-      if (!next) break; // for
-    }
-    // return facts for convenience only
-    return facts;
+  async evaluate(facts, { strategy = 'ps' } = { strategy: 'ps' }) {
+    return Promise.try(async () => {
+      // options
+      const strategies = Object.keys(this.strategy);
+      assert(strategies.includes(strategy), `strategy must be one of ${strategies}`);
+      // init
+      const memory = new WorkingMemory({ actions: this.actions, premises: this.premises });
+      const delegator = new Delegator();
+      const proxy = observe(facts, segment => delegator.delegate(segment));
+      // match-resolve-act cycle
+      for (let pass = 0; pass < this.maxPasses; pass += 1) {
+        const next = // eslint-disable-next-line no-await-in-loop
+        await this.pass(proxy, delegator, memory, { strategy }, pass);
+        if (!next) break; // for
+      }
+      // return facts for convenience only
+      return facts;
+    });
   }
 
-  async pass(facts, delegator, memory, pass) {
+  async pass(facts, delegator, memory, { strategy }, pass) {
     this.logger.debug({ message: `evaluate pass ${pass}` });
     // create agenda for premises
     const premisesAgenda = pass === 0 ? this.premises : memory.getDirtyPremises();
@@ -101,7 +119,7 @@ class Rools {
     });
     this.logger.debug({ message: `conflict set length ${conflictSet.length}` });
     // conflict resolution
-    const action = this.select(conflictSet);
+    const action = this.select(conflictSet, strategy);
     if (!action) {
       this.logger.debug({ message: 'evaluation complete' });
       return false; // done
@@ -131,28 +149,24 @@ class Rools {
     return true;
   }
 
-  select(actions) {
+  select(actions, strategy) {
     if (actions.length === 0) {
       return undefined; // none
     }
     if (actions.length === 1) {
       return actions[0];
     }
-    // conflict resolution by priority
-    const actionsPrio = this.selectByPriority(actions);
-    if (actionsPrio.length === 1) {
-      return actionsPrio[0];
-    }
-    // conflict resolution by specificity
-    const actionsSpec = this.selectBySpecificity(actionsPrio);
-    if (actionsSpec.length === 1) {
-      return actionsSpec[0];
-    }
-    // conflict resolution by order of registration
-    return this.selectByOrderOfRegistration(actionsSpec);
+    // conflict resolution
+    this.logger.debug({ message: `conflict resolution strategy "${strategy}"` });
+    let resolved = actions; // start with all actions
+    this.strategy[strategy].some((resolver) => {
+      resolved = resolver(resolved);
+      return resolved.length === 1; // break
+    });
+    return resolved[0];
   }
 
-  selectByPriority(actions) {
+  resolveByPriority(actions) {
     const prios = actions.map(action => action.priority);
     const highestPrio = Math.max(...prios);
     const selected = actions.filter(action => action.priority === highestPrio);
@@ -162,7 +176,7 @@ class Rools {
     return selected;
   }
 
-  selectBySpecificity(actions) {
+  resolveBySpecificity(actions) {
     const isMoreSpecific = (action, rhs) =>
       action.premises.length > rhs.premises.length &&
       intersection(action.premises, rhs.premises).length === rhs.premises.length;
@@ -175,11 +189,12 @@ class Rools {
     return selected;
   }
 
-  selectByOrderOfRegistration(actions) {
+  resolveByOrderOfRegistration(actions) {
+    const selected = [actions[0]];
     this.logger.debug({
       message: `conflict resolution by order of registration ${actions.length} -> 1`,
     });
-    return actions[0];
+    return selected;
   }
 }
 
