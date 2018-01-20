@@ -23,7 +23,7 @@ describe('Rules.evaluate() / withdraw', () => {
 
   it('should withdraw action from agenda (un-ready) if facts were changed by previous action', async () => {
     const rools = new Rools();
-    await rools.register(rule1, rule2);
+    await rools.register([rule1, rule2]);
     await rools.evaluate(facts);
     expect(spy.called).to.be.equal(false);
   });

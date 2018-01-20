@@ -12,6 +12,7 @@ class WorkingMemory {
     });
     this.dirtySegments = new Set();
     this.premisesBySegment = {}; // hash
+    this.updatedSegments = new Set(); // total
   }
 
   getState(object) {
@@ -36,6 +37,7 @@ class WorkingMemory {
 
   segmentWrite(segment) {
     this.dirtySegments.add(segment);
+    this.updatedSegments.add(segment);
   }
 
   segmentRead(segment, premise) {

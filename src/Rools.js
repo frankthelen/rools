@@ -34,7 +34,7 @@ class Rools {
     };
   }
 
-  async register(...rules) {
+  async register(rules) {
     return Promise.try(() => {
       rules.map(rule => new Rule(rule)).forEach((rule) => {
         const action = new Action({
@@ -64,25 +64,34 @@ class Rools {
 
   async evaluate(facts, { strategy = 'ps' } = { strategy: 'ps' }) {
     return Promise.try(async () => {
+      const startDate = new Date();
       // options
       const strategies = Object.keys(this.strategy);
       assert(strategies.includes(strategy), `strategy must be one of ${strategies}`);
+      const conflictResolution = this.strategy[strategy];
       // init
       const memory = new WorkingMemory({ actions: this.actions, premises: this.premises });
       const delegator = new Delegator();
       const proxy = observe(facts, segment => delegator.delegate(segment));
       // match-resolve-act cycle
-      for (let pass = 0; pass < this.maxPasses; pass += 1) {
+      this.logger.debug({ message: `evaluate using strategy "${strategy}"` });
+      let pass = 0;
+      for (; pass < this.maxPasses; pass += 1) {
         const next = // eslint-disable-next-line no-await-in-loop
-        await this.pass(proxy, delegator, memory, { strategy }, pass);
+          await this.pass(proxy, delegator, memory, conflictResolution, pass);
         if (!next) break; // for
       }
-      // return facts for convenience only
-      return facts;
+      // return info
+      const endDate = new Date();
+      return {
+        updated: [...memory.updatedSegments],
+        fired: pass,
+        elapsed: endDate.getTime() - startDate.getTime(),
+      };
     });
   }
 
-  async pass(facts, delegator, memory, { strategy }, pass) {
+  async pass(facts, delegator, memory, conflictResolution, pass) {
     this.logger.debug({ message: `evaluate pass ${pass}` });
     // create agenda for premises
     const premisesAgenda = pass === 0 ? this.premises : memory.getDirtyPremises();
@@ -119,7 +128,7 @@ class Rools {
     });
     this.logger.debug({ message: `conflict set length ${conflictSet.length}` });
     // conflict resolution
-    const action = this.select(conflictSet, strategy);
+    const action = this.select(conflictSet, conflictResolution);
     if (!action) {
       this.logger.debug({ message: 'evaluation complete' });
       return false; // done
@@ -149,7 +158,7 @@ class Rools {
     return true;
   }
 
-  select(actions, strategy) {
+  select(actions, conflictResolution) {
     if (actions.length === 0) {
       return undefined; // none
     }
@@ -157,9 +166,9 @@ class Rools {
       return actions[0];
     }
     // conflict resolution
-    this.logger.debug({ message: `conflict resolution strategy "${strategy}"` });
+    this.logger.debug({ message: `conflict resolution starting with ${actions.length}` });
     let resolved = actions; // start with all actions
-    this.strategy[strategy].some((resolver) => {
+    conflictResolution.some((resolver) => {
       resolved = resolver(resolved);
       return resolved.length === 1; // break
     });

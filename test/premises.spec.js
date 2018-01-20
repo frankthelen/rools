@@ -14,7 +14,7 @@ describe('Rules.register() / optimization of premises', () => {
       then: () => {},
     };
     const rools = new Rools();
-    await rools.register(rule1, rule2);
+    await rools.register([rule1, rule2]);
     expect(rools.premises.length).to.be.equal(2);
   });
 
@@ -31,7 +31,7 @@ describe('Rules.register() / optimization of premises', () => {
       then: () => {},
     };
     const rools = new Rools();
-    await rools.register(rule1, rule2);
+    await rools.register([rule1, rule2]);
     expect(rools.premises.length).to.be.equal(1);
   });
 
@@ -50,7 +50,7 @@ describe('Rules.register() / optimization of premises', () => {
       then: () => {},
     };
     const rools = new Rools();
-    await rools.register(rule1, rule2);
+    await rools.register([rule1, rule2]);
     expect(rools.premises.length).to.be.equal(1);
   });
 
@@ -66,7 +66,7 @@ describe('Rules.register() / optimization of premises', () => {
       then: () => {},
     };
     const rools = new Rools();
-    await rools.register(rule1, rule2);
+    await rools.register([rule1, rule2]);
     expect(rools.premises.length).to.be.equal(1);
   });
 
@@ -86,7 +86,7 @@ describe('Rules.register() / optimization of premises', () => {
       then: () => {},
     };
     const rools = new Rools();
-    await rools.register(rule1, rule2);
+    await rools.register([rule1, rule2]);
     expect(rools.premises.length).to.be.equal(1);
   });
 
@@ -102,7 +102,7 @@ describe('Rules.register() / optimization of premises', () => {
       then: () => {},
     };
     const rools = new Rools();
-    await rools.register(rule1, rule2);
+    await rools.register([rule1, rule2]);
     expect(rools.premises.length).to.be.equal(1);
   });
 
@@ -120,7 +120,7 @@ describe('Rules.register() / optimization of premises', () => {
       then: () => {},
     };
     const rools = new Rools();
-    await rools.register(rule1, rule2);
+    await rools.register([rule1, rule2]);
     expect(rools.premises.length).to.be.equal(2);
   });
 
@@ -137,7 +137,7 @@ describe('Rules.register() / optimization of premises', () => {
       then: () => {},
     };
     const rools = new Rools();
-    await rools.register(rule1, rule2);
+    await rools.register([rule1, rule2]);
     expect(rools.premises.length).to.be.equal(1);
   });
 });

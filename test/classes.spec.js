@@ -55,23 +55,25 @@ const rule2 = {
 
 describe('Rules.evaluate() / classes with getters and setters', () => {
   it('should set mood in 1 pass', async () => {
-    const rools = new Rools();
-    await rools.register(rule1);
-    const result = await rools.evaluate({
+    const facts = {
       user: new Person({ name: 'frank', stars: 347, salery: 1234 }),
-    });
+    };
+    const rools = new Rools();
+    await rools.register([rule1]);
+    await rools.evaluate(facts);
     // console.log(result); // eslint-disable-line no-console
-    expect(result.user.mood).to.be.equal('great');
+    expect(facts.user.mood).to.be.equal('great');
   });
 
   it('should set result in 2 passes', async () => {
-    const rools = new Rools();
-    await rools.register(rule1, rule2);
-    const result = await rools.evaluate({
+    const facts = {
       user: new Person({ name: 'frank', stars: 347, salery: 1234 }),
-    });
+    };
+    const rools = new Rools();
+    await rools.register([rule1, rule2]);
+    await rools.evaluate(facts);
     // console.log(result); // eslint-disable-line no-console
-    expect(result.user.mood).to.be.equal('great');
-    expect(result.result).to.be.equal(true);
+    expect(facts.user.mood).to.be.equal('great');
+    expect(facts.result).to.be.equal(true);
   });
 });

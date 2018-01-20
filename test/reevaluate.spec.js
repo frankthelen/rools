@@ -26,7 +26,7 @@ describe('Rules.evaluate() / re-evaluate', () => {
       fact3: false,
     };
     const rools = new Rools();
-    await rools.register(rule1, rule2, rule3);
+    await rools.register([rule1, rule2, rule3]);
     await rools.evaluate(facts);
     expect(premisesEvaluated).to.be.deep.equal([1, 2, 3, 2, 3]);
     expect(actionsFired).to.be.deep.equal([1, 2, 3]);
@@ -56,7 +56,7 @@ describe('Rules.evaluate() / re-evaluate', () => {
       fact3: false,
     };
     const rools = new Rools();
-    await rools.register(rule1, rule2, rule3);
+    await rools.register([rule1, rule2, rule3]);
     await rools.evaluate(facts);
     expect(premisesEvaluated).to.be.deep.equal([1, 2, 3, 2, 1, 3, 2]);
     expect(actionsFired).to.be.deep.equal([1, 2, 3]);

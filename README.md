@@ -19,6 +19,8 @@ This is a small rule engine for Node.
 
 Mission accomplished! JavaScript rocks!
 
+See [migration info](#migration) for breaking changes between major versions 1.x.x and 2.x.x.
+
 ## Install
 
 ```bash
@@ -68,7 +70,7 @@ const ruleGoWalking = {
 
 // evaluation
 const rools = new Rools();
-await rools.register(ruleMoodGreat, ruleGoWalking);
+await rools.register([ruleMoodGreat, ruleGoWalking]);
 await rools.evaluate(facts);
 ```
 These are the resulting facts:
@@ -285,8 +287,7 @@ New rules will become effective immediately.
 
 `register()` is working asynchronously, i.e., it returns a promise.
 Its promise may be rejected, e.g., if a rule is formally incorrect.
-If this happens, none of the rules in the call to `register()` were actually added;
-however, it is recommended to treat the affected Rools instance as inconsistent, i.e, it should no longer be used.
+If this happens, the affected Rools instance is inconsistent and should no longer be used.
 
 Example:
 ```javascript
@@ -309,30 +310,12 @@ const ruleGoWalking = {
   },
 };
 const rools = new Rools();
-await rools.register(ruleMoodGreat, ruleGoWalking);
+await rools.register([ruleMoodGreat, ruleGoWalking]);
 ```
 
 ### Evaluate facts: `evaluate()`
 
 Facts are plain JavaScript or JSON objects. For example:
-```javascript
-const facts = {
-  user: {
-    name: 'frank',
-    stars: 347,
-  },
-  weather: {
-    temperature: 20,
-    windy: true,
-    rainy: false,
-  },
-};
-const rools = new Rools();
-await rools.register(...);
-await rools.evaluate(facts);
-```
-
-Sometimes, it is handy to combine facts using ES6 shorthand notation:
 ```javascript
 const user = {
   name: 'frank',
@@ -345,10 +328,10 @@ const weather = {
 };
 const rools = new Rools();
 await rools.register(...);
-const facts = await rools.evaluate({ user, weather });
+await rools.evaluate({ user, weather });
 ```
 
-Please note that rules read the facts (`when`) as well as write to the facts (`then`).
+Please note that Rools reads the facts (`when`) as well as writes to the facts (`then`) during evaluation.
 Please make sure you provide a fresh set of facts whenever you call `evaluate()`.
 
 `evaluate()` is working asynchronously, i.e., it returns a promise.
@@ -370,8 +353,8 @@ By default, Rools is logging errors to the JavaScript `console`.
 This can be configured like this.
 
 ```javascript
-const delegate = ({ message, rule, error }) => {
-  console.error(message, rule, error);
+const delegate = ({ level, message, rule, error }) => {
+  console.error(level, message, rule, error);
 };
 const rools = new Rools({
   logging: { error: true, debug: false, delegate },
@@ -379,9 +362,35 @@ const rools = new Rools({
 ...
 ```
 
-## Todos
+## Migration
 
-Some of the features for future releases are:
- * Activation groups
- * Agenda groups
- * Extend rules
+### Version 1.x.x to Version 2.x.x
+
+There are two breaking changes that require some little changes to your code.
+
+`register()` takes the rules to register as an array now.
+Reason is to allow a second options parameter in future releases.
+
+Version 1.x.x
+```javascript
+await register(rule1, rule2, rule3);
+```
+
+Version 2.x.x
+```javascript
+await register([rule1, rule2, rule3]);
+```
+
+`evaluate()` does not return the facts which was only for convenience anyway.
+Instead, it returns an object with some useful information about what it was actually doing. `updated` lists the names of the fact segments that were actually updated during evaluation. `fired` is number of rules that were fired. `elapsed` is the number of milliseconds needed.
+
+Version 1.x.x
+```javascript
+const facts = await evaluate({ user, weather });
+```
+
+Version 2.x.x
+```javascript
+const { updated, fired, elapsed } = await evaluate({ user, weather });
+console.log(updated, fired, elapsed); // e.g., ["user"] 26 536
+```

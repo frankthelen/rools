@@ -25,7 +25,7 @@ describe('Rules.evaluate() / refraction', () => {
   it('should fire each rule only once / recursive', async () => {
     spy.resetHistory();
     const rools = new Rools();
-    await rools.register(rule1);
+    await rools.register([rule1]);
     await rools.evaluate(facts);
     expect(spy.calledOnce).to.be.equal(true);
   });
@@ -33,7 +33,7 @@ describe('Rules.evaluate() / refraction', () => {
   it('should fire each rule only once / transitive', async () => {
     spy.resetHistory();
     const rools = new Rools();
-    await rools.register(rule1, rule2);
+    await rools.register([rule1, rule2]);
     await rools.evaluate(facts);
     expect(spy.calledOnce).to.be.equal(true);
   });

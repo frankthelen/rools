@@ -44,7 +44,7 @@ describe('Rules.evaluate() / specificity', () => {
   it('should fail if unknown strategy', async () => {
     try {
       const rools = new Rools();
-      await rools.register(rule1, rule2, rule3);
+      await rools.register([rule1, rule2, rule3]);
       await rools.evaluate(facts, { strategy: 'xx' });
       assert.fail();
     } catch (error) {
@@ -55,7 +55,7 @@ describe('Rules.evaluate() / specificity', () => {
   it('should fire rule with highest prio, then higher specificity / strategy "ps" / 1', async () => {
     sequence.length = 0; // reset
     const rools = new Rools();
-    await rools.register({ ...rule1, priority: 10 }, rule2, rule3);
+    await rools.register([{ ...rule1, priority: 10 }, rule2, rule3]);
     await rools.evaluate(facts);
     expect(sequence).to.be.deep.equal([1, 3, 2]);
   });
@@ -63,7 +63,7 @@ describe('Rules.evaluate() / specificity', () => {
   it('should fire rule with highest prio, then higher specificity / strategy "ps" / 2', async () => {
     sequence.length = 0; // reset
     const rools = new Rools();
-    await rools.register({ ...rule1, priority: 10 }, rule2, rule3);
+    await rools.register([{ ...rule1, priority: 10 }, rule2, rule3]);
     await rools.evaluate(facts, { strategy: 'ps' });
     expect(sequence).to.be.deep.equal([1, 3, 2]);
   });
@@ -71,7 +71,7 @@ describe('Rules.evaluate() / specificity', () => {
   it('should fire rule with highest prio, then higher specificity / strategy "ps" / 3', async () => {
     sequence.length = 0; // reset
     const rools = new Rools();
-    await rools.register({ ...rule1, priority: 10 }, rule2, rule3);
+    await rools.register([{ ...rule1, priority: 10 }, rule2, rule3]);
     await rools.evaluate(facts, {});
     expect(sequence).to.be.deep.equal([1, 3, 2]);
   });
@@ -79,7 +79,7 @@ describe('Rules.evaluate() / specificity', () => {
   it('should fire rule with higher specificity, then highest prio / strategy "sp" / 1', async () => {
     sequence.length = 0; // reset
     const rools = new Rools();
-    await rools.register({ ...rule1, priority: 10 }, rule2, rule3);
+    await rools.register([{ ...rule1, priority: 10 }, rule2, rule3]);
     await rools.evaluate(facts, { strategy: 'sp' });
     expect(sequence).to.be.deep.equal([3, 2, 1]);
   });
@@ -87,7 +87,7 @@ describe('Rules.evaluate() / specificity', () => {
   it('should fire rule with higher specificity, then highest prio / strategy "sp" / 2', async () => {
     sequence.length = 0; // reset
     const rools = new Rools();
-    await rools.register(rule1, { ...rule2, priority: 10 }, rule3);
+    await rools.register([rule1, { ...rule2, priority: 10 }, rule3]);
     await rools.evaluate(facts, { strategy: 'sp' });
     expect(sequence).to.be.deep.equal([3, 2, 1]);
   });
@@ -95,7 +95,7 @@ describe('Rules.evaluate() / specificity', () => {
   it('should fire rule with higher specificity, then highest prio / strategy "sp" / 3', async () => {
     sequence.length = 0; // reset
     const rools = new Rools();
-    await rools.register(rule1, rule2, rule3, rule4);
+    await rools.register([rule1, rule2, rule3, rule4]);
     await rools.evaluate(facts, { strategy: 'sp' });
     expect(sequence).to.be.deep.equal([3, 4, 2, 1]);
   });
@@ -103,7 +103,7 @@ describe('Rules.evaluate() / specificity', () => {
   it('should fire rule with higher specificity, then highest prio / strategy "sp" / 4', async () => {
     sequence.length = 0; // reset
     const rools = new Rools();
-    await rools.register(rule1, rule2, rule3, { ...rule4, priority: 10 });
+    await rools.register([rule1, rule2, rule3, { ...rule4, priority: 10 }]);
     await rools.evaluate(facts, { strategy: 'sp' });
     expect(sequence).to.be.deep.equal([4, 3, 2, 1]);
   });

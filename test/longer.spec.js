@@ -76,7 +76,7 @@ describe('Rules.evaluate() / longer cycle', () => {
       },
     };
     rools = new Rools();
-    await rools.register(rule7, rule0, rule2, rule3, rule1, rule6, rule8, rule4, rule9, rule5);
+    await rools.register([rule7, rule0, rule2, rule3, rule1, rule6, rule8, rule4, rule9, rule5]);
   });
 
   it('should fire 10 rules in 10 passes', async () => {
@@ -84,7 +84,7 @@ describe('Rules.evaluate() / longer cycle', () => {
       name: 'frank',
       stars: 0,
     };
-    const result = await rools.evaluate({ user: frank });
-    expect(result.user.stars).to.be.equal(10);
+    await rools.evaluate({ user: frank });
+    expect(frank.stars).to.be.equal(10);
   });
 });

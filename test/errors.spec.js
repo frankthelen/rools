@@ -16,7 +16,7 @@ describe('Rules.evaluate()', () => {
     };
     const rools = new Rools({ logging: { error: false } });
     const facts = { user: frank, weather: good };
-    await rools.register(brokenRule, ruleMoodGreat, ruleMoodSad, ruleGoWalking, ruleStayAtHome);
+    await rools.register([brokenRule, ruleMoodGreat, ruleMoodSad, ruleGoWalking, ruleStayAtHome]);
     try {
       await rools.evaluate(facts);
     } catch (error) {
@@ -36,7 +36,7 @@ describe('Rules.evaluate()', () => {
     };
     const rools = new Rools({ logging: { error: false } });
     const facts = { user: frank, weather: good };
-    await rools.register(brokenRule, ruleMoodGreat, ruleMoodSad, ruleGoWalking, ruleStayAtHome);
+    await rools.register([brokenRule, ruleMoodGreat, ruleMoodSad, ruleGoWalking, ruleStayAtHome]);
     try {
       await rools.evaluate(facts);
       assert.fail();
