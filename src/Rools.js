@@ -49,9 +49,8 @@ class Rools {
       // match-resolve-act cycle
       this.logger.debug({ message: `evaluate using strategy "${strategy}"` });
       let pass = 0;
-      for (; pass < this.maxPasses; pass += 1) {
-        const next = // eslint-disable-next-line no-await-in-loop
-          await this.pass(proxy, delegator, memory, conflictResolution, pass);
+      for (; pass < this.maxPasses; pass += 1) { // eslint-disable-next-line no-await-in-loop
+        const next = await this.pass(proxy, delegator, memory, conflictResolution, pass);
         if (!next) break; // for
       }
       // return info
