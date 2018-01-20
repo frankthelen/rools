@@ -2,12 +2,14 @@ const Action = require('./Action');
 
 class WorkingMemory {
   constructor({ actions, premises }) {
+    this.actions = actions;
+    this.premises = premises;
     this.actionsById = {}; // hash
     this.premisesById = {}; // hash
-    actions.forEach((action) => {
+    this.actions.forEach((action) => {
       this.actionsById[action.id] = { ready: false, fired: false };
     });
-    premises.forEach((premise) => {
+    this.premises.forEach((premise) => {
       this.premisesById[premise.id] = { value: undefined };
     });
     this.dirtySegments = new Set();

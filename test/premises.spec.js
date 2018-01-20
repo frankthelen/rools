@@ -15,7 +15,7 @@ describe('Rules.register() / optimization of premises', () => {
     };
     const rools = new Rools();
     await rools.register([rule1, rule2]);
-    expect(rools.premises.length).to.be.equal(2);
+    expect(rools.rules.premises.length).to.be.equal(2);
   });
 
   it('should merge premises if identical / reference / arrow function', async () => {
@@ -32,7 +32,7 @@ describe('Rules.register() / optimization of premises', () => {
     };
     const rools = new Rools();
     await rools.register([rule1, rule2]);
-    expect(rools.premises.length).to.be.equal(1);
+    expect(rools.rules.premises.length).to.be.equal(1);
   });
 
   it('should merge premises if identical / reference / classic function', async () => {
@@ -51,7 +51,7 @@ describe('Rules.register() / optimization of premises', () => {
     };
     const rools = new Rools();
     await rools.register([rule1, rule2]);
-    expect(rools.premises.length).to.be.equal(1);
+    expect(rools.rules.premises.length).to.be.equal(1);
   });
 
   it('should merge premises if identical / hash / arrow function', async () => {
@@ -67,7 +67,7 @@ describe('Rules.register() / optimization of premises', () => {
     };
     const rools = new Rools();
     await rools.register([rule1, rule2]);
-    expect(rools.premises.length).to.be.equal(1);
+    expect(rools.rules.premises.length).to.be.equal(1);
   });
 
   it('should merge premises if identical / hash / classic function()', async () => {
@@ -87,7 +87,7 @@ describe('Rules.register() / optimization of premises', () => {
     };
     const rools = new Rools();
     await rools.register([rule1, rule2]);
-    expect(rools.premises.length).to.be.equal(1);
+    expect(rools.rules.premises.length).to.be.equal(1);
   });
 
   it('should merge premises if identical / hash / slightly different', async () => {
@@ -103,7 +103,7 @@ describe('Rules.register() / optimization of premises', () => {
     };
     const rools = new Rools();
     await rools.register([rule1, rule2]);
-    expect(rools.premises.length).to.be.equal(1);
+    expect(rools.rules.premises.length).to.be.equal(1);
   });
 
   it('should not merge premises if not identical / with Date object', async () => {
@@ -121,7 +121,7 @@ describe('Rules.register() / optimization of premises', () => {
     };
     const rools = new Rools();
     await rools.register([rule1, rule2]);
-    expect(rools.premises.length).to.be.equal(2);
+    expect(rools.rules.premises.length).to.be.equal(2);
   });
 
   it('should merge premises if identical / with Date object', async () => {
@@ -138,6 +138,6 @@ describe('Rules.register() / optimization of premises', () => {
     };
     const rools = new Rools();
     await rools.register([rule1, rule2]);
-    expect(rools.premises.length).to.be.equal(1);
+    expect(rools.rules.premises.length).to.be.equal(1);
   });
 });
