@@ -271,7 +271,7 @@ Rules are plain JavaScript objects with the following properties:
 
 | Property    | Required | Default | Description |
 |-------------|----------|---------|-------------|
-| `name`      | yes      | -       | A string value identifying the rule. This is used logging and debugging purposes only. |
+| `name`      | yes      | -       | A string value identifying the rule. This is used for logging and debugging purposes only. |
 | `when`      | yes      | -       | A synchronous JavaScript function or an array of functions. These are the premises of your rule. The functions' interface is `(facts) => { ... }`. They must return a boolean value. |
 | `then`      | yes      | -       | A synchronous or asynchronous JavaScript function to be executed when the rule fires. The function's interface is `(facts) => { ... }` or `async (facts) => { ... }`. |
 | `priority`  | no       | `0`     | If during `evaluate()` there is more than one rule ready to fire, i.e., the conflict set is greater 1, rules with higher priority will fire first. Negative values are supported. |
