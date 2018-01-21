@@ -8,7 +8,8 @@ A small rule engine for Node.
 [![Greenkeeper badge](https://badges.greenkeeper.io/frankthelen/rools.svg)](https://greenkeeper.io/)
 [![Maintainability](https://api.codeclimate.com/v1/badges/2b21f79b2657870c146f/maintainability)](https://codeclimate.com/github/frankthelen/rools/maintainability)
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Ffrankthelen%2Frools.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Ffrankthelen%2Frools?ref=badge_shield)
-[![node](https://img.shields.io/node/v/rools.svg)]()
+[![node](https://img.shields.io/node/v/rools.svg)](https://nodejs.org)
+[![code style](https://img.shields.io/badge/code_style-airbnb-brightgreen.svg)](https://github.com/airbnb/javascript)
 [![License Status](http://img.shields.io/npm/l/rools.svg)]()
 
 *Primary goal* was to provide a nice and state-of-the-art interface for modern JavaScript (ES6).
