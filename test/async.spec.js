@@ -1,20 +1,22 @@
-const Rools = require('..');
+const { Rools } = require('..');
 const { frank } = require('./facts/users')();
 const { rule1, rule2 } = require('./rules/availability');
 require('./setup');
 
 describe('Rules.evaluate() / async', () => {
   it('should call async action / action with async/await', async () => {
+    const facts = { user: frank };
     const rools = new Rools();
-    await rools.register(rule1);
-    const result = await rools.evaluate({ user: frank });
-    expect(result.products).to.deep.equal(['dsl', 'm4g', 'm3g']);
+    await rools.register([rule1]);
+    await rools.evaluate(facts);
+    expect(facts.products).to.deep.equal(['dsl', 'm4g', 'm3g']);
   });
 
   it('should call async action / action with promises', async () => {
+    const facts = { user: frank };
     const rools = new Rools();
-    await rools.register(rule2);
-    const result = await rools.evaluate({ user: frank });
-    expect(result.products).to.deep.equal(['dsl', 'm4g', 'm3g']);
+    await rools.register([rule2]);
+    await rools.evaluate(facts);
+    expect(facts.products).to.deep.equal(['dsl', 'm4g', 'm3g']);
   });
 });

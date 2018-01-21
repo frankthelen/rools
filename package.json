@@ -1,7 +1,7 @@
 {
   "name": "rools",
-  "version": "1.2.0",
-  "description": "This is a small rule engine for Node.",
+  "version": "2.0.0",
+  "description": "A small rule engine for Node.",
   "main": "src/index.js",
   "author": "Frank Thelen",
   "license": "MIT",
@@ -31,7 +31,7 @@
     "chai": "^4.1.2",
     "chai-as-promised": "^7.1.1",
     "coveralls": "^3.0.0",
-    "eslint": "^4.15.0",
+    "eslint": "^4.16.0",
     "eslint-config-airbnb-base": "^12.1.0",
     "eslint-plugin-import": "^2.8.0",
     "eslint-plugin-promise": "^3.6.0",
@@ -43,7 +43,7 @@
   },
   "dependencies": {
     "bluebird": "^3.5.1",
-    "lodash.intersection": "^4.4.0",
+    "lodash": "^4.17.4",
     "md5": "^2.2.1",
     "uniqueid": "^1.0.0"
   }

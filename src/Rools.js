@@ -1,11 +1,7 @@
+const _ = require('lodash');
 const assert = require('assert');
-const intersection = require('lodash.intersection');
-const md5 = require('md5');
-const uniqueid = require('uniqueid');
 const Promise = require('bluebird');
-const Rule = require('./Rule');
-const Action = require('./Action');
-const Premise = require('./Premise');
+const RuleSet = require('./RuleSet');
 const Logger = require('./Logger');
 const Delegator = require('./Delegator');
 const WorkingMemory = require('./WorkingMemory');
@@ -13,12 +9,8 @@ const observe = require('./observe');
 
 class Rools {
   constructor({ logging } = {}) {
-    this.actions = [];
-    this.premises = [];
-    this.premisesByHash = {};
+    this.rules = new RuleSet();
     this.maxPasses = 1000; // emergency stop
-    this.nextActionId = uniqueid('a');
-    this.nextPremiseId = uniqueid('p');
     this.logger = new Logger(logging);
     this.strategy = { // conflict solution strategies
       ps: [
@@ -34,58 +26,47 @@ class Rools {
     };
   }
 
-  async register(...rules) {
+  async register(rules) {
     return Promise.try(() => {
-      rules.map(rule => new Rule(rule)).forEach((rule) => {
-        const action = new Action({
-          ...rule,
-          id: this.nextActionId(),
-        });
-        this.actions.push(action);
-        rule.when.forEach((when, index) => {
-          const hash = md5(when); // is function already introduced by other rule?
-          let premise = this.premisesByHash[hash];
-          if (!premise) { // create new premise
-            premise = new Premise({
-              ...rule,
-              id: this.nextPremiseId(),
-              name: `${rule.name} / ${index}`,
-              when,
-            });
-            this.premisesByHash[hash] = premise;
-            this.premises.push(premise);
-          }
-          action.add(premise); // action ->> premises
-          premise.add(action); // premise ->> actions
-        });
-      });
+      rules.forEach(rule => this.rules.register(rule));
     });
   }
 
   async evaluate(facts, { strategy = 'ps' } = { strategy: 'ps' }) {
     return Promise.try(async () => {
+      const startDate = new Date();
       // options
       const strategies = Object.keys(this.strategy);
       assert(strategies.includes(strategy), `strategy must be one of ${strategies}`);
+      const conflictResolution = this.strategy[strategy];
       // init
-      const memory = new WorkingMemory({ actions: this.actions, premises: this.premises });
+      const memory = new WorkingMemory({
+        actions: this.rules.actions,
+        premises: this.rules.premises,
+      });
       const delegator = new Delegator();
       const proxy = observe(facts, segment => delegator.delegate(segment));
       // match-resolve-act cycle
-      for (let pass = 0; pass < this.maxPasses; pass += 1) {
-        const next = // eslint-disable-next-line no-await-in-loop
-        await this.pass(proxy, delegator, memory, { strategy }, pass);
+      this.logger.debug({ message: `evaluate using strategy "${strategy}"` });
+      let pass = 0;
+      for (; pass < this.maxPasses; pass += 1) { // eslint-disable-next-line no-await-in-loop
+        const next = await this.pass(proxy, delegator, memory, conflictResolution, pass);
         if (!next) break; // for
       }
-      // return facts for convenience only
-      return facts;
+      // return info
+      const endDate = new Date();
+      return {
+        updated: [...memory.updatedSegments],
+        fired: pass,
+        elapsed: endDate.getTime() - startDate.getTime(),
+      };
     });
   }
 
-  async pass(facts, delegator, memory, { strategy }, pass) {
+  async pass(facts, delegator, memory, conflictResolution, pass) {
     this.logger.debug({ message: `evaluate pass ${pass}` });
     // create agenda for premises
-    const premisesAgenda = pass === 0 ? this.premises : memory.getDirtyPremises();
+    const premisesAgenda = pass === 0 ? memory.premises : memory.getDirtyPremises();
     this.logger.debug({ message: `premises agenda length ${premisesAgenda.length}` });
     // evaluate premises
     premisesAgenda.forEach((premise) => {
@@ -103,7 +84,7 @@ class Rools {
       }
     });
     // create agenda for actions
-    const actionsAgenda = pass === 0 ? this.actions : premisesAgenda
+    const actionsAgenda = pass === 0 ? memory.actions : premisesAgenda
       .reduce((acc, premise) => [...new Set([...acc, ...premise.actions])], [])
       .filter(action => !memory.getState(action).fired);
     this.logger.debug({ message: `actions agenda length ${actionsAgenda.length}` });
@@ -113,13 +94,13 @@ class Rools {
         action.premises.reduce((acc, premise) => acc && memory.getState(premise).value, true);
     });
     // create conflict set
-    const conflictSet = this.actions.filter((action) => { // all actions not only actionsAgenda!
+    const conflictSet = memory.actions.filter((action) => { // all actions not only actionsAgenda!
       const { fired, ready } = memory.getState(action);
       return ready && !fired;
     });
     this.logger.debug({ message: `conflict set length ${conflictSet.length}` });
     // conflict resolution
-    const action = this.select(conflictSet, strategy);
+    const action = this.select(conflictSet, conflictResolution);
     if (!action) {
       this.logger.debug({ message: 'evaluation complete' });
       return false; // done
@@ -149,7 +130,7 @@ class Rools {
     return true;
   }
 
-  select(actions, strategy) {
+  select(actions, conflictResolution) {
     if (actions.length === 0) {
       return undefined; // none
     }
@@ -157,9 +138,9 @@ class Rools {
       return actions[0];
     }
     // conflict resolution
-    this.logger.debug({ message: `conflict resolution strategy "${strategy}"` });
+    this.logger.debug({ message: `conflict resolution starting with ${actions.length}` });
     let resolved = actions; // start with all actions
-    this.strategy[strategy].some((resolver) => {
+    conflictResolution.some((resolver) => {
       resolved = resolver(resolved);
       return resolved.length === 1; // break
     });
@@ -179,7 +160,7 @@ class Rools {
   resolveBySpecificity(actions) {
     const isMoreSpecific = (action, rhs) =>
       action.premises.length > rhs.premises.length &&
-      intersection(action.premises, rhs.premises).length === rhs.premises.length;
+      _.intersection(action.premises, rhs.premises).length === rhs.premises.length;
     const isMostSpecific = (action, all) =>
       all.reduce((acc, other) => acc && !isMoreSpecific(other, action), true);
     const selected = actions.filter(action => isMostSpecific(action, actions));

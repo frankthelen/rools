@@ -1,6 +1,6 @@
 # rools
 
-This is a small rule engine for Node.
+A small rule engine for Node.
 
 [![build status](https://img.shields.io/travis/frankthelen/rools.svg)](http://travis-ci.org/frankthelen/rools)
 [![Coverage Status](https://coveralls.io/repos/github/frankthelen/rools/badge.svg?branch=master)](https://coveralls.io/github/frankthelen/rools?branch=master)
@@ -19,6 +19,8 @@ This is a small rule engine for Node.
 
 Mission accomplished! JavaScript rocks!
 
+See [migration info](#migration) for breaking changes between major versions 1.x.x and 2.x.x.
+
 ## Install
 
 ```bash
@@ -30,8 +32,8 @@ npm install --save rools
 This is a basic example.
 
 ```javascript
-// import Rools
-const Rools = require('rools');
+// import
+const { Rools, Rule } = require('rools');
 
 // facts
 const facts = {
@@ -47,14 +49,14 @@ const facts = {
 };
 
 // rules
-const ruleMoodGreat = {
+const ruleMoodGreat = new Rule({
   name: 'mood is great if 200 stars or more',
   when: facts => facts.user.stars >= 200,
   then: (facts) => {
     facts.user.mood = 'great';
   },
-};
-const ruleGoWalking = {
+});
+const ruleGoWalking = new Rule({
   name: 'go for a walk if mood is great and the weather is fine',
   when: [
     facts => facts.user.mood === 'great',
@@ -64,11 +66,11 @@ const ruleGoWalking = {
   then: (facts) => {
     facts.goWalking = true;
   },
-};
+});
 
 // evaluation
 const rools = new Rools();
-await rools.register(ruleMoodGreat, ruleGoWalking);
+await rools.register([ruleMoodGreat, ruleGoWalking]);
 await rools.evaluate(facts);
 ```
 These are the resulting facts:
@@ -89,7 +91,8 @@ The engine does forward-chaining and works in the usual match-resolve-act cycle.
 
 Facts are plain JavaScript or JSON objects or objects from ES6 classes with getters and setters.
 
-Rules are specified in pure JavaScript, i.e., they have premises (`when`) and actions (`then`).
+Rules are specified in pure JavaScript via `new Rule()`.
+They have premises (`when`) and actions (`then`).
 Both are JavaScript functions, i.e., classic functions or ES6 arrow functions.
 Actions can also be asynchronous.
 
@@ -118,18 +121,18 @@ actions (`then`) can be synchronous or asynchronous.
 
 Example: asynchronous action using async/await
 ```javascript
-const rule = {
+const rule = new Rule({
   name: 'check availability',
   when: facts => facts.user.address.country === 'germany',
   then: async (facts) => {
     facts.products = await availabilityCheck(facts.user.address);
   },
-};
+});
 ```
 
 Example: asynchronous action using promises
 ```javascript
-const rule = {
+const rule = new Rule({
   name: 'check availability',
   when: facts => facts.user.address.country === 'germany',
   then: facts =>
@@ -137,7 +140,53 @@ const rule = {
       .then((result) => {
         facts.products = result;
       }),
-};
+});
+```
+
+### Extended rules
+
+If a *rule is more specific* than another rule, you can `extend` it rather than repeating its premises.
+The extended rule simply inherits all the premises from its parents (and their parents).
+
+Example: extended rule
+```javascript
+const baseRule = new Rule({
+  name: 'user lives in Germany',
+  when: facts => facts.user.address.country === 'germany',
+  ...
+});
+const extendedRule = new Rule({
+  name: 'user lives in Hamburg, Germany',
+  extend: baseRule, // can also be an array of rules
+  when: facts => facts.user.address.city === 'hamburg',
+  ...
+});
+```
+
+### Rule groups
+
+At the moment, Rools has *no concept of grouping rules* for evaluating facts across different groups of rules -- such as agenda groups or rule flow groups which you might know from other rule engines. And, at the moment, there are no plans to support such feature.
+
+However, you can run different sets of rules against the same facts. Rules in different instances of Rools are perfectly isolated and can, of course, run against the same facts.
+
+Example: evaluate different sets of rules on the same facts
+```javascript
+const facts = {...};
+const rools1 = new Rools();
+const rools2 = new Rools();
+await rools1.register(...); // rule set 1
+await rools2.register(...); // rule set 2
+await rools1.evaluate(facts);
+await rools2.evaluate(facts);
+```
+
+`evaluate()` returns an object which might be handy in this scenario.
+`updated` lists the names of the fact segments that were actually updated during evaluation.
+`fired` is the number of rules that were fired.
+
+```javascript
+const { updated, fired } = await evaluate(facts);
+console.log(updated, fired); // e.g., ["user"] 26
 ```
 
 ### Optimization I
@@ -150,38 +199,38 @@ Both options are working fine.
 Example 1: by reference
 ```javascript
 const isApplicable = facts => facts.user.salery >= 2000;
-const rule1 = {
+const rule1 = new Rule({
   when: [
     isApplicable,
     ...
   ],
   ...
-};
-const rule2 = {
+});
+const rule2 = new Rule({
   when: [
     isApplicable,
     ...
   ],
   ...
-};
+});
 ```
 
 Example 2: repeat premise
 ```javascript
-const rule1 = {
+const rule1 = new Rule({
   when: [
     facts => facts.user.salery >= 2000,
     ...
   ],
   ...
-};
-const rule2 = {
+});
+const rule2 = new Rule({
   when: [
     facts => facts.user.salery >= 2000,
     ...
   ],
   ...
-};
+});
 ```
 
 Furthermore, it is recommended to de-compose premises with AND relations (`&&`).
@@ -189,18 +238,18 @@ For example:
 
 ```javascript
 // this version works...
-const rule = {
+const rule = new Rule({
   when: facts => facts.user.salery >= 2000 && facts.user.age > 25,
   ...
-};
+});
 // however, it's better to write it like this...
-const rule = {
+const rule = new Rule({
   when: [
     facts => facts.user.salery >= 2000,
     facts => facts.user.age > 25,
   ],
   ...
-};
+});
 ```
 
 One last thing. Look at the example below.
@@ -210,15 +259,15 @@ Later on, at evaluation time (`evaluate()`), both rules are clearly identical.
 
 ```javascript
 let value = 2000;
-const rule1 = {
+const rule1 = new Rule({
   when: facts => facts.user.salery >= value,
   ...
-};
+});
 value = 3000;
-const rule2 = {
+const rule2 = new Rule({
   when: facts => facts.user.salery >= value,
   ...
-};
+});
 ```
 
 *TL;DR* -- Technically, this is achieved by hashing the premise functions (remember, functions are "first-class" objects in JavaScript). This can be a classic function or an ES6 arrow function; it can be a reference or the function directly.
@@ -258,22 +307,23 @@ You usually do this once for a given set of rules.
 
 Example:
 ```javascript
-const Rools = require('rools');
+const { Rools } = require('rools');
 const rools = new Rools();
 ...
 ```
 
 ### Register rules: `register()`
 
-Rules are plain JavaScript objects with the following properties:
+Rules are created through `new Rule()` with the following properties:
 
 | Property    | Required | Default | Description |
 |-------------|----------|---------|-------------|
-| `name`      | yes      | -       | A string value identifying the rule. This is used logging and debugging purposes only. |
+| `name`      | yes      | -       | A string value identifying the rule. This is used for logging and debugging purposes only. |
 | `when`      | yes      | -       | A synchronous JavaScript function or an array of functions. These are the premises of your rule. The functions' interface is `(facts) => { ... }`. They must return a boolean value. |
 | `then`      | yes      | -       | A synchronous or asynchronous JavaScript function to be executed when the rule fires. The function's interface is `(facts) => { ... }` or `async (facts) => { ... }`. |
 | `priority`  | no       | `0`     | If during `evaluate()` there is more than one rule ready to fire, i.e., the conflict set is greater 1, rules with higher priority will fire first. Negative values are supported. |
 | `final`     | no       | `false` | Marks a rule as final. If during `evaluate()` a final rule fires, the engine will stop the evaluation. |
+| `extend`    | no       | []      | A reference to a rule or an array of rules. The new rule will inherit all premises from its parents (and their parents). |
 
 Rules access the facts in both, premises (`when`) and actions (`then`).
 They can access properties directly, e.g., `facts.user.salery`,
@@ -285,19 +335,19 @@ New rules will become effective immediately.
 
 `register()` is working asynchronously, i.e., it returns a promise.
 Its promise may be rejected, e.g., if a rule is formally incorrect.
-If this happens, none of the rules in the call to `register()` were actually added;
-however, it is recommended to treat the affected Rools instance as inconsistent, i.e, it should no longer be used.
+If this happens, the affected Rools instance is inconsistent and should no longer be used.
 
 Example:
 ```javascript
-const ruleMoodGreat = {
+const { Rools, Rule } = require('rools');
+const ruleMoodGreat = new Rule({
   name: 'mood is great if 200 stars or more',
   when: facts => facts.user.stars >= 200,
   then: (facts) => {
     facts.user.mood = 'great';
   },
-};
-const ruleGoWalking = {
+});
+const ruleGoWalking = new Rule({
   name: 'go for a walk if mood is great and the weather is fine',
   when: [
     facts => facts.user.mood === 'great',
@@ -307,32 +357,14 @@ const ruleGoWalking = {
   then: (facts) => {
     facts.goWalking = true;
   },
-};
+});
 const rools = new Rools();
-await rools.register(ruleMoodGreat, ruleGoWalking);
+await rools.register([ruleMoodGreat, ruleGoWalking]);
 ```
 
 ### Evaluate facts: `evaluate()`
 
 Facts are plain JavaScript or JSON objects. For example:
-```javascript
-const facts = {
-  user: {
-    name: 'frank',
-    stars: 347,
-  },
-  weather: {
-    temperature: 20,
-    windy: true,
-    rainy: false,
-  },
-};
-const rools = new Rools();
-await rools.register(...);
-await rools.evaluate(facts);
-```
-
-Sometimes, it is handy to combine facts using ES6 shorthand notation:
 ```javascript
 const user = {
   name: 'frank',
@@ -345,10 +377,10 @@ const weather = {
 };
 const rools = new Rools();
 await rools.register(...);
-const facts = await rools.evaluate({ user, weather });
+await rools.evaluate({ user, weather });
 ```
 
-Please note that rules read the facts (`when`) as well as write to the facts (`then`).
+Please note that Rools reads the facts (`when`) as well as writes to the facts (`then`) during evaluation.
 Please make sure you provide a fresh set of facts whenever you call `evaluate()`.
 
 `evaluate()` is working asynchronously, i.e., it returns a promise.
@@ -364,14 +396,24 @@ If you don't like the default, change the conflict resolution strategy like this
 await rools.evaluate(facts, { strategy: 'sp' });
 ```
 
+`evaluate()` returns an object providing some information about the past evaluation.
+`updated` lists the names of the fact segments that were actually updated during evaluation.
+`fired` is the number of rules that were fired.
+`elapsed` is the number of milliseconds needed.
+
+```javascript
+const { updated, fired, elapsed } = await evaluate(facts);
+console.log(updated, fired, elapsed); // e.g., ["user"] 26 187
+```
+
 ### Logging
 
 By default, Rools is logging errors to the JavaScript `console`.
 This can be configured like this.
 
 ```javascript
-const delegate = ({ message, rule, error }) => {
-  console.error(message, rule, error);
+const delegate = ({ level, message, rule, error }) => {
+  console.error(level, message, rule, error);
 };
 const rools = new Rools({
   logging: { error: true, debug: false, delegate },
@@ -379,9 +421,52 @@ const rools = new Rools({
 ...
 ```
 
-## Todos
+## Migration
 
-Some of the features for future releases are:
- * Activation groups
- * Agenda groups
- * Extend rules
+### Version 1.x.x to Version 2.x.x
+
+There are a few breaking changes that require changes to your code.
+
+Rools exposes now two classes, `Rools` and `Rule`.
+
+```javascript
+// Version 1.x.x
+const Rools = require('rools');
+// Version 2.x.x
+const { Rools, Rule } = require('rools');
+```
+
+Rules must now be created with `new Rule()`.
+
+```javascript
+// Version 1.x.x
+const rule = {
+  name: 'my rule',
+  ...
+};
+// Version 2.x.x
+const rule = new Rule({
+  name: 'my rule',
+  ...
+});
+```
+
+`register()` takes the rules to register as an array now.
+Reason is to allow a second options parameter for future releases.
+
+```javascript
+// Version 1.x.x
+await register(rule1, rule2, rule3);
+// Version 2.x.x
+await register([rule1, rule2, rule3]);
+```
+
+`evaluate()` does not return the facts anymore - which was only for convenience anyway. Instead, it returns an object with some useful information about what it was actually doing. `updated` lists the names of the fact segments that were actually updated during evaluation. `fired` is the number of rules that were fired. `elapsed` is the number of milliseconds needed.
+
+```javascript
+// Version 1.x.x
+const facts = await evaluate({ user, weather });
+// Version 2.x.x
+const { updated, fired, elapsed } = await evaluate({ user, weather });
+console.log(updated, fired, elapsed); // e.g., ["user"] 26 187
+```

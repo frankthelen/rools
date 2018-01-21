@@ -1,3 +1,4 @@
 const Rools = require('./Rools');
+const Rule = require('./Rule');
 
-module.exports = Rools;
+module.exports = { Rools, Rule };

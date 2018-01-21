@@ -1,5 +1,5 @@
 const assert = require('assert');
-const Rools = require('..');
+const { Rools, Rule } = require('..');
 const { frank } = require('./facts/users')();
 const { good } = require('./facts/weather')();
 const {
@@ -7,16 +7,16 @@ const {
 } = require('./rules/mood');
 require('./setup');
 
-describe('Rules.evaluate()', () => {
+describe('Rules.evaluate() / errors', () => {
   it('should not fail if `when` throws error', async () => {
-    const brokenRule = {
+    const brokenRule = new Rule({
       name: 'broken rule #1',
       when: facts => facts.bla.blub === 'blub', // TypeError: Cannot read property 'blub' of undefined
       then: () => {},
-    };
+    });
     const rools = new Rools({ logging: { error: false } });
     const facts = { user: frank, weather: good };
-    await rools.register(brokenRule, ruleMoodGreat, ruleMoodSad, ruleGoWalking, ruleStayAtHome);
+    await rools.register([brokenRule, ruleMoodGreat, ruleMoodSad, ruleGoWalking, ruleStayAtHome]);
     try {
       await rools.evaluate(facts);
     } catch (error) {
@@ -27,16 +27,16 @@ describe('Rules.evaluate()', () => {
   });
 
   it('should fail if `then` throws error', async () => {
-    const brokenRule = {
+    const brokenRule = new Rule({
       name: 'broken rule #2',
       when: () => true, // fire immediately
       then: (facts) => {
         facts.bla.blub = 'blub'; // TypeError: Cannot read property 'blub' of undefined
       },
-    };
+    });
     const rools = new Rools({ logging: { error: false } });
     const facts = { user: frank, weather: good };
-    await rools.register(brokenRule, ruleMoodGreat, ruleMoodSad, ruleGoWalking, ruleStayAtHome);
+    await rools.register([brokenRule, ruleMoodGreat, ruleMoodSad, ruleGoWalking, ruleStayAtHome]);
     try {
       await rools.evaluate(facts);
       assert.fail();

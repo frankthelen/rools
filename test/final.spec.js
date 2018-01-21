@@ -1,4 +1,4 @@
-const Rools = require('..');
+const { Rools, Rule } = require('..');
 const { frank } = require('./facts/users')();
 const { good } = require('./facts/weather')();
 const {
@@ -11,18 +11,19 @@ describe('Rules.evaluate() / final', () => {
 
   before(async () => {
     rools = new Rools();
-    await rools.register(
+    await rools.register([
       ruleGoWalking,
       ruleStayAtHome,
-      { ...ruleMoodGreat, final: true },
-      { ...ruleMoodSad, final: true },
-    );
+      new Rule({ ...ruleMoodGreat, final: true }),
+      new Rule({ ...ruleMoodSad, final: true }),
+    ]);
   });
 
   it('should terminate after final rule', async () => {
-    const result = await rools.evaluate({ user: frank, weather: good });
-    expect(result.user.mood).to.be.equal('great');
-    expect(result.goWalking).to.be.equal(undefined);
-    expect(result.stayAtHome).to.be.equal(undefined);
+    const facts = { user: frank, weather: good };
+    await rools.evaluate(facts);
+    expect(facts.user.mood).to.be.equal('great');
+    expect(facts.goWalking).to.be.equal(undefined);
+    expect(facts.stayAtHome).to.be.equal(undefined);
   });
 });
