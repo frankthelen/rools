@@ -402,7 +402,7 @@ await rools.evaluate(facts, { strategy: 'sp' });
 `elapsed` is the number of milliseconds needed.
 
 ```javascript
-const { updated, fired, elapsed } = await evaluate(facts);
+const { updated, fired, elapsed } = await rools.evaluate(facts);
 console.log(updated, fired, elapsed); // e.g., ["user"] 26 187
 ```
 
@@ -455,18 +455,22 @@ const rule = new Rule({
 Reason is to allow a second options parameter for future releases.
 
 ```javascript
+const rools = new Rools();
+...
 // Version 1.x.x
-await register(rule1, rule2, rule3);
+await rools.register(rule1, rule2, rule3);
 // Version 2.x.x
-await register([rule1, rule2, rule3]);
+await rools.register([rule1, rule2, rule3]);
 ```
 
 `evaluate()` does not return the facts anymore - which was only for convenience anyway. Instead, it returns an object with some useful information about what it was actually doing. `updated` lists the names of the fact segments that were actually updated during evaluation. `fired` is the number of rules that were fired. `elapsed` is the number of milliseconds needed.
 
 ```javascript
+const rools = new Rools();
+...
 // Version 1.x.x
-const facts = await evaluate({ user, weather });
+const facts = await rools.evaluate({ user, weather });
 // Version 2.x.x
-const { updated, fired, elapsed } = await evaluate({ user, weather });
+const { updated, fired, elapsed } = await rools.evaluate({ user, weather });
 console.log(updated, fired, elapsed); // e.g., ["user"] 26 187
 ```
