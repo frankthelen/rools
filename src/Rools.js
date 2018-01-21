@@ -1,10 +1,9 @@
-const _ = require('lodash');
-const assert = require('assert');
 const Promise = require('bluebird');
 const RuleSet = require('./RuleSet');
 const Logger = require('./Logger');
 const Delegator = require('./Delegator');
 const WorkingMemory = require('./WorkingMemory');
+const ConflictResolution = require('./ConflictResolution');
 const observe = require('./observe');
 
 class Rools {
@@ -12,18 +11,6 @@ class Rools {
     this.rules = new RuleSet();
     this.maxPasses = 1000; // emergency stop
     this.logger = new Logger(logging);
-    this.strategy = { // conflict solution strategies
-      ps: [
-        this.resolveByPriority.bind(this),
-        this.resolveBySpecificity.bind(this),
-        this.resolveByOrderOfRegistration.bind(this),
-      ],
-      sp: [
-        this.resolveBySpecificity.bind(this),
-        this.resolveByPriority.bind(this),
-        this.resolveByOrderOfRegistration.bind(this),
-      ],
-    };
   }
 
   async register(rules) {
@@ -32,22 +19,18 @@ class Rools {
     });
   }
 
-  async evaluate(facts, { strategy = 'ps' } = { strategy: 'ps' }) {
+  async evaluate(facts, { strategy } = {}) {
     return Promise.try(async () => {
       const startDate = new Date();
-      // options
-      const strategies = Object.keys(this.strategy);
-      assert(strategies.includes(strategy), `strategy must be one of ${strategies}`);
-      const conflictResolution = this.strategy[strategy];
       // init
       const memory = new WorkingMemory({
         actions: this.rules.actions,
         premises: this.rules.premises,
       });
+      const conflictResolution = new ConflictResolution({ strategy, logger: this.logger });
       const delegator = new Delegator();
       const proxy = observe(facts, segment => delegator.delegate(segment));
       // match-resolve-act cycle
-      this.logger.debug({ message: `evaluate using strategy "${strategy}"` });
       let pass = 0;
       for (; pass < this.maxPasses; pass += 1) { // eslint-disable-next-line no-await-in-loop
         const next = await this.pass(proxy, delegator, memory, conflictResolution, pass);
@@ -100,7 +83,7 @@ class Rools {
     });
     this.logger.debug({ message: `conflict set length ${conflictSet.length}` });
     // conflict resolution
-    const action = this.select(conflictSet, conflictResolution);
+    const action = conflictResolution.select(conflictSet);
     if (!action) {
       this.logger.debug({ message: 'evaluation complete' });
       return false; // done
@@ -128,54 +111,6 @@ class Rools {
     }
     // continue with next pass
     return true;
-  }
-
-  select(actions, conflictResolution) {
-    if (actions.length === 0) {
-      return undefined; // none
-    }
-    if (actions.length === 1) {
-      return actions[0];
-    }
-    // conflict resolution
-    this.logger.debug({ message: `conflict resolution starting with ${actions.length}` });
-    let resolved = actions; // start with all actions
-    conflictResolution.some((resolver) => {
-      resolved = resolver(resolved);
-      return resolved.length === 1; // break
-    });
-    return resolved[0];
-  }
-
-  resolveByPriority(actions) {
-    const prios = actions.map(action => action.priority);
-    const highestPrio = Math.max(...prios);
-    const selected = actions.filter(action => action.priority === highestPrio);
-    this.logger.debug({
-      message: `conflict resolution by priority ${actions.length} -> ${selected.length}`,
-    });
-    return selected;
-  }
-
-  resolveBySpecificity(actions) {
-    const isMoreSpecific = (action, rhs) =>
-      action.premises.length > rhs.premises.length &&
-      _.intersection(action.premises, rhs.premises).length === rhs.premises.length;
-    const isMostSpecific = (action, all) =>
-      all.reduce((acc, other) => acc && !isMoreSpecific(other, action), true);
-    const selected = actions.filter(action => isMostSpecific(action, actions));
-    this.logger.debug({
-      message: `conflict resolution by specificity ${actions.length} -> ${selected.length}`,
-    });
-    return selected;
-  }
-
-  resolveByOrderOfRegistration(actions) {
-    const selected = [actions[0]];
-    this.logger.debug({
-      message: `conflict resolution by order of registration ${actions.length} -> 1`,
-    });
-    return selected;
   }
 }
 
