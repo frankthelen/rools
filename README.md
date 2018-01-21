@@ -143,6 +143,52 @@ const rule = new Rule({
 });
 ```
 
+### Extended rules
+
+If a *rule is more specific* than another rule, you can `extend` it rather than repeating its premises.
+The extended rule simply inherits all the premises from its parents (and their parents).
+
+Example: extended rule
+```javascript
+const baseRule = new Rule({
+  name: 'user lives in Germany',
+  when: facts => facts.user.address.country === 'germany',
+  ...
+});
+const extendedRule = new Rule({
+  name: 'user lives in Hamburg, Germany',
+  extend: baseRule, // can also be an array of rules
+  when: facts => facts.user.address.city === 'hamburg',
+  ...
+});
+```
+
+### Rule groups
+
+At the moment, Rools has *no concept of grouping rules* for evaluating facts across different groups of rules -- such as agenda groups or rule flow groups which you might know from other rule engines. And, at the moment, there are no plans to support such feature.
+
+However, you can run different sets of rules against the same facts. Rules in different instances of Rools are perfectly isolated and can, of course, run against the same facts.
+
+Example: evaluate different sets of rules on the same facts
+```javascript
+const facts = {...};
+const rools1 = new Rools();
+const rools2 = new Rools();
+await rools1.register(...); // rule set 1
+await rools2.register(...); // rule set 2
+await rools1.evaluate(facts);
+await rools2.evaluate(facts);
+```
+
+`evaluate()` returns an object which might be handy in this scenario.
+`updated` lists the names of the fact segments that were actually updated during evaluation.
+`fired` is the number of rules that were fired.
+
+```javascript
+const { updated, fired } = await evaluate(facts);
+console.log(updated, fired); // e.g., ["user"] 26
+```
+
 ### Optimization I
 
 It is very common that different rules partially share the same premises.
@@ -277,6 +323,7 @@ Rules are created through `new Rule()` with the following properties:
 | `then`      | yes      | -       | A synchronous or asynchronous JavaScript function to be executed when the rule fires. The function's interface is `(facts) => { ... }` or `async (facts) => { ... }`. |
 | `priority`  | no       | `0`     | If during `evaluate()` there is more than one rule ready to fire, i.e., the conflict set is greater 1, rules with higher priority will fire first. Negative values are supported. |
 | `final`     | no       | `false` | Marks a rule as final. If during `evaluate()` a final rule fires, the engine will stop the evaluation. |
+| `extend`    | no       | []      | A reference to a rule or an array of rules. The new rule will inherit all premises from its parents (and their parents). |
 
 Rules access the facts in both, premises (`when`) and actions (`then`).
 They can access properties directly, e.g., `facts.user.salery`,
@@ -347,6 +394,16 @@ If there is more than one rule ready to fire, Rools applies a *conflict resoluti
 If you don't like the default, change the conflict resolution strategy like this:
 ```javascript
 await rools.evaluate(facts, { strategy: 'sp' });
+```
+
+`evaluate()` returns an object providing some information about the past evaluation.
+`updated` lists the names of the fact segments that were actually updated during evaluation.
+`fired` is the number of rules that were fired.
+`elapsed` is the number of milliseconds needed.
+
+```javascript
+const { updated, fired, elapsed } = await evaluate(facts);
+console.log(updated, fired, elapsed); // e.g., ["user"] 26 187
 ```
 
 ### Logging
