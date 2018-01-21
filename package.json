@@ -1,7 +1,7 @@
 {
   "name": "rools",
   "version": "1.2.0",
-  "description": "This is a small rule engine for Node.",
+  "description": "A small rule engine for Node.",
   "main": "src/index.js",
   "author": "Frank Thelen",
   "license": "MIT",
@@ -43,7 +43,7 @@
   },
   "dependencies": {
     "bluebird": "^3.5.1",
-    "lodash.intersection": "^4.4.0",
+    "lodash": "^4.17.4",
     "md5": "^2.2.1",
     "uniqueid": "^1.0.0"
   }

@@ -1,4 +1,4 @@
-const Rools = require('..');
+const { Rools, Rule } = require('..');
 const { frank } = require('./facts/users')();
 const { good } = require('./facts/weather')();
 const {
@@ -14,8 +14,8 @@ describe('Rules.evaluate() / final', () => {
     await rools.register([
       ruleGoWalking,
       ruleStayAtHome,
-      { ...ruleMoodGreat, final: true },
-      { ...ruleMoodSad, final: true },
+      new Rule({ ...ruleMoodGreat, final: true }),
+      new Rule({ ...ruleMoodSad, final: true }),
     ]);
   });
 

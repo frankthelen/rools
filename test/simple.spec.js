@@ -1,4 +1,4 @@
-const Rools = require('..');
+const { Rools } = require('..');
 const { frank, michael } = require('./facts/users')();
 const { good, bad } = require('./facts/weather')();
 const {

@@ -1,4 +1,4 @@
-const Rools = require('..');
+const { Rools } = require('..');
 const { frank } = require('./facts/users')();
 const { rule1, rule2 } = require('./rules/availability');
 require('./setup');

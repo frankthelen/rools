@@ -1,8 +1,9 @@
+const assert = require('assert');
 const md5 = require('md5');
 const uniqueid = require('uniqueid');
-const Rule = require('./Rule');
 const Action = require('./Action');
 const Premise = require('./Premise');
+const Rule = require('./Rule');
 
 class RuleSet {
   constructor() {
@@ -13,14 +14,26 @@ class RuleSet {
     this.nextPremiseId = uniqueid('p');
   }
 
-  register(r) {
-    const rule = new Rule(r);
+  register(rule) {
+    assert(rule instanceof Rule, 'rule must be an instance of "Rule"');
+    // action
     const action = new Action({
       ...rule,
       id: this.nextActionId(),
     });
     this.actions.push(action);
-    rule.when.forEach((when, index) => {
+    // extend
+    const walked = new Set(); // cycle check
+    const whens = new Set();
+    const walker = (node) => {
+      if (walked.has(node)) return; // cycle
+      walked.add(node);
+      node.when.forEach((w) => { whens.add(w); });
+      node.extend.forEach((r) => { walker(r); }); // recursion
+    };
+    walker(rule);
+    // premises
+    [...whens].forEach((when, index) => {
       const hash = md5(when); // is function already introduced by other rule?
       let premise = this.premisesByHash[hash];
       if (!premise) { // create new premise

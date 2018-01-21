@@ -1,4 +1,4 @@
-const Rools = require('..');
+const { Rools, Rule } = require('..');
 require('./setup');
 
 class Person {
@@ -34,15 +34,15 @@ class Person {
   }
 }
 
-const rule1 = {
+const rule1 = new Rule({
   name: 'mood is great if 200 stars or more',
   when: facts => facts.user.getStars() >= 200,
   then: (facts) => {
     facts.user.setMood('great');
   },
-};
+});
 
-const rule2 = {
+const rule2 = new Rule({
   name: 'mark applicable if mood is great and salery greater 1000',
   when: [
     facts => facts.user.getMood() === 'great',
@@ -51,7 +51,7 @@ const rule2 = {
   then: (facts) => {
     facts.result = true;
   },
-};
+});
 
 describe('Rules.evaluate() / classes with getters and setters', () => {
   it('should set mood in 1 pass', async () => {

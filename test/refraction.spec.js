@@ -1,21 +1,21 @@
-const Rools = require('..');
+const { Rools, Rule } = require('..');
 require('./setup');
 
 describe('Rules.evaluate() / refraction', () => {
   const spy = sinon.spy();
 
-  const rule1 = {
+  const rule1 = new Rule({
     name: 'rule1',
     when: facts => facts.fact1,
     then: (facts) => { facts.fact1 = false; facts.fact1 = true; spy(); },
     priority: 10,
-  };
+  });
 
-  const rule2 = {
+  const rule2 = new Rule({
     name: 'rule2',
     when: facts => facts.fact2,
     then: (facts) => { facts.fact1 = false; facts.fact1 = true; },
-  };
+  });
 
   const facts = {
     fact1: true,

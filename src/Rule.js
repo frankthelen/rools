@@ -1,29 +1,56 @@
+const _ = require('lodash');
 const assert = require('assert');
+const { arrify } = require('./utils');
 
 class Rule {
   constructor({
-    name, when, then, priority = 0, final = false,
+    name, when, then, priority = 0, final = false, extend,
   }) {
     this.name = name;
-    this.when = Array.isArray(when) ? when : [when];
+    this.when = arrify(when);
     this.then = then;
     this.priority = priority;
     this.final = final;
+    this.extend = arrify(extend);
     this.assert();
   }
 
   assert() {
-    const isFunc = func => typeof func === 'function';
-    assert(this.name, 'rule "name" is required');
-    assert(this.when, `rule "when" is required: "${this.name}"`);
-    assert(this.then, `rule "then" is required: "${this.name}"`);
     assert(
-      !this.when.filter(premise => !isFunc(premise)).length,
-      `rule "when" must be a function or an array of functions: "${this.name}"`,
+      this.name,
+      '"name" is required',
     );
     assert(
-      isFunc(this.then),
-      `rule "then" must be a function: "${this.name}"`,
+      _.isString(this.name),
+      '"name" must be a string',
+    );
+    assert(
+      this.when.length,
+      '"when" is required with at least one premise',
+    );
+    assert(
+      this.when.reduce((acc, premise) => acc && _.isFunction(premise), true),
+      '"when" must be a function or an array of functions',
+    );
+    assert(
+      this.then,
+      '"then" is required',
+    );
+    assert(
+      _.isFunction(this.then),
+      '"then" must be a function',
+    );
+    assert(
+      _.isInteger(this.priority),
+      '"priority" must be an integer',
+    );
+    assert(
+      _.isBoolean(this.final),
+      '"final" must be a boolean',
+    );
+    assert(
+      this.extend.reduce((acc, rule) => acc && (rule instanceof Rule), true),
+      '"extend" must be a Rule or an array of Rules',
     );
   }
 }

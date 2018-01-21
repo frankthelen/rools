@@ -1,4 +1,4 @@
-const Rools = require('..');
+const { Rools, Rule } = require('..');
 const { frank } = require('./facts/users')();
 const { good } = require('./facts/weather')();
 const {
@@ -19,13 +19,13 @@ describe('Rules.evaluate() / delegate logging', () => {
   });
 
   it('should log errors', async () => {
-    const brokenRule = {
+    const brokenRule = new Rule({
       name: 'broken rule #2',
       when: () => true, // fire immediately
       then: (facts) => {
         facts.bla.blub = 'blub'; // TypeError: Cannot read property 'blub' of undefined
       },
-    };
+    });
     let counter = 0;
     const spy = () => {
       counter += 1;
@@ -41,13 +41,13 @@ describe('Rules.evaluate() / delegate logging', () => {
   });
 
   it('should log errors by default', async () => {
-    const brokenRule = {
+    const brokenRule = new Rule({
       name: 'broken rule #2',
       when: () => true, // fire immediately
       then: (facts) => {
         facts.bla.blub = 'blub'; // TypeError: Cannot read property 'blub' of undefined
       },
-    };
+    });
     let counter = 0;
     const spy = () => {
       counter += 1;
@@ -82,13 +82,13 @@ describe('Rules.evaluate() / console logging', () => {
   });
 
   it('should log errors', async () => {
-    const brokenRule = {
+    const brokenRule = new Rule({
       name: 'broken rule #2',
       when: () => true, // fire immediately
       then: (facts) => {
         facts.bla.blub = 'blub'; // TypeError: Cannot read property 'blub' of undefined
       },
-    };
+    });
     const rools = new Rools({ logging: { error: true, debug: false } });
     await rools.register([brokenRule, ruleMoodGreat, ruleMoodSad, ruleGoWalking, ruleStayAtHome]);
     try {
@@ -100,13 +100,13 @@ describe('Rules.evaluate() / console logging', () => {
   });
 
   it('should log errors by default', async () => {
-    const brokenRule = {
+    const brokenRule = new Rule({
       name: 'broken rule #2',
       when: () => true, // fire immediately
       then: (facts) => {
         facts.bla.blub = 'blub'; // TypeError: Cannot read property 'blub' of undefined
       },
-    };
+    });
     const rools = new Rools();
     await rools.register([brokenRule, ruleMoodGreat, ruleMoodSad, ruleGoWalking, ruleStayAtHome]);
     try {
@@ -118,13 +118,13 @@ describe('Rules.evaluate() / console logging', () => {
   });
 
   it('should log errors by default / 2', async () => {
-    const brokenRule = {
+    const brokenRule = new Rule({
       name: 'broken rule #2',
       when: () => true, // fire immediately
       then: (facts) => {
         facts.bla.blub = 'blub'; // TypeError: Cannot read property 'blub' of undefined
       },
-    };
+    });
     const rools = new Rools({});
     await rools.register([brokenRule, ruleMoodGreat, ruleMoodSad, ruleGoWalking, ruleStayAtHome]);
     try {

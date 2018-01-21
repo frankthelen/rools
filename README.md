@@ -1,6 +1,6 @@
 # rools
 
-This is a small rule engine for Node.
+A small rule engine for Node.
 
 [![build status](https://img.shields.io/travis/frankthelen/rools.svg)](http://travis-ci.org/frankthelen/rools)
 [![Coverage Status](https://coveralls.io/repos/github/frankthelen/rools/badge.svg?branch=master)](https://coveralls.io/github/frankthelen/rools?branch=master)
@@ -32,8 +32,8 @@ npm install --save rools
 This is a basic example.
 
 ```javascript
-// import Rools
-const Rools = require('rools');
+// import
+const { Rools, Rule } = require('rools');
 
 // facts
 const facts = {
@@ -49,14 +49,14 @@ const facts = {
 };
 
 // rules
-const ruleMoodGreat = {
+const ruleMoodGreat = new Rule({
   name: 'mood is great if 200 stars or more',
   when: facts => facts.user.stars >= 200,
   then: (facts) => {
     facts.user.mood = 'great';
   },
-};
-const ruleGoWalking = {
+});
+const ruleGoWalking = new Rule({
   name: 'go for a walk if mood is great and the weather is fine',
   when: [
     facts => facts.user.mood === 'great',
@@ -66,7 +66,7 @@ const ruleGoWalking = {
   then: (facts) => {
     facts.goWalking = true;
   },
-};
+});
 
 // evaluation
 const rools = new Rools();
@@ -91,7 +91,8 @@ The engine does forward-chaining and works in the usual match-resolve-act cycle.
 
 Facts are plain JavaScript or JSON objects or objects from ES6 classes with getters and setters.
 
-Rules are specified in pure JavaScript, i.e., they have premises (`when`) and actions (`then`).
+Rules are specified in pure JavaScript via `new Rule()`.
+They have premises (`when`) and actions (`then`).
 Both are JavaScript functions, i.e., classic functions or ES6 arrow functions.
 Actions can also be asynchronous.
 
@@ -120,18 +121,18 @@ actions (`then`) can be synchronous or asynchronous.
 
 Example: asynchronous action using async/await
 ```javascript
-const rule = {
+const rule = new Rule({
   name: 'check availability',
   when: facts => facts.user.address.country === 'germany',
   then: async (facts) => {
     facts.products = await availabilityCheck(facts.user.address);
   },
-};
+});
 ```
 
 Example: asynchronous action using promises
 ```javascript
-const rule = {
+const rule = new Rule({
   name: 'check availability',
   when: facts => facts.user.address.country === 'germany',
   then: facts =>
@@ -139,7 +140,7 @@ const rule = {
       .then((result) => {
         facts.products = result;
       }),
-};
+});
 ```
 
 ### Optimization I
@@ -152,38 +153,38 @@ Both options are working fine.
 Example 1: by reference
 ```javascript
 const isApplicable = facts => facts.user.salery >= 2000;
-const rule1 = {
+const rule1 = new Rule({
   when: [
     isApplicable,
     ...
   ],
   ...
-};
-const rule2 = {
+});
+const rule2 = new Rule({
   when: [
     isApplicable,
     ...
   ],
   ...
-};
+});
 ```
 
 Example 2: repeat premise
 ```javascript
-const rule1 = {
+const rule1 = new Rule({
   when: [
     facts => facts.user.salery >= 2000,
     ...
   ],
   ...
-};
-const rule2 = {
+});
+const rule2 = new Rule({
   when: [
     facts => facts.user.salery >= 2000,
     ...
   ],
   ...
-};
+});
 ```
 
 Furthermore, it is recommended to de-compose premises with AND relations (`&&`).
@@ -191,18 +192,18 @@ For example:
 
 ```javascript
 // this version works...
-const rule = {
+const rule = new Rule({
   when: facts => facts.user.salery >= 2000 && facts.user.age > 25,
   ...
-};
+});
 // however, it's better to write it like this...
-const rule = {
+const rule = new Rule({
   when: [
     facts => facts.user.salery >= 2000,
     facts => facts.user.age > 25,
   ],
   ...
-};
+});
 ```
 
 One last thing. Look at the example below.
@@ -212,15 +213,15 @@ Later on, at evaluation time (`evaluate()`), both rules are clearly identical.
 
 ```javascript
 let value = 2000;
-const rule1 = {
+const rule1 = new Rule({
   when: facts => facts.user.salery >= value,
   ...
-};
+});
 value = 3000;
-const rule2 = {
+const rule2 = new Rule({
   when: facts => facts.user.salery >= value,
   ...
-};
+});
 ```
 
 *TL;DR* -- Technically, this is achieved by hashing the premise functions (remember, functions are "first-class" objects in JavaScript). This can be a classic function or an ES6 arrow function; it can be a reference or the function directly.
@@ -260,14 +261,14 @@ You usually do this once for a given set of rules.
 
 Example:
 ```javascript
-const Rools = require('rools');
+const { Rools } = require('rools');
 const rools = new Rools();
 ...
 ```
 
 ### Register rules: `register()`
 
-Rules are plain JavaScript objects with the following properties:
+Rules are created through `new Rule()` with the following properties:
 
 | Property    | Required | Default | Description |
 |-------------|----------|---------|-------------|
@@ -291,14 +292,15 @@ If this happens, the affected Rools instance is inconsistent and should no longe
 
 Example:
 ```javascript
-const ruleMoodGreat = {
+const { Rools, Rule } = require('rools');
+const ruleMoodGreat = new Rule({
   name: 'mood is great if 200 stars or more',
   when: facts => facts.user.stars >= 200,
   then: (facts) => {
     facts.user.mood = 'great';
   },
-};
-const ruleGoWalking = {
+});
+const ruleGoWalking = new Rule({
   name: 'go for a walk if mood is great and the weather is fine',
   when: [
     facts => facts.user.mood === 'great',
@@ -308,7 +310,7 @@ const ruleGoWalking = {
   then: (facts) => {
     facts.goWalking = true;
   },
-};
+});
 const rools = new Rools();
 await rools.register([ruleMoodGreat, ruleGoWalking]);
 ```
@@ -366,31 +368,48 @@ const rools = new Rools({
 
 ### Version 1.x.x to Version 2.x.x
 
-There are two breaking changes that require some little changes to your code.
+There are a few breaking changes that require changes to your code.
 
-`register()` takes the rules to register as an array now.
-Reason is to allow a second options parameter in future releases.
+Rools exposes now two classes, `Rools` and `Rule`.
 
-Version 1.x.x
 ```javascript
-await register(rule1, rule2, rule3);
+// Version 1.x.x
+const Rools = require('rools');
+// Version 2.x.x
+const { Rools, Rule } = require('rools');
 ```
 
-Version 2.x.x
+Rules must now be created with `new Rule()`.
+
 ```javascript
+// Version 1.x.x
+const rule = {
+  name: 'my rule',
+  ...
+};
+// Version 2.x.x
+const rule = new Rule({
+  name: 'my rule',
+  ...
+});
+```
+
+`register()` takes the rules to register as an array now.
+Reason is to allow a second options parameter for future releases.
+
+```javascript
+// Version 1.x.x
+await register(rule1, rule2, rule3);
+// Version 2.x.x
 await register([rule1, rule2, rule3]);
 ```
 
-`evaluate()` does not return the facts which was only for convenience anyway.
-Instead, it returns an object with some useful information about what it was actually doing. `updated` lists the names of the fact segments that were actually updated during evaluation. `fired` is number of rules that were fired. `elapsed` is the number of milliseconds needed.
+`evaluate()` does not return the facts anymore - which was only for convenience anyway. Instead, it returns an object with some useful information about what it was actually doing. `updated` lists the names of the fact segments that were actually updated during evaluation. `fired` is the number of rules that were fired. `elapsed` is the number of milliseconds needed.
 
-Version 1.x.x
 ```javascript
+// Version 1.x.x
 const facts = await evaluate({ user, weather });
-```
-
-Version 2.x.x
-```javascript
+// Version 2.x.x
 const { updated, fired, elapsed } = await evaluate({ user, weather });
-console.log(updated, fired, elapsed); // e.g., ["user"] 26 536
+console.log(updated, fired, elapsed); // e.g., ["user"] 26 187
 ```
