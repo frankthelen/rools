@@ -38,7 +38,7 @@
     "eslint-plugin-should-promised": "^2.0.0",
     "mocha": "^5.0.0",
     "nyc": "^11.4.1",
-    "sinon": "^4.1.6",
+    "sinon": "^4.2.0",
     "sinon-chai": "^2.14.0"
   },
   "dependencies": {
