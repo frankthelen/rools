@@ -86,6 +86,8 @@ These are the resulting facts:
 ### Rule engine
 
 The engine does forward-chaining and works in the usual match-resolve-act cycle.
+It tries to deduce as much knowledge as possible from the given facts and rules.
+If there is no further knowledge to gain, it stops.
 
 ### Facts and rules
 
@@ -110,7 +112,7 @@ If there is more than one rule ready to fire, i.e., the conflict set is greater 
 
 ### Final rules
 
-For optimization purposes, it might be desired to stop the engine as soon as a specific rule has fired.
+For optimization purposes, it can be useful to stop the engine as soon as a specific rule has fired.
 This can be achieved by settings the respective rules' property `final` to `true`.
 Default, of course, is `false`.
 
@@ -145,8 +147,9 @@ const rule = new Rule({
 
 ### Extended rules
 
-If a *rule is more specific* than another rule, you can `extend` it rather than repeating its premises.
+If a *rule is more specific* than another rule, you can *extend* it rather than having to repeat its premises.
 The extended rule simply inherits all the premises from its parents (and their parents).
+Use the rule's `extend` property to set its parents.
 
 Example: extended rule
 ```javascript
@@ -165,9 +168,11 @@ const extendedRule = new Rule({
 
 ### Rule groups
 
-At the moment, Rools has *no concept of grouping rules* for evaluating facts across different groups of rules -- such as agenda groups or rule flow groups which you might know from other rule engines. And, at the moment, there are no plans to support such feature.
+At the moment, Rools has *no concept of grouping rules* for evaluating facts across different groups of rules with different semantics such as agenda groups or rule flow groups which you might know from other rule engines.
+And, at the moment, there are no plans to support such feature.
 
-However, you can run different sets of rules against the same facts. Rules in different instances of Rools are perfectly isolated and can, of course, run against the same facts.
+However, you can run different sets of rules against the same facts if that solves your need.
+Rules in different instances of Rools are perfectly isolated and can, of course, run against the same facts.
 
 Example: evaluate different sets of rules on the same facts
 ```javascript
@@ -180,12 +185,12 @@ await rools1.evaluate(facts);
 await rools2.evaluate(facts);
 ```
 
-`evaluate()` returns an object which might be handy in this scenario.
+`evaluate()` returns an object which might be useful in this scenario.
 `updated` lists the names of the fact segments that were actually updated during evaluation.
 `fired` is the number of rules that were fired.
 
 ```javascript
-const { updated, fired } = await evaluate(facts);
+const { updated, fired } = await rools1.evaluate(facts);
 console.log(updated, fired); // e.g., ["user"] 26
 ```
 
@@ -334,8 +339,7 @@ It can be called multiple time.
 New rules will become effective immediately.
 
 `register()` is working asynchronously, i.e., it returns a promise.
-Its promise may be rejected, e.g., if a rule is formally incorrect.
-If this happens, the affected Rools instance is inconsistent and should no longer be used.
+If this promise is rejected, the affected Rools instance is inconsistent and should no longer be used.
 
 Example:
 ```javascript
@@ -364,7 +368,8 @@ await rools.register([ruleMoodGreat, ruleGoWalking]);
 
 ### Evaluate facts: `evaluate()`
 
-Facts are plain JavaScript or JSON objects. For example:
+Facts are plain JavaScript or JSON objects or objects from ES6 classes with getters and setters.
+For example:
 ```javascript
 const user = {
   name: 'frank',
@@ -388,15 +393,15 @@ If a premise (`when`) fails, `evaluate()` will still *not* fail (for robustness 
 If an action (`then`) fails, `evaluate()` will reject its promise.
 
 If there is more than one rule ready to fire, Rools applies a *conflict resolution strategy* to decide which rule/action to fire first. The default conflict resolution strategy is 'ps'.
- * 'ps' (default) -- (1) priority, (2) specificity, (3) order of registration
+ * 'ps' -- (1) priority, (2) specificity, (3) order of registration
  * 'sp' -- (1) specificity, (2) priority, (3) order of registration
 
-If you don't like the default, change the conflict resolution strategy like this:
+If you don't like the default 'ps', you can change the conflict resolution strategy like this:
 ```javascript
 await rools.evaluate(facts, { strategy: 'sp' });
 ```
 
-`evaluate()` returns an object providing some information about the past evaluation.
+`evaluate()` returns an object providing some information about the past evaluation run.
 `updated` lists the names of the fact segments that were actually updated during evaluation.
 `fired` is the number of rules that were fired.
 `elapsed` is the number of milliseconds needed.
@@ -420,6 +425,10 @@ const rools = new Rools({
 });
 ...
 ```
+
+`level` is either `debug` or `error`.
+The error log reports failed actions or premises.
+The debug log reports the entire evaluation process for debugging purposes.
 
 ## Migration
 
@@ -451,8 +460,8 @@ const rule = new Rule({
 });
 ```
 
-`register()` takes the rules to register as an array now.
-Reason is to allow a second options parameter for future releases.
+`register()` takes the rules to be registered as an array now.
+Reason is to allow a second options parameter in future releases.
 
 ```javascript
 const rools = new Rools();
@@ -463,7 +472,11 @@ await rools.register(rule1, rule2, rule3);
 await rools.register([rule1, rule2, rule3]);
 ```
 
-`evaluate()` does not return the facts anymore - which was only for convenience anyway. Instead, it returns an object with some useful information about what it was actually doing. `updated` lists the names of the fact segments that were actually updated during evaluation. `fired` is the number of rules that were fired. `elapsed` is the number of milliseconds needed.
+`evaluate()` does not return the facts anymore - which was only for convenience anyway.
+Instead, it returns an object with some useful information about what it was actually doing.
+`updated` lists the names of the fact segments that were actually updated during evaluation.
+`fired` is the number of rules that were fired.
+`elapsed` is the number of milliseconds needed.
 
 ```javascript
 const rools = new Rools();
