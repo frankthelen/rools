@@ -7,7 +7,7 @@ const {
 } = require('./rules/mood');
 require('./setup');
 
-describe('Rules.evaluate() / errors', () => {
+describe('Rools.evaluate() / errors', () => {
   it('should not fail if `when` throws error', async () => {
     const brokenRule = new Rule({
       name: 'broken rule #1',

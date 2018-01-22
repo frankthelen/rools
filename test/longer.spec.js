@@ -1,7 +1,7 @@
 const { Rools, Rule } = require('..');
 require('./setup');
 
-describe('Rules.evaluate() / longer cycle', () => {
+describe('Rools.evaluate() / longer cycle', () => {
   let rools;
 
   before(async () => {

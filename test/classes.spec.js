@@ -53,7 +53,7 @@ const rule2 = new Rule({
   },
 });
 
-describe('Rules.evaluate() / classes with getters and setters', () => {
+describe('Rools.evaluate() / classes with getters and setters', () => {
   it('should set mood in 1 pass', async () => {
     const facts = {
       user: new Person({ name: 'frank', stars: 347, salery: 1234 }),
