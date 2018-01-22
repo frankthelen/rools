@@ -55,7 +55,7 @@ class Rools {
     premisesAgenda.forEach((premise) => {
       try {
         delegator.set((segment) => { // listen to reading fact segments
-          this.logger.debug({ message: `read "${segment}"`, rule: premise.name });
+          this.logger.debug({ message: `read fact segment "${segment}"`, rule: premise.name });
           memory.segmentRead(segment, premise);
         });
         memory.getState(premise).value = premise.when(facts); // >>> evaluate premise!
@@ -97,7 +97,7 @@ class Rools {
     try {
       memory.clearDirtySegments();
       delegator.set((segment) => { // listen to writing fact segments
-        this.logger.debug({ message: `write "${segment}"`, rule: action.name });
+        this.logger.debug({ message: `write fact segment "${segment}"`, rule: action.name });
         memory.segmentWrite(segment);
       });
       await action.fire(facts); // >>> fire action!
@@ -114,6 +114,10 @@ class Rools {
     }
     // activation group
     if (action.activationGroup) {
+      this.logger.debug({
+        message: `activation group fired "${action.activationGroup}"`,
+        rule: action.name,
+      });
       this.rules.actionsByActivationGroup[action.activationGroup].forEach((other) => {
         const state = memory.getState(other);
         state.discarded = !state.fired;

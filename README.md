@@ -167,12 +167,17 @@ const extendedRule = new Rule({
 });
 ```
 
+### Activation groups
+
+Only one rule within an activation group will fire during a match-resolve-act cycle, i.e.,
+the first one to fire discards all other rules within the same activation group.
+Use the rule's `activationGroup` property to set its activation group.
+
 ### Rule groups
 
-At the moment, Rools has *no concept of grouping rules* for evaluating facts across different groups of rules with different semantics such as agenda groups or rule flow groups which you might know from other rule engines.
-And, at the moment, there are no plans to support such feature.
+Besides activation groups, Rools has currenly *no other concept of grouping rules* such as agenda groups or rule flow groups which you might know from other rule engines. And there are currently no plans to support such features.
 
-However, you can run different sets of rules against the same facts if that solves your need.
+However, if that solves your needs, you can consecutively run different sets of rules against the same facts.
 Rules in different instances of Rools are perfectly isolated and can, of course, run against the same facts.
 
 Example: evaluate different sets of rules on the same facts
@@ -330,6 +335,7 @@ Rules are created through `new Rule()` with the following properties:
 | `priority`  | no       | `0`     | If during `evaluate()` there is more than one rule ready to fire, i.e., the conflict set is greater 1, rules with higher priority will fire first. Negative values are supported. |
 | `final`     | no       | `false` | Marks a rule as final. If during `evaluate()` a final rule fires, the engine will stop the evaluation. |
 | `extend`    | no       | []      | A reference to a rule or an array of rules. The new rule will inherit all premises from its parents (and their parents). |
+| `activationGroup` | no | -       | A string identifying an activation group. Only one rule within an activation group will fire. |
 
 Rules access the facts in both, premises (`when`) and actions (`then`).
 They can access properties directly, e.g., `facts.user.salery`,
