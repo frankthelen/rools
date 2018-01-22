@@ -4,7 +4,7 @@ const { arrify } = require('./utils');
 
 class Rule {
   constructor({
-    name, when, then, priority = 0, final = false, extend,
+    name, when, then, priority = 0, final = false, extend, activationGroup,
   }) {
     this.name = name;
     this.when = arrify(when);
@@ -12,6 +12,7 @@ class Rule {
     this.priority = priority;
     this.final = final;
     this.extend = arrify(extend);
+    this.activationGroup = activationGroup;
     this.assert();
   }
 
@@ -51,6 +52,10 @@ class Rule {
     assert(
       this.extend.reduce((acc, rule) => acc && (rule instanceof Rule), true),
       '"extend" must be a Rule or an array of Rules',
+    );
+    assert(
+      !this.activationGroup || _.isString(this.activationGroup),
+      '"activationGroup" must be a string',
     );
   }
 }

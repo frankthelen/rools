@@ -7,7 +7,7 @@ class WorkingMemory {
     this.actionsById = {}; // hash
     this.premisesById = {}; // hash
     this.actions.forEach((action) => {
-      this.actionsById[action.id] = { ready: false, fired: false };
+      this.actionsById[action.id] = { ready: false, fired: false, discarded: false };
     });
     this.premises.forEach((premise) => {
       this.premisesById[premise.id] = { value: undefined };
