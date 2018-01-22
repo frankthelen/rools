@@ -3,7 +3,7 @@ const { frank } = require('./facts/users')();
 const { rule1, rule2 } = require('./rules/availability');
 require('./setup');
 
-describe('Rules.evaluate() / async', () => {
+describe('Rools.evaluate() / async', () => {
   it('should call async action / action with async/await', async () => {
     const facts = { user: frank };
     const rools = new Rools();

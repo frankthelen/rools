@@ -1,7 +1,7 @@
 const { Rools, Rule } = require('..');
 require('./setup');
 
-describe('Rules.evaluate() / refraction', () => {
+describe('Rools.evaluate() / refraction', () => {
   const spy = sinon.spy();
 
   const rule1 = new Rule({

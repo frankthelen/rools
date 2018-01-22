@@ -1,7 +1,7 @@
 const { Rools, Rule } = require('..');
 require('./setup');
 
-describe('Rules.evaluate() / re-evaluate', () => {
+describe('Rools.evaluate() / re-evaluate', () => {
   it('should re-evaluate premises only if facts are changed / row', async () => {
     const premisesEvaluated = [];
     const actionsFired = [];

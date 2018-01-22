@@ -1,7 +1,7 @@
 const { Rools, Rule } = require('..');
 require('./setup');
 
-describe('Rules.evaluate() / extend', () => {
+describe('Rools.evaluate() / extend', () => {
   const sequence = [];
   const rule1 = new Rule({
     name: 'rule1',

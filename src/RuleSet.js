@@ -12,6 +12,7 @@ class RuleSet {
     this.premisesByHash = {};
     this.nextActionId = uniqueid('a');
     this.nextPremiseId = uniqueid('p');
+    this.actionsByActivationGroup = {}; // hash
   }
 
   register(rule) {
@@ -49,6 +50,16 @@ class RuleSet {
       action.add(premise); // action ->> premises
       premise.add(action); // premise ->> actions
     });
+    // activation group
+    const { activationGroup } = rule;
+    if (activationGroup) {
+      let group = this.actionsByActivationGroup[activationGroup];
+      if (!group) {
+        group = [];
+        this.actionsByActivationGroup[activationGroup] = group;
+      }
+      group.push(action);
+    }
   }
 }
 

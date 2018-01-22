@@ -1,7 +1,7 @@
 const { Rools, Rule } = require('..');
 require('./setup');
 
-describe('Rules.register() / optimization of premises', () => {
+describe('Rools.register() / optimization of premises', () => {
   it('should not merge premises if not identical', async () => {
     const rule1 = new Rule({
       name: 'rule1',

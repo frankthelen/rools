@@ -18,7 +18,7 @@ class ConflictResolution {
       throw new Error('conflict resolution strategy must be "ps" or "sp"');
     }
     this.logger = logger;
-    this.logger.debug({ message: `conflict resolution strategy is "${strategy}"` });
+    this.logger.debug({ message: `conflict resolution strategy "${strategy}"` });
   }
 
   select(actions) {

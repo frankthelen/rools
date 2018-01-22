@@ -55,7 +55,7 @@ class Rools {
     premisesAgenda.forEach((premise) => {
       try {
         delegator.set((segment) => { // listen to reading fact segments
-          this.logger.debug({ message: `read "${segment}"`, rule: premise.name });
+          this.logger.debug({ message: `read fact segment "${segment}"`, rule: premise.name });
           memory.segmentRead(segment, premise);
         });
         memory.getState(premise).value = premise.when(facts); // >>> evaluate premise!
@@ -69,7 +69,10 @@ class Rools {
     // create agenda for actions
     const actionsAgenda = pass === 0 ? memory.actions : premisesAgenda
       .reduce((acc, premise) => [...new Set([...acc, ...premise.actions])], [])
-      .filter(action => !memory.getState(action).fired);
+      .filter((action) => {
+        const { fired, discarded } = memory.getState(action);
+        return !fired && !discarded;
+      });
     this.logger.debug({ message: `actions agenda length ${actionsAgenda.length}` });
     // evaluate actions
     actionsAgenda.forEach((action) => {
@@ -78,8 +81,8 @@ class Rools {
     });
     // create conflict set
     const conflictSet = memory.actions.filter((action) => { // all actions not only actionsAgenda!
-      const { fired, ready } = memory.getState(action);
-      return ready && !fired;
+      const { fired, ready, discarded } = memory.getState(action);
+      return ready && !fired && !discarded;
     });
     this.logger.debug({ message: `conflict set length ${conflictSet.length}` });
     // conflict resolution
@@ -94,7 +97,7 @@ class Rools {
     try {
       memory.clearDirtySegments();
       delegator.set((segment) => { // listen to writing fact segments
-        this.logger.debug({ message: `write "${segment}"`, rule: action.name });
+        this.logger.debug({ message: `write fact segment "${segment}"`, rule: action.name });
         memory.segmentWrite(segment);
       });
       await action.fire(facts); // >>> fire action!
@@ -104,10 +107,21 @@ class Rools {
     } finally {
       delegator.unset();
     }
-    // check final rule
+    // final rule
     if (action.final) {
       this.logger.debug({ message: 'evaluation stop after final rule', rule: action.name });
       return false; // done
+    }
+    // activation group
+    if (action.activationGroup) {
+      this.logger.debug({
+        message: `activation group fired "${action.activationGroup}"`,
+        rule: action.name,
+      });
+      this.rules.actionsByActivationGroup[action.activationGroup].forEach((other) => {
+        const state = memory.getState(other);
+        state.discarded = !state.fired;
+      });
     }
     // continue with next pass
     return true;

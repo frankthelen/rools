@@ -6,7 +6,7 @@ const {
 } = require('./rules/mood');
 require('./setup');
 
-describe('Rules.evaluate() / delegate logging', () => {
+describe('Rools.evaluate() / delegate logging', () => {
   it('should log debug', async () => {
     let counter = 0;
     const spy = () => {
@@ -63,7 +63,7 @@ describe('Rules.evaluate() / delegate logging', () => {
   });
 });
 
-describe('Rules.evaluate() / console logging', () => {
+describe('Rools.evaluate() / console logging', () => {
   beforeEach(() => {
     sinon.spy(console, 'log');
     sinon.spy(console, 'error');

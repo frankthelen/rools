@@ -1,12 +1,13 @@
 class Action {
   constructor({
-    id, name, then, priority, final,
+    id, name, then, priority, final, activationGroup,
   }) {
     this.id = id;
     this.name = name; // for logging only
     this.then = then;
     this.priority = priority;
     this.final = final;
+    this.activationGroup = activationGroup;
     this.premises = [];
   }
 
