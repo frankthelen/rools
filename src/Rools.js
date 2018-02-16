@@ -31,11 +31,11 @@ class Rools {
       const delegator = new Delegator();
       const proxy = observe(facts, segment => delegator.delegate(segment));
       // match-resolve-act cycle
-      let pass = 0;
-      for (; pass < this.maxPasses; pass += 1) { // eslint-disable-next-line no-await-in-loop
+      let pass = 0; /* eslint-disable no-await-in-loop */
+      for (; pass < this.maxPasses; pass += 1) {
         const next = await this.pass(proxy, delegator, memory, conflictResolution, pass);
         if (!next) break; // for
-      }
+      } /* eslint-enable no-await-in-loop */
       // return info
       const endDate = new Date();
       return {
