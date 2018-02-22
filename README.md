@@ -101,7 +101,7 @@ Actions can also be asynchronous.
 
 Rules access the facts in both, premises (`when`) and actions (`then`).
 They can access properties directly, e.g., `facts.user.salery`,
-or through getters and getters if applicable, e.g., `facts.user.getSalery()`.
+or through getters and setters if applicable, e.g., `facts.user.getSalery()`.
 
 ### Conflict resolution
 
@@ -339,7 +339,7 @@ Rules are created through `new Rule()` with the following properties:
 
 Rules access the facts in both, premises (`when`) and actions (`then`).
 They can access properties directly, e.g., `facts.user.salery`,
-or through getters and getters if applicable, e.g., `facts.user.getSalery()`.
+or through getters and setters if applicable, e.g., `facts.user.getSalery()`.
 
 `register()` registers one or more rules to the rule engine.
 It can be called multiple time.
