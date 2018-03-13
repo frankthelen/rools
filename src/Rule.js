@@ -1,6 +1,6 @@
 const _ = require('lodash');
 const assert = require('assert');
-const { arrify } = require('./utils');
+const arrify = require('arrify');
 
 class Rule {
   constructor({
