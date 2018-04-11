@@ -280,8 +280,6 @@ const rule2 = new Rule({
 });
 ```
 
-*TL;DR* -- Technically, this is achieved by hashing the premise functions (remember, functions are "first-class" objects in JavaScript). This can be a classic function or an ES6 arrow function; it can be a reference or the function directly.
-
 ### Optimization II
 
 When actions fire, changes are made to the facts.
@@ -305,8 +303,6 @@ await rools.evaluate(facts);
 
 This optimization targets runtime performance.
 It unfolds its full potential with a growing number of rules and fact segments.
-
-*TL;DR* -- Technically, this is achieved by observing the facts through the ES6 `Proxy` API.
 
 ## Interface
 

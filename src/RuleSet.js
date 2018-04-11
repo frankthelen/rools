@@ -35,7 +35,7 @@ class RuleSet {
     walker(rule);
     // premises
     [...whens].forEach((when, index) => {
-      const hash = md5(when); // is function already introduced by other rule?
+      const hash = md5(when.toString()); // is function already introduced by other rule?
       let premise = this.premisesByHash[hash];
       if (!premise) { // create new premise
         premise = new Premise({

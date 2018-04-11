@@ -1,3 +1,4 @@
+const md5 = require('md5');
 const { Rools, Rule } = require('..');
 require('./setup');
 
@@ -90,7 +91,7 @@ describe('Rools.register() / optimization of premises', () => {
     expect(rools.rules.premises.length).to.be.equal(1);
   });
 
-  it('should merge premises if identical / hash / slightly different', async () => {
+  it('should not merge premises if identical / hash / slightly different (unfortunately)', async () => {
     const rule1 = new Rule({
       name: 'rule1',
       when: facts => facts.user.name === 'frank',
@@ -103,7 +104,7 @@ describe('Rools.register() / optimization of premises', () => {
     });
     const rools = new Rools();
     await rools.register([rule1, rule2]);
-    expect(rools.rules.premises.length).to.be.equal(1);
+    expect(rools.rules.premises.length).to.be.equal(2);
   });
 
   it('should not merge premises if not identical / with Date object', async () => {
@@ -139,5 +140,34 @@ describe('Rools.register() / optimization of premises', () => {
     const rools = new Rools();
     await rools.register([rule1, rule2]);
     expect(rools.rules.premises.length).to.be.equal(1);
+  });
+
+  it('should merge premises if identical / fn.toString() / 1', async () => {
+    const foo = ({ context }) => context.bar === 'buz0';
+    const fns = [
+      ({ context }) => context.bar === 'buz0',
+      ({ context }) => context.bar === 'buz 0',
+      ({ context }) => context.bar === 'buz 0',
+      ({ context }) => context.bar === 'buz10',
+      ({ context }) => context.bar === 'buz00',
+      foo,
+      foo,
+      ({ context }) => context.bar === 'buz0',
+    ];
+    const set = new Set();
+    fns.forEach(f => set.add(md5(f.toString())));
+    expect(set.size).to.be.equal(4);
+  });
+
+  it('should merge premises if identical / fn.toString() / 2', async () => {
+    const foo = ({ context }) => context.bar === Math.abs(3);
+    const fns = [
+      ({ context }) => context.bar === Math.abs(0),
+      ({ context }) => context.bar === Math.abs(1),
+      foo,
+    ];
+    const set = new Set();
+    fns.forEach(f => set.add(md5(f.toString())));
+    expect(set.size).to.be.equal(3);
   });
 });
