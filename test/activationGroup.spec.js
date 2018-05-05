@@ -76,7 +76,7 @@ describe('Rools.evaluate() / activation group', () => {
 
   it('should fire only one rule in activation group / specificity 2', async () => {
     sequence.length = 0; // reset
-    const rools = new Rools({ logging: { debug: true } });
+    const rools = new Rools();
     await rools.register([
       new Rule({ ...rule1, priority: 10 }),
       new Rule({ ...rule2, priority: 5 }),
