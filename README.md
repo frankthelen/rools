@@ -4,7 +4,7 @@ A small rule engine for Node.
 
 [![build status](https://img.shields.io/travis/frankthelen/rools.svg)](http://travis-ci.org/frankthelen/rools)
 [![Coverage Status](https://coveralls.io/repos/github/frankthelen/rools/badge.svg?branch=master)](https://coveralls.io/github/frankthelen/rools?branch=master)
-[![Dependency Status](https://gemnasium.com/badges/github.com/frankthelen/rools.svg)](https://gemnasium.com/github.com/frankthelen/rools)
+[![dependencies Status](https://david-dm.org/frankthelen/rools/status.svg)](https://david-dm.org/frankthelen/rools)
 [![Greenkeeper badge](https://badges.greenkeeper.io/frankthelen/rools.svg)](https://greenkeeper.io/)
 [![Maintainability](https://api.codeclimate.com/v1/badges/d1f858c321b03000fc63/maintainability)](https://codeclimate.com/github/frankthelen/rools/maintainability)
 [![node](https://img.shields.io/node/v/rools.svg)](https://nodejs.org)
