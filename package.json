@@ -32,7 +32,7 @@
     "chai-as-promised": "^7.1.1",
     "coveralls": "^3.0.1",
     "eslint": "^4.19.1",
-    "eslint-config-airbnb-base": "^12.1.0",
+    "eslint-config-airbnb-base": "^13.0.0",
     "eslint-plugin-import": "^2.12.0",
     "eslint-plugin-promise": "^3.8.0",
     "eslint-plugin-should-promised": "^2.0.0",
