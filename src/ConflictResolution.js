@@ -49,11 +49,10 @@ class ConflictResolution {
   }
 
   resolveBySpecificity(actions) {
-    const isMoreSpecific = (action, rhs) =>
-      action.premises.length > rhs.premises.length &&
-      _.intersection(action.premises, rhs.premises).length === rhs.premises.length;
-    const isMostSpecific = (action, all) =>
-      all.reduce((acc, other) => acc && !isMoreSpecific(other, action), true);
+    const isMoreSpecific = (action, rhs) => action.premises.length > rhs.premises.length
+      && _.intersection(action.premises, rhs.premises).length === rhs.premises.length;
+    const isMostSpecific = (action, all) => all.reduce((acc, other) => acc
+      && !isMoreSpecific(other, action), true);
     const selected = actions.filter(action => isMostSpecific(action, actions));
     this.logger.debug({
       message: `conflict resolution by specificity ${actions.length} -> ${selected.length}`,

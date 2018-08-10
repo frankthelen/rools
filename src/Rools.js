@@ -76,8 +76,8 @@ class Rools {
     this.logger.debug({ message: `actions agenda length ${actionsAgenda.length}` });
     // evaluate actions
     actionsAgenda.forEach((action) => {
-      memory.getState(action).ready =
-        action.premises.reduce((acc, premise) => acc && memory.getState(premise).value, true);
+      memory.getState(action).ready = action.premises.reduce((acc, premise) => acc
+        && memory.getState(premise).value, true);
     });
     // create conflict set
     const conflictSet = memory.actions.filter((action) => { // all actions not only actionsAgenda!

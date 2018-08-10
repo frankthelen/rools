@@ -24,9 +24,9 @@ const rule1 = new Rule({
 const rule2 = new Rule({
   name: 'check availability of products (promises)',
   when: facts => facts.user.address.country === 'germany',
-  then: facts =>
-    availabilityCheck(facts.user.address)
-      .then((result) => { facts.products = result; }),
+  then: facts => availabilityCheck(facts.user.address).then((result) => {
+    facts.products = result;
+  }),
 });
 
 module.exports = { rule1, rule2 };
