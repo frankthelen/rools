@@ -1,4 +1,9 @@
-const _ = require('lodash');
+const {
+  isBoolean,
+  isFunction,
+  isInteger,
+  isString,
+} = require('lodash');
 const assert = require('assert');
 const arrify = require('arrify');
 
@@ -22,7 +27,7 @@ class Rule {
       '"name" is required',
     );
     assert(
-      _.isString(this.name),
+      isString(this.name),
       '"name" must be a string',
     );
     assert(
@@ -30,7 +35,7 @@ class Rule {
       '"when" is required with at least one premise',
     );
     assert(
-      this.when.reduce((acc, premise) => acc && _.isFunction(premise), true),
+      this.when.reduce((acc, premise) => acc && isFunction(premise), true),
       '"when" must be a function or an array of functions',
     );
     assert(
@@ -38,15 +43,15 @@ class Rule {
       '"then" is required',
     );
     assert(
-      _.isFunction(this.then),
+      isFunction(this.then),
       '"then" must be a function',
     );
     assert(
-      _.isInteger(this.priority),
+      isInteger(this.priority),
       '"priority" must be an integer',
     );
     assert(
-      _.isBoolean(this.final),
+      isBoolean(this.final),
       '"final" must be a boolean',
     );
     assert(
@@ -54,7 +59,7 @@ class Rule {
       '"extend" must be a Rule or an array of Rules',
     );
     assert(
-      !this.activationGroup || _.isString(this.activationGroup),
+      !this.activationGroup || isString(this.activationGroup),
       '"activationGroup" must be a string',
     );
   }
