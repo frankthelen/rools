@@ -1,4 +1,4 @@
-const { intersection } = require('lodash');
+const intersection = require('lodash/intersection');
 
 class ConflictResolution {
   constructor({ strategy = 'ps', logger }) {
