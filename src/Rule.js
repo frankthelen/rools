@@ -1,7 +1,7 @@
-const isBoolean = require('lodash/isBoolean');
-const isFunction = require('lodash/isFunction');
-const isInteger = require('lodash/isInteger');
-const isString = require('lodash/isString');
+const isBoolean = require('lodash.isboolean');
+const isFunction = require('lodash.isfunction');
+const isInteger = require('lodash.isinteger');
+const isString = require('lodash.isstring');
 const assert = require('assert');
 const arrify = require('arrify');
 

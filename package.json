@@ -44,7 +44,11 @@
   "dependencies": {
     "arrify": "^1.0.1",
     "bluebird": "^3.5.1",
-    "lodash": "^4.17.10",
+    "lodash.intersection": "^4.4.0",
+    "lodash.isboolean": "^3.0.3",
+    "lodash.isfunction": "^3.0.9",
+    "lodash.isinteger": "^4.0.4",
+    "lodash.isstring": "^4.0.1",
     "md5": "^2.2.1",
     "uniqueid": "^1.0.0"
   }
