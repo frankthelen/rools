@@ -1,4 +1,3 @@
-const Promise = require('bluebird');
 const RuleSet = require('./RuleSet');
 const Logger = require('./Logger');
 const Delegator = require('./Delegator');
@@ -14,36 +13,32 @@ class Rools {
   }
 
   async register(rules) {
-    return Promise.try(() => {
-      rules.forEach(rule => this.rules.register(rule));
-    });
+    rules.forEach(rule => this.rules.register(rule));
   }
 
   async evaluate(facts, { strategy } = {}) {
-    return Promise.try(async () => {
-      const startDate = new Date();
-      // init
-      const memory = new WorkingMemory({
-        actions: this.rules.actions,
-        premises: this.rules.premises,
-      });
-      const conflictResolution = new ConflictResolution({ strategy, logger: this.logger });
-      const delegator = new Delegator();
-      const proxy = observe(facts, segment => delegator.delegate(segment));
-      // match-resolve-act cycle
-      let pass = 0; /* eslint-disable no-await-in-loop */
-      for (; pass < this.maxPasses; pass += 1) {
-        const next = await this.pass(proxy, delegator, memory, conflictResolution, pass);
-        if (!next) break; // for
-      } /* eslint-enable no-await-in-loop */
-      // return info
-      const endDate = new Date();
-      return {
-        updated: [...memory.updatedSegments],
-        fired: pass,
-        elapsed: endDate.getTime() - startDate.getTime(),
-      };
+    const startDate = new Date();
+    // init
+    const memory = new WorkingMemory({
+      actions: this.rules.actions,
+      premises: this.rules.premises,
     });
+    const conflictResolution = new ConflictResolution({ strategy, logger: this.logger });
+    const delegator = new Delegator();
+    const proxy = observe(facts, segment => delegator.delegate(segment));
+    // match-resolve-act cycle
+    let pass = 0; /* eslint-disable no-await-in-loop */
+    for (; pass < this.maxPasses; pass += 1) {
+      const next = await this.pass(proxy, delegator, memory, conflictResolution, pass);
+      if (!next) break; // for
+    } /* eslint-enable no-await-in-loop */
+    // return info
+    const endDate = new Date();
+    return {
+      updated: [...memory.updatedSegments],
+      fired: pass,
+      elapsed: endDate.getTime() - startDate.getTime(),
+    };
   }
 
   async pass(facts, delegator, memory, conflictResolution, pass) {

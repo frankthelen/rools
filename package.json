@@ -1,6 +1,6 @@
 {
   "name": "rools",
-  "version": "2.1.14",
+  "version": "2.2.0",
   "description": "A small rule engine for Node.",
   "main": "src/index.js",
   "author": "Frank Thelen",
@@ -43,7 +43,6 @@
   },
   "dependencies": {
     "arrify": "^1.0.1",
-    "bluebird": "^3.5.1",
     "lodash": "^4.17.10",
     "md5": "^2.2.1",
     "uniqueid": "^1.0.0"
