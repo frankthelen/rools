@@ -16,12 +16,8 @@ class Action {
   }
 
   async fire(facts) {
-    try {
-      const thenable = this.then(facts); // >>> fire action!
-      return thenable && thenable.then ? thenable : Promise.resolve();
-    } catch (error) {
-      return Promise.reject(error);
-    }
+    const thenable = this.then(facts); // >>> fire action!
+    return thenable && thenable.then ? thenable : undefined;
   }
 }
 
