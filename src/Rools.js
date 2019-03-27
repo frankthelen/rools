@@ -50,7 +50,8 @@ class Rools {
     premisesAgenda.forEach((premise) => {
       try {
         delegator.set((segment) => { // listen to reading fact segments
-          this.logger.debug({ message: `read fact segment "${segment}"`, rule: premise.name });
+          const segmentName = (typeof segment === 'symbol') ? segment.toString() : segment;
+          this.logger.debug({ message: `read fact segment "${segmentName}"`, rule: premise.name });
           memory.segmentRead(segment, premise);
         });
         memory.getState(premise).value = premise.when(facts); // >>> evaluate premise!
@@ -92,7 +93,8 @@ class Rools {
     try {
       memory.clearDirtySegments();
       delegator.set((segment) => { // listen to writing fact segments
-        this.logger.debug({ message: `write fact segment "${segment}"`, rule: action.name });
+        const segmentName = (typeof segment === 'symbol') ? segment.toString() : segment;
+        this.logger.debug({ message: `write fact segment "${segmentName}"`, rule: action.name });
         memory.segmentWrite(segment);
       });
       await action.fire(facts); // >>> fire action!

@@ -99,7 +99,7 @@ describe('Rools.evaluate() / console logging', () => {
     expect(console.error).to.be.called; // eslint-disable-line no-unused-expressions, no-console
   });
 
-  it('should log errors by default', async () => {
+  it('should log errors by default / 1', async () => {
     const brokenRule = new Rule({
       name: 'broken rule #2',
       when: () => true, // fire immediately
