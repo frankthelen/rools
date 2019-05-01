@@ -1,6 +1,6 @@
 {
   "name": "rools",
-  "version": "2.2.3",
+  "version": "2.2.4",
   "description": "A small rule engine for Node.",
   "main": "src/index.js",
   "author": "Frank Thelen",
