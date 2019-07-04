@@ -22,7 +22,9 @@
     "test": "NODE_ENV=test mocha --recursive test",
     "cover": "NODE_ENV=test nyc --reporter=lcov --reporter=text-summary mocha --exit --recursive test",
     "coveralls": "npm run cover && nyc report --reporter=lcovonly && cat ./coverage/lcov.info | coveralls",
-    "preversion": "npm run lint && npm test"
+    "preversion": "npm run lint && npm test",
+    "snyk-protect": "snyk protect",
+    "prepare": "npm run snyk-protect"
   },
   "engines": {
     "node": ">=8.9.0"
@@ -45,6 +47,8 @@
     "arrify": "^2.0.1",
     "lodash": "^4.17.11",
     "md5": "^2.2.1",
-    "uniqueid": "^1.0.0"
-  }
+    "uniqueid": "^1.0.0",
+    "snyk": "^1.189.0"
+  },
+  "snyk": true
 }
