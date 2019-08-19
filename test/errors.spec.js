@@ -11,7 +11,7 @@ describe('Rools.evaluate() / errors', () => {
   it('should not fail if `when` throws error', async () => {
     const brokenRule = new Rule({
       name: 'broken rule #1',
-      when: facts => facts.bla.blub === 'blub', // TypeError: Cannot read property 'blub' of undefined
+      when: (facts) => facts.bla.blub === 'blub', // TypeError: Cannot read property 'blub' of undefined
       then: () => {},
     });
     const rools = new Rools({ logging: { error: false } });

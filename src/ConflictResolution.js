@@ -39,9 +39,9 @@ class ConflictResolution {
   }
 
   resolveByPriority(actions) {
-    const prios = actions.map(action => action.priority);
+    const prios = actions.map((action) => action.priority);
     const highestPrio = Math.max(...prios);
-    const selected = actions.filter(action => action.priority === highestPrio);
+    const selected = actions.filter((action) => action.priority === highestPrio);
     this.logger.debug({
       message: `conflict resolution by priority ${actions.length} -> ${selected.length}`,
     });
@@ -53,7 +53,7 @@ class ConflictResolution {
       && intersection(action.premises, rhs.premises).length === rhs.premises.length;
     const isMostSpecific = (action, all) => all.reduce((acc, other) => acc
       && !isMoreSpecific(other, action), true);
-    const selected = actions.filter(action => isMostSpecific(action, actions));
+    const selected = actions.filter((action) => isMostSpecific(action, actions));
     this.logger.debug({
       message: `conflict resolution by specificity ${actions.length} -> ${selected.length}`,
     });

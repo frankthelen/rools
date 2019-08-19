@@ -6,12 +6,12 @@ describe('Rools.register() / optimization of premises', () => {
   it('should not merge premises if not identical', async () => {
     const rule1 = new Rule({
       name: 'rule1',
-      when: facts => facts.user.name === 'frank',
+      when: (facts) => facts.user.name === 'frank',
       then: () => {},
     });
     const rule2 = new Rule({
       name: 'rule2',
-      when: facts => facts.user.name === 'michael',
+      when: (facts) => facts.user.name === 'michael',
       then: () => {},
     });
     const rools = new Rools();
@@ -20,7 +20,7 @@ describe('Rools.register() / optimization of premises', () => {
   });
 
   it('should merge premises if identical / reference / arrow function', async () => {
-    const isFrank = facts => facts.user.name === 'frank';
+    const isFrank = (facts) => facts.user.name === 'frank';
     const rule1 = new Rule({
       name: 'rule1',
       when: isFrank,
@@ -58,12 +58,12 @@ describe('Rools.register() / optimization of premises', () => {
   it('should merge premises if identical / hash / arrow function', async () => {
     const rule1 = new Rule({
       name: 'rule1',
-      when: facts => facts.user.name === 'frank',
+      when: (facts) => facts.user.name === 'frank',
       then: () => {},
     });
     const rule2 = new Rule({
       name: 'rule2',
-      when: facts => facts.user.name === 'frank',
+      when: (facts) => facts.user.name === 'frank',
       then: () => {},
     });
     const rools = new Rools();
@@ -94,12 +94,12 @@ describe('Rools.register() / optimization of premises', () => {
   it('should not merge premises if identical / hash / slightly different (unfortunately)', async () => {
     const rule1 = new Rule({
       name: 'rule1',
-      when: facts => facts.user.name === 'frank',
+      when: (facts) => facts.user.name === 'frank',
       then: () => {},
     });
     const rule2 = new Rule({
       name: 'rule2',
-      when: facts => facts.user.name === "frank", // eslint-disable-line quotes
+      when: (facts) => facts.user.name === "frank", // eslint-disable-line quotes
       then: () => {},
     });
     const rools = new Rools();
@@ -112,12 +112,12 @@ describe('Rools.register() / optimization of premises', () => {
     const date2 = new Date('1990-01-01');
     const rule1 = new Rule({
       name: 'rule1',
-      when: facts => facts.user.birthdate > date1,
+      when: (facts) => facts.user.birthdate > date1,
       then: () => {},
     });
     const rule2 = new Rule({
       name: 'rule2',
-      when: facts => facts.user.birthdate > date2,
+      when: (facts) => facts.user.birthdate > date2,
       then: () => {},
     });
     const rools = new Rools();
@@ -129,12 +129,12 @@ describe('Rools.register() / optimization of premises', () => {
     const date = new Date('2000-01-01');
     const rule1 = new Rule({
       name: 'rule1',
-      when: facts => facts.user.birthdate > date,
+      when: (facts) => facts.user.birthdate > date,
       then: () => {},
     });
     const rule2 = new Rule({
       name: 'rule2',
-      when: facts => facts.user.birthdate > date,
+      when: (facts) => facts.user.birthdate > date,
       then: () => {},
     });
     const rools = new Rools();
@@ -155,7 +155,7 @@ describe('Rools.register() / optimization of premises', () => {
       ({ context }) => context.bar === 'buz0',
     ];
     const set = new Set();
-    fns.forEach(f => set.add(md5(f.toString())));
+    fns.forEach((f) => set.add(md5(f.toString())));
     expect(set.size).to.be.equal(4);
   });
 
@@ -167,7 +167,7 @@ describe('Rools.register() / optimization of premises', () => {
       foo,
     ];
     const set = new Set();
-    fns.forEach(f => set.add(md5(f.toString())));
+    fns.forEach((f) => set.add(md5(f.toString())));
     expect(set.size).to.be.equal(3);
   });
 });

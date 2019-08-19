@@ -6,13 +6,13 @@ describe('Rools.evaluate() / withdraw', () => {
 
   const rule1 = new Rule({
     name: 'rule1',
-    when: facts => facts.fact1,
+    when: (facts) => facts.fact1,
     then: (facts) => { facts.fact2 = false; },
   });
 
   const rule2 = new Rule({
     name: 'rule2',
-    when: facts => facts.fact2,
+    when: (facts) => facts.fact2,
     then: () => { spy(); },
   });
 

@@ -6,19 +6,19 @@ describe('Rools.evaluate() / priority', () => {
 
   const rule1 = new Rule({
     name: 'rule1',
-    when: facts => facts.fact1,
+    when: (facts) => facts.fact1,
     then: () => { sequence.push(1); },
   });
 
   const rule2 = new Rule({
     name: 'rule2',
-    when: facts => facts.fact1,
+    when: (facts) => facts.fact1,
     then: () => { sequence.push(2); },
   });
 
   const rule3 = new Rule({
     name: 'rule3',
-    when: facts => facts.fact1,
+    when: (facts) => facts.fact1,
     then: () => { sequence.push(3); },
   });
 

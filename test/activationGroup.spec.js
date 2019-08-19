@@ -5,27 +5,27 @@ describe('Rools.evaluate() / activation group', () => {
   const sequence = [];
   const rule1 = new Rule({
     name: 'rule1',
-    when: facts => facts.fact1,
+    when: (facts) => facts.fact1,
     then: () => { sequence.push(1); },
   });
   const rule2 = new Rule({
     name: 'rule2',
     extend: rule1,
-    when: facts => facts.fact2,
+    when: (facts) => facts.fact2,
     then: () => { sequence.push(2); },
   });
   const rule3 = new Rule({
     name: 'rule3',
     extens: rule2,
     activationGroup: 'groupX',
-    when: facts => facts.fact3,
+    when: (facts) => facts.fact3,
     then: () => { sequence.push(3); },
   });
   const rule4 = new Rule({
     name: 'rule4',
     extend: rule2,
     activationGroup: 'groupX',
-    when: facts => facts.fact4,
+    when: (facts) => facts.fact4,
     then: () => { sequence.push(4); },
   });
   const facts = {

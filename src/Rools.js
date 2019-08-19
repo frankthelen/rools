@@ -13,7 +13,7 @@ class Rools {
   }
 
   async register(rules) {
-    rules.forEach(rule => this.rules.register(rule));
+    rules.forEach((rule) => this.rules.register(rule));
   }
 
   async evaluate(facts, { strategy } = {}) {
@@ -25,7 +25,7 @@ class Rools {
     });
     const conflictResolution = new ConflictResolution({ strategy, logger: this.logger });
     const delegator = new Delegator();
-    const proxy = observe(facts, segment => delegator.delegate(segment));
+    const proxy = observe(facts, (segment) => delegator.delegate(segment));
     // match-resolve-act cycle
     let pass = 0; /* eslint-disable no-await-in-loop */
     for (; pass < this.maxPasses; pass += 1) {

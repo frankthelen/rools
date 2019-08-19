@@ -15,7 +15,7 @@ const availabilityCheck = (address) => { // eslint-disable-line arrow-body-style
 
 const rule1 = new Rule({
   name: 'check availability of products (async await)',
-  when: facts => facts.user.address.country === 'germany',
+  when: (facts) => facts.user.address.country === 'germany',
   then: async (facts) => {
     facts.products = await availabilityCheck(facts.user.address);
   },
@@ -23,8 +23,8 @@ const rule1 = new Rule({
 
 const rule2 = new Rule({
   name: 'check availability of products (promises)',
-  when: facts => facts.user.address.country === 'germany',
-  then: facts => availabilityCheck(facts.user.address).then((result) => {
+  when: (facts) => facts.user.address.country === 'germany',
+  then: (facts) => availabilityCheck(facts.user.address).then((result) => {
     facts.products = result;
   }),
 });

@@ -51,7 +51,7 @@ const facts = {
 // rules
 const ruleMoodGreat = new Rule({
   name: 'mood is great if 200 stars or more',
-  when: facts => facts.user.stars >= 200,
+  when: (facts) => facts.user.stars >= 200,
   then: (facts) => {
     facts.user.mood = 'great';
   },
@@ -59,9 +59,9 @@ const ruleMoodGreat = new Rule({
 const ruleGoWalking = new Rule({
   name: 'go for a walk if mood is great and the weather is fine',
   when: [
-    facts => facts.user.mood === 'great',
-    facts => facts.weather.temperature >= 20,
-    facts => !facts.weather.rainy,
+    (facts) => facts.user.mood === 'great',
+    (facts) => facts.weather.temperature >= 20,
+    (facts) => !facts.weather.rainy,
   ],
   then: (facts) => {
     facts.goWalking = true;
@@ -125,7 +125,7 @@ Example: asynchronous action using async/await
 ```javascript
 const rule = new Rule({
   name: 'check availability',
-  when: facts => facts.user.address.country === 'germany',
+  when: (facts) => facts.user.address.country === 'germany',
   then: async (facts) => {
     facts.products = await availabilityCheck(facts.user.address);
   },
@@ -136,8 +136,8 @@ Example: asynchronous action using promises
 ```javascript
 const rule = new Rule({
   name: 'check availability',
-  when: facts => facts.user.address.country === 'germany',
-  then: facts =>
+  when: (facts) => facts.user.address.country === 'germany',
+  then: (facts) =>
     availabilityCheck(facts.user.address)
       .then((result) => {
         facts.products = result;
@@ -155,13 +155,13 @@ Example: extended rule
 ```javascript
 const baseRule = new Rule({
   name: 'user lives in Germany',
-  when: facts => facts.user.address.country === 'germany',
+  when: (facts) => facts.user.address.country === 'germany',
   ...
 });
 const extendedRule = new Rule({
   name: 'user lives in Hamburg, Germany',
   extend: baseRule, // can also be an array of rules
-  when: facts => facts.user.address.city === 'hamburg',
+  when: (facts) => facts.user.address.city === 'hamburg',
   ...
 });
 ```
@@ -208,7 +208,7 @@ Both options are working fine.
 
 Example 1: by reference
 ```javascript
-const isApplicable = facts => facts.user.salery >= 2000;
+const isApplicable = (facts) => facts.user.salery >= 2000;
 const rule1 = new Rule({
   when: [
     isApplicable,
@@ -229,14 +229,14 @@ Example 2: repeat premise
 ```javascript
 const rule1 = new Rule({
   when: [
-    facts => facts.user.salery >= 2000,
+    (facts) => facts.user.salery >= 2000,
     ...
   ],
   ...
 });
 const rule2 = new Rule({
   when: [
-    facts => facts.user.salery >= 2000,
+    (facts) => facts.user.salery >= 2000,
     ...
   ],
   ...
@@ -249,14 +249,14 @@ For example:
 ```javascript
 // this version works...
 const rule = new Rule({
-  when: facts => facts.user.salery >= 2000 && facts.user.age > 25,
+  when: (facts) => facts.user.salery >= 2000 && facts.user.age > 25,
   ...
 });
 // however, it's better to write it like this...
 const rule = new Rule({
   when: [
-    facts => facts.user.salery >= 2000,
-    facts => facts.user.age > 25,
+    (facts) => facts.user.salery >= 2000,
+    (facts) => facts.user.age > 25,
   ],
   ...
 });
@@ -270,12 +270,12 @@ Later on, at evaluation time (`evaluate()`), both rules are clearly identical.
 ```javascript
 let value = 2000;
 const rule1 = new Rule({
-  when: facts => facts.user.salery >= value,
+  when: (facts) => facts.user.salery >= value,
   ...
 });
 value = 3000;
 const rule2 = new Rule({
-  when: facts => facts.user.salery >= value,
+  when: (facts) => facts.user.salery >= value,
   ...
 });
 ```
@@ -348,7 +348,7 @@ Example:
 const { Rools, Rule } = require('rools');
 const ruleMoodGreat = new Rule({
   name: 'mood is great if 200 stars or more',
-  when: facts => facts.user.stars >= 200,
+  when: (facts) => facts.user.stars >= 200,
   then: (facts) => {
     facts.user.mood = 'great';
   },
@@ -356,9 +356,9 @@ const ruleMoodGreat = new Rule({
 const ruleGoWalking = new Rule({
   name: 'go for a walk if mood is great and the weather is fine',
   when: [
-    facts => facts.user.mood === 'great',
-    facts => facts.weather.temperature >= 20,
-    facts => !facts.weather.rainy,
+    (facts) => facts.user.mood === 'great',
+    (facts) => facts.weather.temperature >= 20,
+    (facts) => !facts.weather.rainy,
   ],
   then: (facts) => {
     facts.goWalking = true;

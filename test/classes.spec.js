@@ -36,7 +36,7 @@ class Person {
 
 const rule1 = new Rule({
   name: 'mood is great if 200 stars or more',
-  when: facts => facts.user.getStars() >= 200,
+  when: (facts) => facts.user.getStars() >= 200,
   then: (facts) => {
     facts.user.setMood('great');
   },
@@ -45,8 +45,8 @@ const rule1 = new Rule({
 const rule2 = new Rule({
   name: 'mark applicable if mood is great and salery greater 1000',
   when: [
-    facts => facts.user.getMood() === 'great',
-    facts => facts.user.getSalery() > 1000,
+    (facts) => facts.user.getMood() === 'great',
+    (facts) => facts.user.getSalery() > 1000,
   ],
   then: (facts) => {
     facts.result = true;
