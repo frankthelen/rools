@@ -4,6 +4,7 @@ const Delegator = require('./Delegator');
 const WorkingMemory = require('./WorkingMemory');
 const ConflictResolution = require('./ConflictResolution');
 const observe = require('./observe');
+const RuleError = require('./RuleError');
 
 class Rools {
   constructor({ logging } = {}) {
@@ -100,7 +101,7 @@ class Rools {
       await action.fire(facts); // >>> fire action!
     } catch (error) { // re-throw error!
       this.logger.error({ message: 'error in action (then)', rule: action.name, error });
-      throw new Error(`error in action (then): ${action.name}`, error);
+      throw new RuleError(`error in action (then): ${action.name}`, error);
     } finally {
       delegator.unset();
     }
