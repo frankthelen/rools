@@ -5,7 +5,6 @@ A small rule engine for Node.
 [![Build Status](https://travis-ci.org/frankthelen/rools.svg?branch=master)](https://travis-ci.org/frankthelen/rools)
 [![Coverage Status](https://coveralls.io/repos/github/frankthelen/rools/badge.svg?branch=master)](https://coveralls.io/github/frankthelen/rools?branch=master)
 [![dependencies Status](https://david-dm.org/frankthelen/rools/status.svg)](https://david-dm.org/frankthelen/rools)
-[![Greenkeeper badge](https://badges.greenkeeper.io/frankthelen/rools.svg)](https://greenkeeper.io/)
 [![Maintainability](https://api.codeclimate.com/v1/badges/d1f858c321b03000fc63/maintainability)](https://codeclimate.com/github/frankthelen/rools/maintainability)
 [![node](https://img.shields.io/node/v/rools.svg)](https://nodejs.org)
 [![code style](https://img.shields.io/badge/code_style-airbnb-brightgreen.svg)](https://github.com/airbnb/javascript)
