@@ -8,6 +8,7 @@ A small rule engine for Node.
 [![Maintainability](https://api.codeclimate.com/v1/badges/d1f858c321b03000fc63/maintainability)](https://codeclimate.com/github/frankthelen/rools/maintainability)
 [![node](https://img.shields.io/node/v/rools.svg)](https://nodejs.org)
 [![code style](https://img.shields.io/badge/code_style-airbnb-brightgreen.svg)](https://github.com/airbnb/javascript)
+[![Types](https://img.shields.io/npm/types/rools.svg)](https://www.npmjs.com/package/rools)
 [![License Status](http://img.shields.io/npm/l/rools.svg)]()
 
 *Primary goal* was to provide a nice and state-of-the-art interface for modern JavaScript (ES6).

@@ -3,6 +3,7 @@
   "version": "2.2.8",
   "description": "A small rule engine for Node.",
   "main": "src/index.js",
+  "types": "src/index.d.ts",
   "author": "Frank Thelen",
   "license": "MIT",
   "repository": {
