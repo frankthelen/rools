@@ -73,7 +73,9 @@ const rools = new Rools();
 await rools.register([ruleMoodGreat, ruleGoWalking]);
 await rools.evaluate(facts);
 ```
+
 These are the resulting facts:
+
 ```javascript
 { user: { name: 'frank', stars: 347, mood: 'great' },
   weather: { temperature: 20, windy: true, rainy: false },
@@ -105,10 +107,11 @@ or through getters and setters if applicable, e.g., `facts.user.getSalery()`.
 ### Conflict resolution
 
 If there is more than one rule ready to fire, i.e., the conflict set is greater 1, the following conflict resolution strategies are applied (by default, in this order):
- * Refraction -- Each rule will fire only once, at most, during any one match-resolve-act cycle.
- * Priority -- Rules with higher priority will fire first. Set the rule's property `priority` to an integer value. Default priority is `0`. Negative values are supported.
- * Specificity -- Rules which are more specific will fire first. For example, there is rule R1 with premises P1 and P2, and rule R2 with premises P1, P2 and P3. R2 is more specific than R1 and will fire first. R2 is more specific than R1 because it has *all* premises of R1 and additional ones.
- * Order of rules -- The rules that were registered first will fire first.
+
+* Refraction -- Each rule will fire only once, at most, during any one match-resolve-act cycle.
+* Priority -- Rules with higher priority will fire first. Set the rule's property `priority` to an integer value. Default priority is `0`. Negative values are supported.
+* Specificity -- Rules which are more specific will fire first. For example, there is rule R1 with premises P1 and P2, and rule R2 with premises P1, P2 and P3. R2 is more specific than R1 and will fire first. R2 is more specific than R1 because it has *all* premises of R1 and additional ones.
+* Order of rules -- The rules that were registered first will fire first.
 
 ### Final rules
 
@@ -122,6 +125,7 @@ While premises (`when`) are always working synchronously on the facts,
 actions (`then`) can be synchronous or asynchronous.
 
 Example: asynchronous action using async/await
+
 ```javascript
 const rule = new Rule({
   name: 'check availability',
@@ -133,6 +137,7 @@ const rule = new Rule({
 ```
 
 Example: asynchronous action using promises
+
 ```javascript
 const rule = new Rule({
   name: 'check availability',
@@ -152,6 +157,7 @@ The extended rule simply inherits all the premises from its parents (and their p
 Use the rule's `extend` property to set its parents.
 
 Example: extended rule
+
 ```javascript
 const baseRule = new Rule({
   name: 'user lives in Germany',
@@ -180,6 +186,7 @@ However, if that solves your needs, you can consecutively run different sets of 
 Rules in different instances of Rools are perfectly isolated and can, of course, run against the same facts.
 
 Example: evaluate different sets of rules on the same facts
+
 ```javascript
 const facts = {...};
 const rools1 = new Rools();
@@ -207,6 +214,7 @@ You are free to use references or just to repeat the same premise.
 Both options are working fine.
 
 Example 1: by reference
+
 ```javascript
 const isApplicable = (facts) => facts.user.salery >= 2000;
 const rule1 = new Rule({
@@ -226,6 +234,7 @@ const rule2 = new Rule({
 ```
 
 Example 2: repeat premise
+
 ```javascript
 const rule1 = new Rule({
   when: [
@@ -312,6 +321,7 @@ Calling `new Rools()` creates a new Rools instance, i.e., a new rule engine.
 You usually do this once for a given set of rules.
 
 Example:
+
 ```javascript
 const { Rools } = require('rools');
 const rools = new Rools();
@@ -344,6 +354,7 @@ New rules will become effective immediately.
 If this promise is rejected, the affected Rools instance is inconsistent and should no longer be used.
 
 Example:
+
 ```javascript
 const { Rools, Rule } = require('rools');
 const ruleMoodGreat = new Rule({
@@ -372,6 +383,7 @@ await rools.register([ruleMoodGreat, ruleGoWalking]);
 
 Facts are plain JavaScript or JSON objects or objects from ES6 classes with getters and setters.
 For example:
+
 ```javascript
 const user = {
   name: 'frank',
@@ -395,10 +407,12 @@ If a premise (`when`) fails, `evaluate()` will still *not* fail (for robustness 
 If an action (`then`) fails, `evaluate()` will reject its promise.
 
 If there is more than one rule ready to fire, Rools applies a *conflict resolution strategy* to decide which rule/action to fire first. The default conflict resolution strategy is 'ps'.
- * 'ps' -- (1) priority, (2) specificity, (3) order of registration
- * 'sp' -- (1) specificity, (2) priority, (3) order of registration
+
+* 'ps' -- (1) priority, (2) specificity, (3) order of registration
+* 'sp' -- (1) specificity, (2) priority, (3) order of registration
 
 If you don't like the default 'ps', you can change the conflict resolution strategy like this:
+
 ```javascript
 await rools.evaluate(facts, { strategy: 'sp' });
 ```
@@ -431,6 +445,28 @@ const rools = new Rools({
 `level` is either `debug` or `error`.
 The error log reports failed actions or premises.
 The debug log reports the entire evaluation process for debugging purposes.
+
+## TypeScript
+
+This package provides types for TypeScript.
+
+```typescript
+import { Rools, Rule } from "rools";
+
+// ...
+```
+
+For this module to work, your TypeScript compiler options must include:
+
+```json
+{
+  "compilerOptions": {
+    "target": "ES2015", // or later
+    "moduleResolution": "node",
+    "esModuleInterop": true
+  }
+}
+```
 
 ## Migration
 
