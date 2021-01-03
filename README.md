@@ -101,8 +101,8 @@ Both are JavaScript functions, i.e., classic functions or ES6 arrow functions.
 Actions can also be asynchronous.
 
 Rules access the facts in both, premises (`when`) and actions (`then`).
-They can access properties directly, e.g., `facts.user.salery`,
-or through getters and setters if applicable, e.g., `facts.user.getSalery()`.
+They can access properties directly, e.g., `facts.user.salary`,
+or through getters and setters if applicable, e.g., `facts.user.getSalary()`.
 
 ### Conflict resolution
 
@@ -180,7 +180,7 @@ Use the rule's `activationGroup` property to set its activation group.
 
 ### Rule groups
 
-Besides activation groups, Rools has currenly *no other concept of grouping rules* such as agenda groups or rule flow groups which you might know from other rule engines. And there are currently no plans to support such features.
+Besides activation groups, Rools has currently *no other concept of grouping rules* such as agenda groups or rule flow groups which you might know from other rule engines. And there are currently no plans to support such features.
 
 However, if that solves your needs, you can consecutively run different sets of rules against the same facts.
 Rules in different instances of Rools are perfectly isolated and can, of course, run against the same facts.
@@ -216,7 +216,7 @@ Both options are working fine.
 Example 1: by reference
 
 ```javascript
-const isApplicable = (facts) => facts.user.salery >= 2000;
+const isApplicable = (facts) => facts.user.salary >= 2000;
 const rule1 = new Rule({
   when: [
     isApplicable,
@@ -238,14 +238,14 @@ Example 2: repeat premise
 ```javascript
 const rule1 = new Rule({
   when: [
-    (facts) => facts.user.salery >= 2000,
+    (facts) => facts.user.salary >= 2000,
     ...
   ],
   ...
 });
 const rule2 = new Rule({
   when: [
-    (facts) => facts.user.salery >= 2000,
+    (facts) => facts.user.salary >= 2000,
     ...
   ],
   ...
@@ -258,13 +258,13 @@ For example:
 ```javascript
 // this version works...
 const rule = new Rule({
-  when: (facts) => facts.user.salery >= 2000 && facts.user.age > 25,
+  when: (facts) => facts.user.salary >= 2000 && facts.user.age > 25,
   ...
 });
 // however, it's better to write it like this...
 const rule = new Rule({
   when: [
-    (facts) => facts.user.salery >= 2000,
+    (facts) => facts.user.salary >= 2000,
     (facts) => facts.user.age > 25,
   ],
   ...
@@ -279,12 +279,12 @@ Later on, at evaluation time (`evaluate()`), both rules are clearly identical.
 ```javascript
 let value = 2000;
 const rule1 = new Rule({
-  when: (facts) => facts.user.salery >= value,
+  when: (facts) => facts.user.salary >= value,
   ...
 });
 value = 3000;
 const rule2 = new Rule({
-  when: (facts) => facts.user.salery >= value,
+  when: (facts) => facts.user.salary >= value,
   ...
 });
 ```
@@ -343,8 +343,8 @@ Rules are created through `new Rule()` with the following properties:
 | `activationGroup` | no | -       | A string identifying an activation group. Only one rule within an activation group will fire. |
 
 Rules access the facts in both, premises (`when`) and actions (`then`).
-They can access properties directly, e.g., `facts.user.salery`,
-or through getters and setters if applicable, e.g., `facts.user.getSalery()`.
+They can access properties directly, e.g., `facts.user.salary`,
+or through getters and setters if applicable, e.g., `facts.user.getSalary()`.
 
 `register()` registers one or more rules to the rule engine.
 It can be called multiple time.
@@ -456,17 +456,9 @@ import { Rools, Rule } from "rools";
 // ...
 ```
 
-For this module to work, your TypeScript compiler options must include:
-
-```json
-{
-  "compilerOptions": {
-    "target": "ES2015", // or later
-    "moduleResolution": "node",
-    "esModuleInterop": true
-  }
-}
-```
+For this module to work, your **TypeScript compiler options** must include
+`"target": "ES2015"` (or later), `"moduleResolution": "node"`, and
+`"esModuleInterop": true`.
 
 ## Migration
 
