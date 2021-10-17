@@ -36,7 +36,9 @@ class Rools {
     // return info
     const endDate = new Date();
     return {
-      updated: [...memory.updatedSegments],
+      updated: [...memory.accessedByActions], // for backward compatibility
+      accessedByActions: [...memory.accessedByActions],
+      accessedByPremises: [...memory.accessedByPremises],
       fired: pass,
       elapsed: endDate.getTime() - startDate.getTime(),
     };
@@ -52,8 +54,8 @@ class Rools {
       try {
         delegator.set((segment) => { // listen to reading fact segments
           const segmentName = (typeof segment === 'symbol') ? segment.toString() : segment;
-          this.logger.debug({ message: `read fact segment "${segmentName}"`, rule: premise.name });
-          memory.segmentRead(segment, premise);
+          this.logger.debug({ message: `access fact segment "${segmentName}" in premise`, rule: premise.name });
+          memory.segmentInPremise(segment, premise);
         });
         memory.getState(premise).value = premise.when(facts); // >>> evaluate premise!
       } catch (error) { // ignore error!
@@ -95,8 +97,8 @@ class Rools {
       memory.clearDirtySegments();
       delegator.set((segment) => { // listen to writing fact segments
         const segmentName = (typeof segment === 'symbol') ? segment.toString() : segment;
-        this.logger.debug({ message: `write fact segment "${segmentName}"`, rule: action.name });
-        memory.segmentWrite(segment);
+        this.logger.debug({ message: `access fact segment "${segmentName}" in action`, rule: action.name });
+        memory.segmentInAction(segment);
       });
       await action.fire(facts); // >>> fire action!
     } catch (error) { // re-throw error!

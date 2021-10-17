@@ -17,7 +17,12 @@ export interface EvaluateOptions {
 }
 
 export interface EvaluateResult {
-  updated: string[];
+  /**
+   * @deprecated Please use `accessedByActions` instead.
+   */
+  updated: string[]; // deprecated
+  accessedByPremises: string[];
+  accessedByActions: string[];
   fired: number;
   elapsed: number;
 }
@@ -29,7 +34,7 @@ export class Rule {
 export interface RuleOptions {
   name: string;
   when: Premise | Premise[];
-  then: ActionSync | ActionAsync;
+  then: Action;
   priority?: number;
   final?: boolean;
   extend?: Rule | Rule[];
@@ -37,5 +42,4 @@ export interface RuleOptions {
 }
 
 export type Premise = (facts: any) => boolean;
-export type ActionSync = (facts: any) => void;
-export type ActionAsync = (facts: any) => Promise<void>;
+export type Action = (facts: any) => void | Promise<void>;

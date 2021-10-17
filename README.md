@@ -2,7 +2,7 @@
 
 A small rule engine for Node.
 
-[![Build Status](https://travis-ci.org/frankthelen/rools.svg?branch=master)](https://travis-ci.org/frankthelen/rools)
+![main workflow](https://github.com/frankthelen/rools/actions/workflows/main.yml/badge.svg)
 [![Coverage Status](https://coveralls.io/repos/github/frankthelen/rools/badge.svg?branch=master)](https://coveralls.io/github/frankthelen/rools?branch=master)
 [![dependencies Status](https://david-dm.org/frankthelen/rools/status.svg)](https://david-dm.org/frankthelen/rools)
 [![Maintainability](https://api.codeclimate.com/v1/badges/d1f858c321b03000fc63/maintainability)](https://codeclimate.com/github/frankthelen/rools/maintainability)
@@ -197,15 +197,6 @@ await rools1.evaluate(facts);
 await rools2.evaluate(facts);
 ```
 
-`evaluate()` returns an object which might be useful in this scenario.
-`updated` lists the names of the fact segments that were actually updated during evaluation.
-`fired` is the number of rules that were fired.
-
-```javascript
-const { updated, fired } = await rools1.evaluate(facts);
-console.log(updated, fired); // e.g., ["user"] 26
-```
-
 ### Optimization I
 
 It is very common that different rules partially share the same premises.
@@ -271,24 +262,6 @@ const rule = new Rule({
 });
 ```
 
-One last thing. Look at the example below.
-Rools will treat the two premises (`when`) as identical.
-This is because `value` is a reference which is *not* evaluated at registration time (`register()`).
-Later on, at evaluation time (`evaluate()`), both rules are clearly identical.
-
-```javascript
-let value = 2000;
-const rule1 = new Rule({
-  when: (facts) => facts.user.salary >= value,
-  ...
-});
-value = 3000;
-const rule2 = new Rule({
-  when: (facts) => facts.user.salary >= value,
-  ...
-});
-```
-
 ### Optimization II
 
 When actions fire, changes are made to the facts.
@@ -312,6 +285,69 @@ await rools.evaluate(facts);
 
 This optimization targets runtime performance.
 It unfolds its full potential with a growing number of rules and fact segments.
+
+## Dos and don'ts
+
+### Be careful with non-local variables in premises
+
+Ideally, premises (`when`) are "pure functions" referring to `facts` only.
+They should not refer to any other non-local variables.
+
+If they do so, however, please note that non-local variables are resolved at
+evaluation time (`evaluate()`) and *not* at registration time (`register()`).
+
+Furthermore, please make sure that non-local variables are constant/stable
+during evaluation. Otherwise, premises are not working deterministically.
+
+In the example below, Rools will treat the two premises as identical
+assuming that both rules are referring to the exact same `value`.
+
+```javascript
+let value = 2000;
+const rule1 = new Rule({
+  when: (facts) => facts.user.salary >= value,
+  ...
+});
+value = 3000;
+const rule2 = new Rule({
+  when: (facts) => facts.user.salary >= value,
+  ...
+});
+```
+
+### Don't "generate" rules / Don't create rules in closures
+
+The example below does not work!
+Rools would treat all premises (`when`) as identical
+assuming that all rules are referring to the exact same `value`.
+
+```javascript
+const createRule = (value) => {
+  rules.push(new Rule({
+    name: `Rule evaluating ${value}`,
+    when: (facts) => facts.foo >= value,
+    then: (facts) => // ...
+  }));
+};
+```
+
+### Don't mix premises and actions
+
+Make sure not to mix premises and actions.
+In the example below, the if condition should be in `when`, *not* in `then`.
+If you have such cases, think about splitting rules or extending rules.
+
+```javascript
+const rule = new Rule({
+  name: "rule",
+  when: // ...
+  then: (facts) => {
+    if (facts.foo < 0) { // not good here!
+      // ...
+    }
+  },
+});
+```
 
 ## Interface
 
@@ -417,14 +453,16 @@ If you don't like the default 'ps', you can change the conflict resolution strat
 await rools.evaluate(facts, { strategy: 'sp' });
 ```
 
-`evaluate()` returns an object providing some information about the past evaluation run.
-`updated` lists the names of the fact segments that were actually updated during evaluation.
-`fired` is the number of rules that were fired.
-`elapsed` is the number of milliseconds needed.
+`evaluate()` returns an object providing some debug information about the past evaluation run:
+
+* `fired` -- the number of rules that were fired.
+* `elapsed` -- the number of milliseconds needed.
+* `accessedByPremises` -- the fact segments that were accessed by premises (`when`).
+* `accessedByActions` -- the fact segments that were accessed by actions (`then`). Formerly `updated` but renamed for clarification (but still provided for backward compatibility).
 
 ```javascript
-const { updated, fired, elapsed } = await rools.evaluate(facts);
-console.log(updated, fired, elapsed); // e.g., ["user"] 26 187
+const { accessedByActions, fired, elapsed } = await rools.evaluate(facts);
+console.log(accessedByActions, fired, elapsed); // e.g., ["user"] 26 187
 ```
 
 ### Logging
@@ -503,10 +541,7 @@ await rools.register([rule1, rule2, rule3]);
 ```
 
 `evaluate()` does not return the facts anymore - which was only for convenience anyway.
-Instead, it returns an object with some useful information about what it was actually doing.
-`updated` lists the names of the fact segments that were actually updated during evaluation.
-`fired` is the number of rules that were fired.
-`elapsed` is the number of milliseconds needed.
+Instead, it returns an object with some useful information.
 
 ```javascript
 const rools = new Rools();

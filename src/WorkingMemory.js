@@ -14,7 +14,8 @@ class WorkingMemory {
     });
     this.dirtySegments = new Set();
     this.premisesBySegment = {}; // hash
-    this.updatedSegments = new Set(); // total
+    this.accessedByActions = new Set(); // total
+    this.accessedByPremises = new Set(); // total
   }
 
   getState(object) {
@@ -37,12 +38,13 @@ class WorkingMemory {
     return [...premises];
   }
 
-  segmentWrite(segment) {
+  segmentInAction(segment) {
     this.dirtySegments.add(segment);
-    this.updatedSegments.add(segment);
+    this.accessedByActions.add(segment);
   }
 
-  segmentRead(segment, premise) {
+  segmentInPremise(segment, premise) {
+    this.accessedByPremises.add(segment);
     let premises = this.premisesBySegment[segment];
     if (!premises) {
       premises = new Set();
