@@ -1,15 +1,15 @@
-const observe = (object, onChange) => {
+const observe = (object, onAccess) => {
   const handler = {
     get(target, property, receiver) {
-      onChange(property);
+      onAccess(property);
       return Reflect.get(target, property, receiver);
     },
     defineProperty(target, property, descriptor) {
-      onChange(property);
+      onAccess(property);
       return Reflect.defineProperty(target, property, descriptor);
     },
     deleteProperty(target, property) {
-      onChange(property);
+      onAccess(property);
       return Reflect.deleteProperty(target, property);
     },
   };
