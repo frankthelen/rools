@@ -1,10 +1,10 @@
 {
   "compilerOptions": {
-    "lib": ["es2018"],
+    "lib": ["ES2019"],
     "module": "commonjs",
     "outDir": "build/cjs",
     "rootDir": "./src",
-    "target": "es2018"
+    "target": "ES2019"
   },
   "extends": "./tsconfig.json",
   "exclude": [
