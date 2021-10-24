@@ -19,7 +19,11 @@ A small rule engine for Node.
 
 Mission accomplished! JavaScript rocks!
 
-See [migration info](#migration) for breaking changes between major versions 1.x.x and 2.x.x.
+* TypeScript -- types included
+* CommonsJS (cjs) -- supporting Node 12+
+* ES Modules (esm) -- supporting Node 14+
+
+See [migration info](#migration) for breaking changes from previous major versions.
 
 ## Install
 
@@ -499,6 +503,25 @@ For this module to work, your **TypeScript compiler options** must include
 `"esModuleInterop": true`.
 
 ## Migration
+
+### Version 2.x.x to Version 3.x.x
+
+Dropped Node 10 support.
+
+Everything was converted from ES6 to TypeScript.
+All tests were converted from Mocha/Chai/Sinon to Jest.
+Both, mostly just for the fun of it.
+
+The goal was to provide Rools as a *hybrid package*
+utilizing multiple TypeScript targets and conditional exports:
+
+* TypeScript -- types included (as before)
+* CommonsJS (cjs) -- supporting Node 12+ (as before -- but dropping Node 10)
+* ES Modules (esm) -- supporting Node 14+ (new)
+
+Everything should work as before -- *no breaking changes*.
+But since nearly everything was touched, as a precaution,
+I have created a new major version.
 
 ### Version 1.x.x to Version 2.x.x
 

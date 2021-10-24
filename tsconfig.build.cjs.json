@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "lib": ["es2018"],
+    "module": "commonjs",
+    "outDir": "build/cjs",
+    "rootDir": "./src",
+    "target": "es2018"
+  },
+  "extends": "./tsconfig.json",
+  "exclude": [
+    "node_modules"
+  ],
+  "include": [
+    "./src/**/*.ts"
+  ]
+}
