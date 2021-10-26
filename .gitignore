@@ -22,3 +22,4 @@ node_modules
 coverage
 */config/local.js
 .nyc_output
+build

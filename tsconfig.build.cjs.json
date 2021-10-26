@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "lib": ["ES2019"],
+    "module": "commonjs",
+    "outDir": "build/cjs",
+    "rootDir": "./src",
+    "target": "ES2019"
+  },
+  "extends": "./tsconfig.json",
+  "exclude": [
+    "node_modules"
+  ],
+  "include": [
+    "./src/**/*.ts"
+  ]
+}

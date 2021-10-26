@@ -1,11 +1,20 @@
 {
+  "parserOptions": {
+    "project": "./tsconfig.json"
+  },
   "extends": [
-    "airbnb-base"
+    "airbnb-typescript/base",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:@typescript-eslint/recommended-requiring-type-checking"
   ],
   "plugins": [
-    "promise"
+    "promise",
+    "import"
   ],
   "rules": {
-    "no-param-reassign": 0
+    "no-param-reassign": "off",
+    "lines-between-class-members": "off",
+    "@typescript-eslint/lines-between-class-members": "off",
+    "@typescript-eslint/require-await": "off"
   }
 }

@@ -1,15 +1,8 @@
 {
   "extends": "../.eslintrc",
-  "env": {
-    "mocha": true
-  },
-  "globals" : {
-    "assert": false,
-    "expect": false,
-    "should": false,
-    "sinon": false
-  },
-  "plugins": [
-    "should-promised"
-  ]
+  "rules": {
+    "@typescript-eslint/ban-ts-comment": "off",
+    "@typescript-eslint/no-unsafe-member-access": "off",
+    "@typescript-eslint/no-explicit-any": "off"
+  }
 }

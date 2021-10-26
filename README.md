@@ -4,12 +4,13 @@ A small rule engine for Node.
 
 ![main workflow](https://github.com/frankthelen/rools/actions/workflows/main.yml/badge.svg)
 [![Coverage Status](https://coveralls.io/repos/github/frankthelen/rools/badge.svg?branch=master)](https://coveralls.io/github/frankthelen/rools?branch=master)
-[![dependencies Status](https://david-dm.org/frankthelen/rools/status.svg)](https://david-dm.org/frankthelen/rools)
+![Dependency Status](https://img.shields.io/librariesio/release/npm/rools)
 [![Maintainability](https://api.codeclimate.com/v1/badges/d1f858c321b03000fc63/maintainability)](https://codeclimate.com/github/frankthelen/rools/maintainability)
 [![node](https://img.shields.io/node/v/rools.svg)](https://nodejs.org)
 [![code style](https://img.shields.io/badge/code_style-airbnb-brightgreen.svg)](https://github.com/airbnb/javascript)
-[![Types](https://img.shields.io/npm/types/rools.svg)](https://www.npmjs.com/package/rools)
-[![License Status](http://img.shields.io/npm/l/rools.svg)]()
+![Types](https://img.shields.io/npm/types/rools)
+![Module](https://img.shields.io/badge/module-hybrid%20cjs%2Fesm-blue)
+![License Status](https://img.shields.io/npm/l/rools)
 
 *Primary goal* was to provide a nice and state-of-the-art interface for modern JavaScript (ES6).
 *Facts* are plain JavaScript or JSON objects or objects from ES6 classes with getters and setters.
@@ -19,7 +20,11 @@ A small rule engine for Node.
 
 Mission accomplished! JavaScript rocks!
 
-See [migration info](#migration) for breaking changes between major versions 1.x.x and 2.x.x.
+* TypeScript -- types included
+* CommonsJS (cjs) -- supporting Node 12+
+* ES Modules (esm) -- supporting Node 14+
+
+See [migration info](#migration) for breaking changes from previous major versions.
 
 ## Install
 
@@ -499,6 +504,25 @@ For this module to work, your **TypeScript compiler options** must include
 `"esModuleInterop": true`.
 
 ## Migration
+
+### Version 2.x.x to Version 3.x.x
+
+Dropped Node 10 support.
+
+Everything was converted from ES6 to TypeScript.
+All tests were converted from Mocha/Chai/Sinon to Jest.
+Both, mostly just for the fun of it.
+
+The goal was to provide Rools as a *hybrid package*
+utilizing multiple TypeScript targets and conditional exports:
+
+* TypeScript -- types included (as before)
+* CommonsJS (cjs) -- supporting Node 12+ (as before -- but dropping Node 10)
+* ES Modules (esm) -- supporting Node 14+ (new)
+
+Everything should work as before -- *no breaking changes*.
+But since nearly everything was touched, as a precaution,
+I have created a new major version.
 
 ### Version 1.x.x to Version 2.x.x
 
