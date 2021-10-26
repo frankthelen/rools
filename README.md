@@ -4,12 +4,13 @@ A small rule engine for Node.
 
 ![main workflow](https://github.com/frankthelen/rools/actions/workflows/main.yml/badge.svg)
 [![Coverage Status](https://coveralls.io/repos/github/frankthelen/rools/badge.svg?branch=master)](https://coveralls.io/github/frankthelen/rools?branch=master)
-[![dependencies Status](https://david-dm.org/frankthelen/rools/status.svg)](https://david-dm.org/frankthelen/rools)
+![Dependency Status](https://img.shields.io/librariesio/release/npm/rools)
 [![Maintainability](https://api.codeclimate.com/v1/badges/d1f858c321b03000fc63/maintainability)](https://codeclimate.com/github/frankthelen/rools/maintainability)
 [![node](https://img.shields.io/node/v/rools.svg)](https://nodejs.org)
 [![code style](https://img.shields.io/badge/code_style-airbnb-brightgreen.svg)](https://github.com/airbnb/javascript)
-[![Types](https://img.shields.io/npm/types/rools.svg)](https://www.npmjs.com/package/rools)
-[![License Status](http://img.shields.io/npm/l/rools.svg)]()
+![Types](https://img.shields.io/npm/types/rools)
+![Module](https://img.shields.io/badge/module-hybrid%20cjs%2Fesm-blue)
+![License Status](https://img.shields.io/npm/l/rools)
 
 *Primary goal* was to provide a nice and state-of-the-art interface for modern JavaScript (ES6).
 *Facts* are plain JavaScript or JSON objects or objects from ES6 classes with getters and setters.
