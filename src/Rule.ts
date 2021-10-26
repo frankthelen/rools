@@ -20,7 +20,7 @@ export default class Rule {
   then: ActionFunc;
   priority: number;
   final: boolean;
-  extend?: Rule[];
+  extend: Rule[];
   activationGroup?: string;
 
   constructor({
@@ -70,7 +70,7 @@ export default class Rule {
       '"final" must be a boolean',
     );
     assert(
-      this.extend?.reduce((acc, rule) => acc && (rule instanceof Rule), true),
+      this.extend.reduce((acc, rule) => acc && (rule instanceof Rule), true),
       '"extend" must be a Rule or an array of Rules',
     );
     assert(

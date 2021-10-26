@@ -39,7 +39,7 @@ export default class RuleSet {
       if (walked.has(node)) return; // cycle
       walked.add(node);
       node.when.forEach((w) => { whens.add(w); });
-      node.extend?.forEach((r) => { walker(r); }); // recursion
+      node.extend.forEach((r) => { walker(r); }); // recursion
     };
     walker(rule);
     // premises
