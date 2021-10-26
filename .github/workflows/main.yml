@@ -25,6 +25,7 @@ jobs:
       - run: npm run lint
       - run: npm run test
       - name: Coveralls
+        if: matrix.node-version == '16.x'
         uses: coverallsapp/github-action@master
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
