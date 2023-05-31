@@ -31,6 +31,10 @@ export class Rule {
   constructor(opts: RuleOptions);
 }
 
+export class RuleError {
+  constructor(message: string, error: Error);
+}
+
 export interface RuleOptions {
   name: string;
   when: Premise | Premise[];
